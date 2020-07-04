@@ -7,45 +7,46 @@ TODO
 ## 3rd Party Packages (TODO)
 Name | Description | Notes
 ---|---|---
-[Universal Robotics](https://github.com/ros-industrial/universal_robot) | Provides UR Models for Simulation | Already installed
+[universal_robot](https://github.com/ros-industrial/universal_robot) | Provides UR Models for Simulation | Already installed
 [ur5_ROS-Gazebo](https://github.com/lihuang3/ur5_ROS-Gazebo) | UR5 Examples | Alread Installed
 
 
 ## Installation & Setup
 
 Environment: **ROS Kinetic (Ubuntu 16.04)**
+1. Download Code
 
-1. Download the code into ROS Workspace
+    1.1. Delete existing ur5_t2_4230 directory (backup if you made any changes).
     ```
-    git clone git@github.com:JimmeeX/ur5_t2_4230.git ~/simulation_ws/src
+    rm -r ~/simulation_ws/src/ur5_t2_4230
+    ```
+
+    1.2. Download the Github code into ROS Workspace
+    ```
+    git clone git@github.com:JimmeeX/ur5_t2_4230.git ~/simulation_ws/src/ur5_t2_4230
     ```
 
 2. Build Environment
 
-    2.1. Navigate to the ROS Workspace
-    ```
-    cd ~/simulation_ws
-    ```
-
-    2.2. Enable ROS Commands & Access to Packages (Protip: Add this to ~/.bashrc)
+    2.1. Enable ROS Commands & Access to Packages (Protip: Add this to ~/.bashrc)
     ```
     source ~/simulation_ws/devel/setup.bash
     ```
 
-    2.3. Disable GPU Config for Gazebo (otherwise Gazebo will crash) (Protip: Add this to ~/.bashrc)
+    2.2. Disable GPU Config for Gazebo (otherwise Gazebo will crash) (Protip: Add this to ~/.bashrc)
     ```
     export SVGA_VGPU10=0
     ```
 
-    2.4. (Required if using MATLAB) Configure ROS IP address to allow communication with host environment. (Protip: Add this to ~/.bashrc)
+    2.3. (Required if using MATLAB) Configure ROS IP address to allow communication with host environment. (Protip: Add this to ~/.bashrc)
     ```
     export ROS_IP=<UBUNTU IP ADDRESS>
     ```
 
-    2.5. Build
+    2.4. Build Environment
 
     ```
-    catkin_make
+    cd ~/simulation_ws && catkin_make
     ```
 
 3. Run (for now)

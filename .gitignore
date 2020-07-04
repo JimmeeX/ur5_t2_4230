@@ -1,6 +1,3 @@
-# VS Code 
-.vscode
-
 # GENERIC ROS IGNORE FROM https://github.com/github/gitignore/blob/master/ROS.gitignore
 devel/
 logs/
