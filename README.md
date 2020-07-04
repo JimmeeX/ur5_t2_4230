@@ -18,12 +18,12 @@ Environment: **ROS Kinetic (Ubuntu 16.04)**
 
     1.1. Delete existing ur5_t2_4230 directory (backup if you made any changes).
     ```
-    rm -r ~/simulation_ws/src/ur5_t2_4230
+    rm -rf ~/simulation_ws/src/ur5_t2_4230
     ```
 
     1.2. Download the Github code into ROS Workspace
     ```
-    git clone git@github.com:JimmeeX/ur5_t2_4230.git ~/simulation_ws/src/ur5_t2_4230
+    cd ~/simulation_ws/src && git clone git@github.com:JimmeeX/ur5_t2_4230.git
     ```
 
 2. Build Environment
