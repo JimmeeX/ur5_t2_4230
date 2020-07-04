@@ -55,3 +55,7 @@ Environment: **ROS Kinetic (Ubuntu 16.04)**
     ```
     roslaunch ur5_t2_4230 ur5_world.launch
     ```
+
+## Development
+
+- Make branches and try not to push straight to master :)
