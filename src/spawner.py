@@ -13,6 +13,10 @@ from gazebo_msgs.srv import (
 import os
 import random
 
+colors = ['blue', 'green', 'orange', 'pink', 'red']
+shapes = ['circle', 'triangle', 'square']
+objects = [color + '_' + shape for shape in shapes for color in colors]
+
 # Generate Objects
 class Spawner():
     def __init__(self, *args, **kwargs):
@@ -32,8 +36,11 @@ class Spawner():
         print("Connected to gazebo server!")
 
         self._spawn_client = rospy.ServiceProxy("gazebo/spawn_sdf_model", SpawnModel)
-        self.spawnObject("blue_square")
-        self.spawnObject("blue_circle")
+
+        for obj in objects:
+            self.spawnObject(obj)
+        # self.spawnObject("blue_square")
+        # self.spawnObject("blue_circle")
         return
 
     def spawnObject(self, model):

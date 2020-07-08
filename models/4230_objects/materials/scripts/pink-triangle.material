@@ -1,0 +1,13 @@
+material Object4230/PinkTriangle
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture pink-triangle.png
+      }
+    }
+  }
+}

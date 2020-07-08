@@ -1,0 +1,13 @@
+material Object4230/RedTriangle
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture red-triangle.png
+      }
+    }
+  }
+}

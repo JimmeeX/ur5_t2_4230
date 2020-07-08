@@ -1,0 +1,13 @@
+material Object4230/OrangeTriangle
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture orange-triangle.png
+      }
+    }
+  }
+}
