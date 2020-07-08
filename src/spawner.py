@@ -1,7 +1,16 @@
 #!/usr/bin/env python
 
+"""
+Handles Object Spawning
+
+Responsibilities
+/spawner/set_auto (Boolean - ON/OFF)
+/spawner/create_object (String - Model Name)
+"""
+
 import rospy
 
+from std_msgs.msg import Bool, String
 from geometry_msgs.msg import Point, Pose, Quaternion
 
 from gazebo_msgs.srv import (
@@ -13,22 +22,39 @@ from gazebo_msgs.srv import (
 import os
 import random
 
-colors = ['blue', 'green', 'orange', 'pink', 'red']
-shapes = ['circle', 'triangle', 'square']
-objects = [color + '_' + shape for shape in shapes for color in colors]
+from collections import Counter
+
+# Object Combinations
+COLORS = ['blue', 'green', 'orange', 'pink', 'red']
+SHAPES = ['circle', 'triangle', 'square']
+OBJECTS = [color + '_' + shape for shape in SHAPES for color in COLORS]
+
+# ROS Internal Timer
+SLEEP_RATE = 3 # Hz
+
+# Spawn Interval
+SPAWN_DELAY = 5.0 # seconds
+
+# Spawn Location TODO: Change based on conveyor location
+DEFAULT_LOC_X = 1.5
+DEFAULT_LOC_Z = 0.05 / 2 # Half up so object doesn't phase through ground
+DEFAULT_MIN_Y = 0.0
+DEFAULT_MAX_Y = 1.0
+
 
 # Generate Objects
 class Spawner():
     def __init__(self, *args, **kwargs):
         print("Initialising Spawner Node")
+        self._rate = rospy.Rate(SLEEP_RATE)
 
         # Initialise Variables
-        self._num_objects = 0
+        self._is_auto = True
+        self._object_counter = Counter()
 
         # Initialise Publishers & Subscribers
-        # rospy.Subscriber("/spawn/continue", Bool)
-        # self.valve1_sub = rospy.Subscriber("/arduino/valve1", Bool, self.handle_valve, (1), queue_size=1) # Jar 1
-
+        rospy.Subscriber("/spawner/set_auto", Bool, self.handleSetAuto, queue_size=1)
+        rospy.Subscriber("/spawner/create_object", String, self.handleCreateObject, queue_size=1)
 
         # Initialise Servers & Clients
         print("Waiting for gazebo/spawn_sdf_model service...")
@@ -37,15 +63,56 @@ class Spawner():
 
         self._spawn_client = rospy.ServiceProxy("gazebo/spawn_sdf_model", SpawnModel)
 
-        for obj in objects:
-            self.spawnObject(obj)
-        # self.spawnObject("blue_square")
-        # self.spawnObject("blue_circle")
+        # Infinite Loop
+        self.spawnLoop()
+
         return
 
+
+    def spawnLoop(self):
+        counter = 0
+
+        # Exit program cleanly on ctrl+c (as opposed to 'while True')
+        while not rospy.is_shutdown():
+            if not self._is_auto: continue
+
+            if counter >= SPAWN_DELAY * SLEEP_RATE:
+                # Select Random Object
+                model = OBJECTS[random.randint(0, len(OBJECTS)-1)]
+
+                # Spawn Object & Reset Counter
+                self.spawnObject(model)
+                counter = 0
+
+            counter += 1
+
+            self._rate.sleep()
+
+        return
+
+
+    def handleSetAuto(self, msg):
+        """
+        msg format
+            boolean - Set Auto Generate Objects
+        """
+        self._is_auto = msg.data
+
+
+    def handleCreateObject(self, msg):
+        """
+        msg format
+            string - Object Model Name (eg, "blue_circle")
+        """
+
+        self.spawnObject(msg.data)
+
+
     def spawnObject(self, model):
-        # Generate Request Object
-        model_name = "object_" + str(self._num_objects)
+        """
+        Generates requested object in Gazebo Server
+        """
+        model_name = model + "_" + str(self._object_counter[model])
 
         file_path = os.environ["GAZEBO_MODEL_PATH"] + '/4230_objects/' + model + '.sdf'
         with open(file_path, 'r') as f:
@@ -57,10 +124,9 @@ class Spawner():
             robot_namespace=model_name,
             initial_pose=Pose(
                 Point(
-                    x=1.5,
-                    # y=1.0,
-                    y=random.random(),
-                    z=0.025 # Half of z-size=0.05 (so it sits on the ground)
+                    x=DEFAULT_LOC_X,
+                    y=random.uniform(DEFAULT_MIN_Y, DEFAULT_MAX_Y),
+                    z=DEFAULT_LOC_Z # Half of z-size=0.05 (so it sits on the ground)
                 ),
                 Quaternion(
                     x=0.0,
@@ -73,16 +139,16 @@ class Spawner():
         )
 
         # Send Request && Process Response
-
         try:
             response = self._spawn_client(request)
             print(response)
-            self._num_objects += 1
+            self._object_counter[model] += 1
 
         except rospy.ServiceException as exc:
             print("Service did not process request: " + str(exc))
+            return False
 
-        return
+        return True
 
 
 if __name__ == "__main__":
