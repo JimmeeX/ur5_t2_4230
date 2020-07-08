@@ -1,0 +1,6 @@
+<launch>
+    <env name="GAZEBO_RESOURCE_PATH" value="$(find ur5_t2_4230)/models" />
+    <env name="GAZEBO_MODEL_PATH" value="$(find ur5_t2_4230)/models" />
+
+    <node pkg="ur5_t2_4230" name="spawner" type="spawner.py" output="screen" />
+</launch>

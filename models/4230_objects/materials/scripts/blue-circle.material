@@ -1,0 +1,14 @@
+material Object4230/BlueCircle
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture blue-circle.png
+      }
+    }
+  }
+}
+
