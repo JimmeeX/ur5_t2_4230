@@ -10,28 +10,39 @@ from gazebo_msgs.srv import (
     SpawnModelResponse
 )
 
+import os
+import random
+
+# Generate Objects
 class Spawner():
     def __init__(self, *args, **kwargs):
         print("Initialising Spawner Node")
 
+        # Initialise Variables
         self._num_objects = 0
 
-        print("Waiting for gazebo/spawn_urdf_model service...")
-        rospy.wait_for_service("gazebo/spawn_urdf_model")
-        print("Connected to gazebo server!")
-        self._spawn_client = rospy.ServiceProxy("gazebo/spawn_urdf_model", SpawnModel)
+        # Initialise Publishers & Subscribers
+        # rospy.Subscriber("/spawn/continue", Bool)
+        # self.valve1_sub = rospy.Subscriber("/arduino/valve1", Bool, self.handle_valve, (1), queue_size=1) # Jar 1
 
-        self.spawnObject()
+
+        # Initialise Servers & Clients
+        print("Waiting for gazebo/spawn_sdf_model service...")
+        rospy.wait_for_service("gazebo/spawn_sdf_model")
+        print("Connected to gazebo server!")
+
+        self._spawn_client = rospy.ServiceProxy("gazebo/spawn_sdf_model", SpawnModel)
+        self.spawnObject("blue_square")
+        self.spawnObject("blue_circle")
         return
 
-    def spawnObject(self):
-        # request = SpawnModelRequest()
+    def spawnObject(self, model):
+        # Generate Request Object
         model_name = "object_" + str(self._num_objects)
 
-        with open('../urdf/red_box.urdf', 'r') as f:
+        file_path = os.environ["GAZEBO_MODEL_PATH"] + '/4230_objects/' + model + '.sdf'
+        with open(file_path, 'r') as f:
             model_xml = f.read()
-
-        # print(model_xml)
 
         request = SpawnModelRequest(
             model_name=model_name,
@@ -39,9 +50,10 @@ class Spawner():
             robot_namespace=model_name,
             initial_pose=Pose(
                 Point(
-                    x=2.0,
-                    y=2.0,
-                    z=0.2
+                    x=1.5,
+                    # y=1.0,
+                    y=random.random(),
+                    z=0.025 # Half of z-size=0.05 (so it sits on the ground)
                 ),
                 Quaternion(
                     x=0.0,
@@ -53,17 +65,17 @@ class Spawner():
             reference_frame="world"
         )
 
-        self._num_objects += 1
+        # Send Request && Process Response
+
         try:
             response = self._spawn_client(request)
             print(response)
+            self._num_objects += 1
+
         except rospy.ServiceException as exc:
             print("Service did not process request: " + str(exc))
 
         return
-
-    # def createObj(self):
-    #     return
 
 
 if __name__ == "__main__":

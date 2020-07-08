@@ -1,0 +1,14 @@
+material Object4230/BlueSquare
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture blue-square.png
+      }
+    }
+  }
+}
+
