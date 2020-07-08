@@ -1,0 +1,14 @@
+material Object4230/GreenCircle
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture green-circle.png
+      }
+    }
+  }
+}
+

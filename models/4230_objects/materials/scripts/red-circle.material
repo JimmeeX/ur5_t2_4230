@@ -1,0 +1,13 @@
+material Object4230/RedCircle
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture red-circle.png
+      }
+    }
+  }
+}

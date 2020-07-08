@@ -1,0 +1,13 @@
+material Object4230/OrangeCircle
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture orange-circle.png
+      }
+    }
+  }
+}

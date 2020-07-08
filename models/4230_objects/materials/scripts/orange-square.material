@@ -1,0 +1,13 @@
+material Object4230/OrangeSquare
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture orange-square.png
+      }
+    }
+  }
+}

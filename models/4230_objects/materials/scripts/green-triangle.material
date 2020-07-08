@@ -1,0 +1,13 @@
+material Object4230/GreenTriangle
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture green-triangle.png
+      }
+    }
+  }
+}

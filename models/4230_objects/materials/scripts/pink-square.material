@@ -1,0 +1,13 @@
+material Object4230/PinkSquare
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture pink-square.png
+      }
+    }
+  }
+}

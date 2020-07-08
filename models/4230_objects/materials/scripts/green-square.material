@@ -1,0 +1,14 @@
+material Object4230/GreenSquare
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture green-square.png
+      }
+    }
+  }
+}
+
