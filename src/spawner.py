@@ -1,16 +1,19 @@
 #!/usr/bin/env python
 
 """
-Handles Object Spawning
+Handles Object & Container Spawning
 
 Responsibilities
 /spawner/set_auto (Boolean - ON/OFF)
 /spawner/create_object (String - Model Name)
+/spawner/create_container (Empty)
+
+Author: James Lin
 """
 
 import rospy
 
-from std_msgs.msg import Bool, String
+from std_msgs.msg import Bool, String, Empty
 from geometry_msgs.msg import Point, Pose, Quaternion
 
 from gazebo_msgs.srv import (
@@ -36,10 +39,16 @@ SLEEP_RATE = 3 # Hz
 SPAWN_DELAY = 5.0 # seconds
 
 # Spawn Location TODO: Change based on conveyor location
-DEFAULT_LOC_X = 1.5
-DEFAULT_LOC_Z = 0.05 / 2 # Half up so object doesn't phase through ground
-DEFAULT_MIN_Y = 0.0
-DEFAULT_MAX_Y = 1.0
+DEFAULT_OBJ_X = 1.5
+DEFAULT_OBJ_Z = 0.05 / 2 # Half up so object doesn't phase through ground
+DEFAULT_OBJ_MIN_Y = 0.0
+DEFAULT_OBJ_MAX_Y = 1.0
+
+# Spawn Location of Container TODO: Change based on conveyor location
+DEFAULT_CONTAINER_X = 1.0
+DEFAULT_CONTAINER_Y = 3.0
+DEFAULT_CONTAINER_Z = 0.0
+
 
 
 # Generate Objects
@@ -51,10 +60,12 @@ class Spawner():
         # Initialise Variables
         self._is_auto = True
         self._object_counter = Counter()
+        self._container_counter = 0
 
         # Initialise Publishers & Subscribers
         rospy.Subscriber("/spawner/set_auto", Bool, self.handleSetAuto, queue_size=1)
         rospy.Subscriber("/spawner/create_object", String, self.handleCreateObject, queue_size=1)
+        rospy.Subscriber("/spawner/create_container", Empty, self.handleCreateContainer, queue_size=1)
 
         # Initialise Servers & Clients
         print("Waiting for gazebo/spawn_sdf_model service...")
@@ -108,6 +119,14 @@ class Spawner():
         self.spawnObject(msg.data)
 
 
+    def handleCreateContainer(self, msg):
+        """
+        msg format
+            empty
+        """
+        self.spawnContainer()
+
+
     def spawnObject(self, model, pose=None):
         """
         Generates requested object in Gazebo Server
@@ -121,9 +140,9 @@ class Spawner():
         if not pose:
             pose = Pose(
                 Point(
-                    x=DEFAULT_LOC_X,
-                    y=random.uniform(DEFAULT_MIN_Y, DEFAULT_MAX_Y),
-                    z=DEFAULT_LOC_Z
+                    x=DEFAULT_OBJ_X,
+                    y=random.uniform(DEFAULT_OBJ_MIN_Y, DEFAULT_OBJ_MAX_Y),
+                    z=DEFAULT_OBJ_Z
                 ),
                 Quaternion(
                     x=0.0,
@@ -144,7 +163,7 @@ class Spawner():
         # Send Request && Process Response
         try:
             response = self._spawn_client(request)
-            print(response)
+            print('Successfully spawned ' + model_name)
             self._object_counter[model] += 1
 
         except rospy.ServiceException as exc:
@@ -152,6 +171,53 @@ class Spawner():
             return False
 
         return True
+
+
+    def spawnContainer(self, pose=None):
+        """
+        Generates a container in Gazebo Server
+        """
+        model_name = "container_" + str(self._container_counter)
+
+        file_path = os.environ["GAZEBO_MODEL_PATH"] + '/4230_objects/container.sdf'
+        with open(file_path, 'r') as f:
+            model_xml = f.read()
+
+        if not pose:
+            pose = Pose(
+                Point(
+                    x=DEFAULT_CONTAINER_X,
+                    y=DEFAULT_CONTAINER_Y,
+                    z=DEFAULT_CONTAINER_Z
+                ),
+                Quaternion(
+                    x=0.0,
+                    y=0.0,
+                    z=0.0,
+                    w=1.0
+                )
+            )
+
+        request = SpawnModelRequest(
+            model_name=model_name,
+            model_xml=model_xml,
+            robot_namespace=model_name,
+            initial_pose=pose,
+            reference_frame="world"
+        )
+
+        # Send Request && Process Response
+        try:
+            response = self._spawn_client(request)
+            print('Successfully spawned ' + model_name)
+            self._container_counter += 1
+
+        except rospy.ServiceException as exc:
+            print("Service did not process request: " + str(exc))
+            return False
+
+        return True
+
 
 
 if __name__ == "__main__":
