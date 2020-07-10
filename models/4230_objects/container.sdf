@@ -1,0 +1,190 @@
+<sdf version='1.6'>
+  <model name='container'>
+    <link name='bottom'>
+      <pose frame=''>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose frame=''>0 0 0.04 0 -0 0</pose>
+        <mass>0.25</mass>
+        <inertia>
+          <ixx>0.0091</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.0091</iyy>
+          <iyz>0</iyz>
+          <izz>0.013</izz>
+        </inertia>
+      </inertial>
+      <collision name='bottom_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.4 0.4 0.02</size>
+          </box>
+        </geometry>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <friction>
+            <ode>
+              <mu>10</mu>
+              <mu2>10</mu2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+      <collision name='bottom_fixed_joint_lump__back_collision_1'>
+        <pose frame=''>0 0.2 0.05 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.4 0.02 0.2</size>
+          </box>
+        </geometry>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <friction>
+            <ode>
+              <mu>10</mu>
+              <mu2>10</mu2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+      <collision name='bottom_fixed_joint_lump__front_collision_2'>
+        <pose frame=''>0 -0.2 0.05 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.4 0.02 0.2</size>
+          </box>
+        </geometry>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <friction>
+            <ode>
+              <mu>10</mu>
+              <mu2>10</mu2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+      <collision name='bottom_fixed_joint_lump__left_collision_3'>
+        <pose frame=''>-0.2 0 0.05 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.02 0.4 0.2</size>
+          </box>
+        </geometry>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <friction>
+            <ode>
+              <mu>10</mu>
+              <mu2>10</mu2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+      <collision name='bottom_fixed_joint_lump__right_collision_4'>
+        <pose frame=''>0.2 0 0.05 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.02 0.4 0.2</size>
+          </box>
+        </geometry>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <friction>
+            <ode>
+              <mu>10</mu>
+              <mu2>10</mu2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+      <visual name='bottom_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.4 0.4 0.02</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <name>Gazebo/Blue</name>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+          </script>
+        </material>
+      </visual>
+      <visual name='bottom_fixed_joint_lump__back_visual_1'>
+        <pose frame=''>0 0.2 0.05 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.4 0.02 0.2</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <name>Gazebo/Blue</name>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+          </script>
+        </material>
+      </visual>
+      <visual name='bottom_fixed_joint_lump__front_visual_2'>
+        <pose frame=''>0 -0.2 0.05 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.4 0.02 0.2</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <name>Gazebo/Blue</name>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+          </script>
+        </material>
+      </visual>
+      <visual name='bottom_fixed_joint_lump__left_visual_3'>
+        <pose frame=''>-0.2 0 0.05 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.02 0.4 0.2</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <name>Gazebo/Blue</name>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+          </script>
+        </material>
+      </visual>
+      <visual name='bottom_fixed_joint_lump__right_visual_4'>
+        <pose frame=''>0.2 0 0.05 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.02 0.4 0.2</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <name>Gazebo/Blue</name>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+          </script>
+        </material>
+      </visual>
+      <velocity_decay/>
+      <velocity_decay/>
+      <velocity_decay/>
+      <velocity_decay/>
+      <gravity>1</gravity>
+      <velocity_decay/>
+    </link>
+  </model>
+</sdf>
