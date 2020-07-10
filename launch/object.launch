@@ -1,3 +1,8 @@
+<!--
+Temporary Gazebo Launch File to test spawner.py without Robot Arm
+Author: James Lin
+-->
+
 <launch>
     <env name="GAZEBO_RESOURCE_PATH" value="$(find ur5_t2_4230)/media/materials" />
     <env name="GAZEBO_MODEL_PATH" value="$(find ur5_t2_4230)/models" />
@@ -15,6 +20,4 @@
             <arg name="paused" value="$(arg pause)" />
             <arg name="use_sim_time" value="true" />
     </include>
-
-    <!-- <node pkg="ur5_t2_4230" name="spawner" type="spawner.py" output="screen" /> -->
 </launch>

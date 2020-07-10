@@ -1,4 +1,10 @@
+<!--
+Temporary Launch File to test spawner.py
+Author: James Lin
+-->
+
 <launch>
+    <!-- Environmental Variables (used in spawner.py) -->
     <env name="GAZEBO_RESOURCE_PATH" value="$(find ur5_t2_4230)/models" />
     <env name="GAZEBO_MODEL_PATH" value="$(find ur5_t2_4230)/models" />
 
