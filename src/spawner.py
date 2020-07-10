@@ -108,7 +108,7 @@ class Spawner():
         self.spawnObject(msg.data)
 
 
-    def spawnObject(self, model):
+    def spawnObject(self, model, pose=None):
         """
         Generates requested object in Gazebo Server
         """
@@ -118,15 +118,12 @@ class Spawner():
         with open(file_path, 'r') as f:
             model_xml = f.read()
 
-        request = SpawnModelRequest(
-            model_name=model_name,
-            model_xml=model_xml,
-            robot_namespace=model_name,
-            initial_pose=Pose(
+        if not pose:
+            pose = Pose(
                 Point(
                     x=DEFAULT_LOC_X,
                     y=random.uniform(DEFAULT_MIN_Y, DEFAULT_MAX_Y),
-                    z=DEFAULT_LOC_Z # Half of z-size=0.05 (so it sits on the ground)
+                    z=DEFAULT_LOC_Z
                 ),
                 Quaternion(
                     x=0.0,
@@ -134,7 +131,13 @@ class Spawner():
                     z=0.0,
                     w=1.0
                 )
-            ),
+            )
+
+        request = SpawnModelRequest(
+            model_name=model_name,
+            model_xml=model_xml,
+            robot_namespace=model_name,
+            initial_pose=pose,
             reference_frame="world"
         )
 
