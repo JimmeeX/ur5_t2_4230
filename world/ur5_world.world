@@ -18,6 +18,11 @@
 			<pose>1 1 1 0.000000 0 0</pose>
 		</include>
 
+		<!-- conveyor belt -->
+		<include>
+			<uri>model://conveyor_belt</uri>
+			<pose>5 2 10 0.000000 0 0</pose>
+		</include>
              
 
 		
