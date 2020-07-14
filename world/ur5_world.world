@@ -15,16 +15,10 @@
 		<!-- kinect -->
 		<include>
 			<uri>model://kinect_ros</uri>
-			<pose>1 1 1 0.000000 0 0</pose>
+			<static>true</static>
+			<pose>0 0 1 1.571 1.571 0</pose>
 		</include>
-
-		<!-- conveyor belt -->
-		<include>
-			<uri>model://conveyor_belt</uri>
-			<pose>5 2 10 0.000000 0 0</pose>
-		</include>
-             
-
+            
 		
 	</world>
 </sdf>
