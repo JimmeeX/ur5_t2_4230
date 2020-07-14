@@ -11,6 +11,9 @@
 	<arg name ="frame_name" default = "frame"/>
 	<arg name = "link_name" default = "world"/>
  
+    <env name="GAZEBO_RESOURCE_PATH" value="$(find ur5_t2_4230)/media/materials" />
+    <env name="GAZEBO_MODEL_PATH" value="$(find ur5_t2_4230)/models" />
+
         <!-- include gazebo_ros launcher -->
         <include file="$(find gazebo_ros)/launch/empty_world.launch">
                 <arg name="world_name" value="$(arg world)" />
@@ -25,6 +28,10 @@
 	  <include file="$(find ur_description)/launch/ur5_upload.launch">
 	    <arg name="limited" value="$(arg limited)"/>
 	  </include>
+
+	<!-- spawn conveyor belt-->
+  <!-- spawn the conveyor_belt in gazebo -->
+	<node name="spawn_conveyor_belt" pkg="gazebo_ros" type="spawn_model" args="-file $(find ur5_t2_4230)/models/conveyor_belt/conveyor_belt.urdf -urdf -model conveyor_belt" />
 
 	<!-- push robot_description to factory and spawn robot in gazebo -->
 	  <node name="spawn_gazebo_model" pkg="gazebo_ros" type="spawn_model" args="-urdf -param robot_description -model robot -z 1 -y 1" respawn="false" output="screen" />
