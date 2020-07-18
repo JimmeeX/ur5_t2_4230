@@ -10,5 +10,5 @@ The folders in this directory contain images categorised by:
 2. Number of blocks. The "_Multiple Blocks" folder is the only folder with multiple blocks
 
 These folders are referenced by the Icon_Filter.m test program with using relative directory reference. To run the test program
-using a particular folder, type the folder name in the 'folderName' variable in Icon_Filter.m and terminate with a backslash (\)
+using a particular folder, type the folder name in the 'folderName' variable in Icon_Filter.m and terminate with a backslash (\\)
 e.g. 'Blue Circle\'
