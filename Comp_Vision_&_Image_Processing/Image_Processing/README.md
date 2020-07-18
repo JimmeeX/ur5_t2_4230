@@ -1,6 +1,6 @@
 Image Processing contains the MATLAB code responsible for feature identification and isolation
 
-There are 3 MATLAB (.m) files of interest
+There are 3 MATLAB (.m) files of interest:
 1. isolateBlock.m contains the isolateBlock function, which creates and applies a binary mask isolating block/s in the image
 2. isolateIcon.m contains the isolateIcon function, which creates and applies a binary mask isolating icon/s in the image
 3. Icon_Filter.m is the main test program for the isolateBlock and isolateIcon functions
