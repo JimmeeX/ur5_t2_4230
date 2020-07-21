@@ -12,6 +12,11 @@ Author: James Lin
     <arg name="pause" default="false" />
     <arg name="world" default="$(find ur5_t2_4230)/world/ur5_world.world" />
 
+    <!-- Add Arguments for Break Beam (Proximity Laser Sensor) -->
+    <arg name="break_beam" value="break_beam_"/>
+    <param name="$(arg break_beam)description"
+        command="$(find xacro)/xacro --inorder '$(find ur5_t2_4230)/models/break_beam/break_beam.xacro' prefix:=$(arg break_beam)"/>
+
     <!-- include gazebo_ros launcher -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
             <arg name="world_name" value="$(arg world)" />
@@ -20,4 +25,8 @@ Author: James Lin
             <arg name="paused" value="$(arg pause)" />
             <arg name="use_sim_time" value="true" />
     </include>
+
+    <!-- Spawn Break Beam -->
+    <node name="$(arg break_beam)spawner" pkg="gazebo_ros" type="spawn_model" output="screen"
+        args="-urdf -model $(arg break_beam) -param $(arg break_beam)description"/>
 </launch>
