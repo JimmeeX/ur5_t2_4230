@@ -7,7 +7,14 @@ project(ur5_t2_4230)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED)
+find_package(catkin REQUIRED COMPONENTS
+  roscpp
+  rospy
+  std_msgs
+  message_generation
+)
+
+find_package(gazebo REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -42,12 +49,13 @@ find_package(catkin REQUIRED)
 ##   * uncomment the generate_messages entry below
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
-## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+# Generate messages in the 'msg' folder
+add_message_files(
+  DIRECTORY
+    msg
+  FILES
+    Proximity.msg
+)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -63,11 +71,11 @@ find_package(catkin REQUIRED)
 #   Action2.action
 # )
 
-## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs  # Or other packages containing msgs
-# )
+# Generate added messages and services with any dependencies listed here
+generate_messages(
+  DEPENDENCIES
+  std_msgs  # Or other packages containing msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -99,9 +107,15 @@ find_package(catkin REQUIRED)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
+  # INCLUDE_DIRS
+  #   include
 #  LIBRARIES ur5_t2_4230
-#  CATKIN_DEPENDS other_catkin_pkg
+  CATKIN_DEPENDS
+    message_runtime
+  #   gazebo_msgs
+  #   gazebo_plugins
+  #   gazebo_ros
+  #   gazebo_dev
 #  DEPENDS system_lib
 )
 
@@ -112,9 +126,16 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
-# ${catkin_INCLUDE_DIRS}
+  include
+  ${catkin_INCLUDE_DIRS}
+  ${GAZEBO_INCLUDE_DIRS}
+  ${roscpp_INCLUDE_DIRS}
 )
+
+link_directories(
+  ${GAZEBO_LIBRARY_DIRS}
+)
+
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
@@ -145,6 +166,35 @@ include_directories(
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
+
+# Create the libProximityRayPlugin.so library.
+set(proximity_ray_plugin_name ProximityRayPlugin)
+add_library(${proximity_ray_plugin_name} src/plugins/ProximityRayPlugin.cc)
+target_link_libraries(${proximity_ray_plugin_name}
+  ${GAZEBO_LIBRARIES}
+)
+install(TARGETS ${proximity_ray_plugin_name}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
+
+# Create the libROSProximityRayPlugin.so library.
+set(ros_proximity_ray_plugin_name ROSProximityRayPlugin)
+add_library(${ros_proximity_ray_plugin_name} src/plugins/ROSProximityRayPlugin.cc)
+target_link_libraries(${ros_proximity_ray_plugin_name}
+  ${proximity_ray_plugin_name}
+  ${GAZEBO_LIBRARIES}
+)
+add_dependencies(${ros_proximity_ray_plugin_name}
+  ${${PROJECT_NAME}_EXPORTED_TARGETS}
+)
+install(TARGETS ${ros_proximity_ray_plugin_name}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
+
 
 #############
 ## Install ##
