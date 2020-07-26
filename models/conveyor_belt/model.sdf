@@ -4,9 +4,9 @@
 
     <model name="conveyor_belt_fixed">
       <static>true</static>
-      <pose>0 0 0 0 0 0</pose>
+      <pose>-1 0 0 0 0 0</pose>
       <link name="link">
-        <pose>0 0 0 0 0 0</pose>
+        <pose>-1 0 0 0 0 0</pose>
        <visual name="belt_visual">
           <geometry>
             <mesh>
@@ -20,7 +20,7 @@
 
     <model name="conveyor_belt_moving">
       <static>false</static>
-      <pose>0 0 0.92 0 0 0</pose>
+      <pose>-2 0 0.92 0 0 0</pose>
       <link name="belt">
         <pose>5 0 -0.003 0 0 0</pose>
         <inertial>

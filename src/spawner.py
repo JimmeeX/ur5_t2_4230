@@ -39,10 +39,10 @@ SLEEP_RATE = 3 # Hz
 SPAWN_DELAY = 5.0 # seconds
 
 # Spawn Location TODO: Change based on conveyor location
-DEFAULT_OBJ_X = 1.5
-DEFAULT_OBJ_Z = 0.05 / 2 # Half up so object doesn't phase through ground
-DEFAULT_OBJ_MIN_Y = 0.0
-DEFAULT_OBJ_MAX_Y = 1.0
+DEFAULT_OBJ_X = 0
+DEFAULT_OBJ_Z = 0.9 + 0.05 / 2 # Half up so object doesn't phase through ground
+DEFAULT_OBJ_MIN_Y = -0.2
+DEFAULT_OBJ_MAX_Y = 0.2
 
 # Spawn Location of Container TODO: Change based on conveyor location
 DEFAULT_CONTAINER_X = 1.0
@@ -224,3 +224,4 @@ if __name__ == "__main__":
     rospy.init_node('spawner')
     Spawner()
     rospy.spin()
+    
