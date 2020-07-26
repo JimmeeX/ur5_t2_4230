@@ -8,6 +8,7 @@ Author: James Lin
     <env name="GAZEBO_MODEL_PATH" value="$(find ur5_t2_4230)/models" />
 
     <arg name="debug" default="false" />
+    <arg name="verbose" default="false" />
     <arg name="gui" default="true" />
     <arg name="pause" default="false" />
     <arg name="world" default="$(find ur5_t2_4230)/world/ur5_world.world" />
@@ -21,24 +22,16 @@ Author: James Lin
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
             <arg name="world_name" value="$(arg world)" />
             <arg name="debug" value="$(arg debug)" />
+            <arg name="verbose" value="$(arg verbose)" />
             <arg name="gui" value="$(arg gui)" />
             <arg name="paused" value="$(arg pause)" />
             <arg name="use_sim_time" value="true" />
     </include>
+
+	<node name="spawn_conveyor_belt" pkg="gazebo_ros" type="spawn_model" args="-file $(find ur5_t2_4230)/models/conveyor_belt/model.sdf -sdf -model conveyor_belt" />
 
 
     <!-- Spawn Break Beam -->
     <node name="$(arg break_beam)spawner" pkg="gazebo_ros" type="spawn_model" output="screen"
         args="-urdf -model $(arg break_beam) -param $(arg break_beam)description"/>
 </launch>
-
-<!--
-    <!-- Add Arguments for Conveyor belt  
-    <arg name="conveyor_belt" value="conveyor_belt_"/>
-    <param name="$(arg conveyor_belt)description"
-            command="--inorder '$(find ur5_t2_4230)/models/conveyor/model.sdf' prefix:=$(arg conveyor_belt)"/>
-
-    <!-- Spawn Conveyor -->
-    <node name="$(arg conveyor_belt)spawner" pkg="gazebo_ros" type="spawn_model" output="screen"
-        args="-urdf -model $(arg conveyor_belt) -param $(arg conveyor_belt)description"/> 
--->

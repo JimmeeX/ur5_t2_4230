@@ -76,6 +76,7 @@ void ConveyorBeltPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
   if(_sdf->HasElement("max_belt_linear_vel"))
   {
     this->kMaxBeltLinVel = _sdf->Get<double>("max_belt_linear_vel");
+    gzdbg << "Setting Max Belt Linear Velocity to " << this->kMaxBeltLinVel << std::endl;
   }
   else
   {
@@ -83,7 +84,7 @@ void ConveyorBeltPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
   }
 
   // Set the point where the link will be moved to its starting pose.
-  this->limit = 90 - 0.6;
+  this->limit = this->joint->GetUpperLimit(0) - 0.6;
 
   // Initialize Gazebo transport
   this->gzNode = transport::NodePtr(new transport::Node());
@@ -106,20 +107,20 @@ void ConveyorBeltPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
 void ConveyorBeltPlugin::OnUpdate()
 {
   this->joint->SetVelocity(0, this->beltVelocity);
-
+  // gzdbg<<"[onUpdate]: "<< "\tLIMIT: " <<this->limit << "\tGETANGLE(0): " << this->joint->GetAngle(0) << std::endl;
   // Reset the belt.
-  if (this->joint->GetAngle(0) >= this->limit)
-  {
+  // if (this->joint->GetAngle(0) >= this->limit)
+  // {
     // Warning: Megahack!!
     // We should use "this->joint->SetPosition(0, 0)" here but I found that
     // this line occasionally freezes the joint. I tracked the problem and
     // found an incorrect value in childLinkPose within
     // Joint::SetPositionMaximal(). This workaround makes sure that the right
     // numbers are always used in our scenario.
-    const math::Pose childLinkPose(1.20997, 2.5998, 0.8126, 0, 0, -1.57);
-    const math::Pose newChildLinkPose(1.20997, 2.98, 0.8126, 0, 0, -1.57);
-    this->link->MoveFrame(childLinkPose, newChildLinkPose);
-  }
+  const math::Pose childLinkPose(1.20997, 2.5998, 0.8126, 0, 0, -1.57);
+  const math::Pose newChildLinkPose(1.20997, 2.98, 0.8126, 0, 0, -1.57);
+  this->link->MoveFrame(childLinkPose, newChildLinkPose);
+  // }
 }
 
 /////////////////////////////////////////////////

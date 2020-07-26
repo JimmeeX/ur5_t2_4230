@@ -157,7 +157,8 @@ namespace gazebo
 
     /// \brief When the joint reaches this point, it will go back to its initial
     /// position.
-    private: ignition::math::Angle limit;
+    private: gazebo::math::Angle limit;
+    // private: gazebo::math::Angle limit;
 
     /// \brief Maximum linear velocity of the belt.
     private: double kMaxBeltLinVel = 0.4;

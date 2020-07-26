@@ -26,6 +26,7 @@ GZ_REGISTER_MODEL_PLUGIN(ROSConveyorBeltPlugin);
 /////////////////////////////////////////////////
 ROSConveyorBeltPlugin::ROSConveyorBeltPlugin()
 {
+  gzdbg << "[CONSTRUCTOR] CREATING ROSConveyorBeltPlugin " << std::endl;
 }
 
 /////////////////////////////////////////////////
@@ -37,6 +38,7 @@ ROSConveyorBeltPlugin::~ROSConveyorBeltPlugin()
 /////////////////////////////////////////////////
 void ROSConveyorBeltPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 {
+  gzdbg << "Loading ROSConveyorBeltPlugin " << std::endl;
   // load parameters
   this->robotNamespace_ = "";
   if (_sdf->HasElement("robot_namespace"))
@@ -62,6 +64,7 @@ void ROSConveyorBeltPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf
 
   this->rosnode_ = new ros::NodeHandle(this->robotNamespace_);
 
+  gzdbg << "Advertising Conveyor Control topic: " << topic <<  std::endl;
   this->controlService_ = this->rosnode_->advertiseService(topic,
     &ROSConveyorBeltPlugin::OnControlCommand, this);
 }

@@ -20,10 +20,10 @@
 		</include>
 
 		<!-- conveyor belt -->
-		<include>
+		<!-- <include>
 			<uri>model://conveyor_belt</uri>
-			<pose>5 2 10 0.000000 0 0</pose>
-		</include>
+			<pose>0 0 0 0.000000 0 0</pose>
+		</include> -->
              
 
 	</world>
