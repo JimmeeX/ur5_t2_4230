@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(ur5_t2_4230)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
+add_compile_options(-std=c++11)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -195,6 +195,32 @@ install(TARGETS ${ros_proximity_ray_plugin_name}
   RUNTIME DESTINATION bin
 )
 
+# Create URDF creator library
+add_library(urdf_creator
+  src/urdf_creator.cpp
+)
+target_link_libraries(urdf_creator
+  ${catkin_LIBRARIES}
+  ${TinyXML_LIBRARIES}
+)
+
+# Create conveyor spawner library
+add_library(conveyor_spawner
+  src/conveyor_spawner.cpp
+)
+target_link_libraries(conveyor_spawner
+  ${catkin_LIBRARIES}
+  urdf_creator
+)
+
+# Create conveyor spawner executable
+add_executable(conveyor_spawner_node
+  src/conveyor_spawner_node.cpp
+)
+target_link_libraries(conveyor_spawner_node
+  ${catkin_LIBRARIES}
+  conveyor_spawner
+)
 
 #############
 ## Install ##
@@ -237,6 +263,35 @@ install(TARGETS ${ros_proximity_ray_plugin_name}
 #   # myfile2
 #   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 # )
+
+# Create the libConveyorBeltPlugin.so library.
+set(conveyor_belt_plugin_name ConveyorBeltPlugin)
+add_library(${conveyor_belt_plugin_name} src/plugins/ConveyorBeltPlugin.cc)
+target_link_libraries(${conveyor_belt_plugin_name}
+  ${GAZEBO_LIBRARIES}
+  ${side_contact_plugin_name}
+)
+#install(TARGETS ${conveyor_belt_plugin_name}
+#  ARCHIVE DESTINATION lib
+#  LIBRARY DESTINATION lib
+#  RUNTIME DESTINATION bin
+#)
+
+# Create the libROSConveyorBeltPlugin.so library.
+set(ros_conveyor_belt_plugin_name ROSConveyorBeltPlugin)
+add_library(${ros_conveyor_belt_plugin_name} src/plugins/ROSConveyorBeltPlugin.cc)
+target_link_libraries(${ros_conveyor_belt_plugin_name}
+  ${conveyor_belt_plugin_name}
+  ${GAZEBO_LIBRARIES}
+)
+add_dependencies(${ros_conveyor_belt_plugin_name}
+  ${${PROJECT_NAME}_EXPORTED_TARGETS}
+)
+#install(TARGETS ${ros_conveyor_belt_plugin_name}
+#  ARCHIVE DESTINATION lib
+#  LIBRARY DESTINATION lib
+#  RUNTIME DESTINATION bin
+#)
 
 #############
 ## Testing ##
