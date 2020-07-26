@@ -12,3 +12,9 @@ The folders in this directory contain images categorised by:
 These folders are referenced by the Icon_Filter.m test program with using relative directory reference. To run the test program
 using a particular folder, type the folder name in the 'folderName' variable in Icon_Filter.m and terminate with a backslash (\\)
 e.g. 'Blue Circle\\'
+
+Extension - getting the centre coordinates of a block in an image:
+
+1. getBlockMask.m takes in a camera image and obtains the binary mask for isolating blocks in the image
+2. getCentreCoordinates.m takes in a struct (with properties from the regionprops function) and obtains the X and Y pixel coordinates of the centre of the block
+3. Get_XY.m is the main test program
