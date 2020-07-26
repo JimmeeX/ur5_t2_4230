@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(ur5_t2_4230)
 
+set(CMAKE_AUTOMOC ON)
+
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
 
@@ -55,14 +57,16 @@ add_message_files(
     msg
   FILES
     Proximity.msg
+    ConveyorBeltState.msg
 )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+add_service_files(
+  DIRECTORY
+    srv
+  FILES
+    ConveyorBeltControl.srv
+)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -107,16 +111,22 @@ generate_messages(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  # INCLUDE_DIRS
-  #   include
-#  LIBRARIES ur5_t2_4230
+  INCLUDE_DIRS
+    include
+  LIBRARIES
+    conveyor_spawner
+    urdf_creator
   CATKIN_DEPENDS
+    gazebo_msgs
+    gazebo_plugins
+    gazebo_ros
+    gazebo_dev
+    geometry_msgs
     message_runtime
-  #   gazebo_msgs
-  #   gazebo_plugins
-  #   gazebo_ros
-  #   gazebo_dev
-#  DEPENDS system_lib
+    roscpp
+    std_msgs
+    std_srvs
+    tf
 )
 
 ###########
@@ -167,6 +177,7 @@ link_directories(
 #   ${catkin_LIBRARIES}
 # )
 
+
 # Create the libProximityRayPlugin.so library.
 set(proximity_ray_plugin_name ProximityRayPlugin)
 add_library(${proximity_ray_plugin_name} src/plugins/ProximityRayPlugin.cc)
@@ -195,31 +206,28 @@ install(TARGETS ${ros_proximity_ray_plugin_name}
   RUNTIME DESTINATION bin
 )
 
-# Create URDF creator library
-add_library(urdf_creator
-  src/urdf_creator.cpp
+# Create the libConveyorBeltPlugin.so library.
+set(conveyor_belt_plugin_name ConveyorBeltPlugin)
+add_library(${conveyor_belt_plugin_name} src/plugins/ConveyorBeltPlugin.cc)
+target_link_libraries(${conveyor_belt_plugin_name}
+  ${GAZEBO_LIBRARIES}
+  ${side_contact_plugin_name}
 )
-target_link_libraries(urdf_creator
-  ${catkin_LIBRARIES}
-  ${TinyXML_LIBRARIES}
-)
+#install(TARGETS ${conveyor_belt_plugin_name}
+#  ARCHIVE DESTINATION lib
+#  LIBRARY DESTINATION lib
+#  RUNTIME DESTINATION bin
+#)
 
-# Create conveyor spawner library
-add_library(conveyor_spawner
-  src/conveyor_spawner.cpp
+# Create the libROSConveyorBeltPlugin.so library.
+set(ros_conveyor_belt_plugin_name ROSConveyorBeltPlugin)
+add_library(${ros_conveyor_belt_plugin_name} src/plugins/ROSConveyorBeltPlugin.cc)
+target_link_libraries(${ros_conveyor_belt_plugin_name}
+  ${conveyor_belt_plugin_name}
+  ${GAZEBO_LIBRARIES}
 )
-target_link_libraries(conveyor_spawner
-  ${catkin_LIBRARIES}
-  urdf_creator
-)
-
-# Create conveyor spawner executable
-add_executable(conveyor_spawner_node
-  src/conveyor_spawner_node.cpp
-)
-target_link_libraries(conveyor_spawner_node
-  ${catkin_LIBRARIES}
-  conveyor_spawner
+add_dependencies(${ros_conveyor_belt_plugin_name}
+  ${${PROJECT_NAME}_EXPORTED_TARGETS}
 )
 
 #############
@@ -264,29 +272,6 @@ target_link_libraries(conveyor_spawner_node
 #   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 # )
 
-# Create the libConveyorBeltPlugin.so library.
-set(conveyor_belt_plugin_name ConveyorBeltPlugin)
-add_library(${conveyor_belt_plugin_name} src/plugins/ConveyorBeltPlugin.cc)
-target_link_libraries(${conveyor_belt_plugin_name}
-  ${GAZEBO_LIBRARIES}
-  ${side_contact_plugin_name}
-)
-#install(TARGETS ${conveyor_belt_plugin_name}
-#  ARCHIVE DESTINATION lib
-#  LIBRARY DESTINATION lib
-#  RUNTIME DESTINATION bin
-#)
-
-# Create the libROSConveyorBeltPlugin.so library.
-set(ros_conveyor_belt_plugin_name ROSConveyorBeltPlugin)
-add_library(${ros_conveyor_belt_plugin_name} src/plugins/ROSConveyorBeltPlugin.cc)
-target_link_libraries(${ros_conveyor_belt_plugin_name}
-  ${conveyor_belt_plugin_name}
-  ${GAZEBO_LIBRARIES}
-)
-add_dependencies(${ros_conveyor_belt_plugin_name}
-  ${${PROJECT_NAME}_EXPORTED_TARGETS}
-)
 #install(TARGETS ${ros_conveyor_belt_plugin_name}
 #  ARCHIVE DESTINATION lib
 #  LIBRARY DESTINATION lib

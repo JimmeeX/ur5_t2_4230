@@ -26,7 +26,19 @@ Author: James Lin
             <arg name="use_sim_time" value="true" />
     </include>
 
+
     <!-- Spawn Break Beam -->
     <node name="$(arg break_beam)spawner" pkg="gazebo_ros" type="spawn_model" output="screen"
         args="-urdf -model $(arg break_beam) -param $(arg break_beam)description"/>
 </launch>
+
+<!--
+    <!-- Add Arguments for Conveyor belt  
+    <arg name="conveyor_belt" value="conveyor_belt_"/>
+    <param name="$(arg conveyor_belt)description"
+            command="--inorder '$(find ur5_t2_4230)/models/conveyor/model.sdf' prefix:=$(arg conveyor_belt)"/>
+
+    <!-- Spawn Conveyor -->
+    <node name="$(arg conveyor_belt)spawner" pkg="gazebo_ros" type="spawn_model" output="screen"
+        args="-urdf -model $(arg conveyor_belt) -param $(arg conveyor_belt)description"/> 
+-->

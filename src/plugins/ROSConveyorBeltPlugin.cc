@@ -14,7 +14,7 @@
  * limitations under the License.
  *
 */
-#include "gilbreth_gazebo/plugins/ROSConveyorBeltPlugin.hh"
+#include "plugins/ROSConveyorBeltPlugin.hh"
 
 #include <cstdlib>
 #include <string>
@@ -68,10 +68,10 @@ void ROSConveyorBeltPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf
 
 /////////////////////////////////////////////////
 bool ROSConveyorBeltPlugin::OnControlCommand(ros::ServiceEvent<
-  gilbreth_gazebo::ConveyorBeltControl::Request, gilbreth_gazebo::ConveyorBeltControl::Response> & event)
+  ur5_t2_4230::ConveyorBeltControl::Request, ur5_t2_4230::ConveyorBeltControl::Response> & event)
 {
-  const gilbreth_gazebo::ConveyorBeltControl::Request& req = event.getRequest();
-  gilbreth_gazebo::ConveyorBeltControl::Response& res = event.getResponse();
+  const ur5_t2_4230::ConveyorBeltControl::Request& req = event.getRequest();
+  ur5_t2_4230::ConveyorBeltControl::Response& res = event.getResponse();
   gzdbg << "Conveyor control service called with: " << req.state.power << std::endl;
 
   const std::string& callerName = event.getCallerName();

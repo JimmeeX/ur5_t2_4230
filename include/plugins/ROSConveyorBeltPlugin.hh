@@ -24,7 +24,7 @@
 #include "ConveyorBeltPlugin.hh"
 
 // ROS
-#include "gilbreth_gazebo/ConveyorBeltControl.h"
+#include "ur5_t2_4230/ConveyorBeltControl.h"
 #include <ros/ros.h>
 
 namespace gazebo
@@ -47,8 +47,8 @@ namespace gazebo
     /// \param[in] _req The desired state of the conveyor belt.
     /// \param[in] _res If the service succeeded or not.
     public: bool OnControlCommand(ros::ServiceEvent<
-      gilbreth_gazebo::ConveyorBeltControl::Request,
-      gilbreth_gazebo::ConveyorBeltControl::Response> & event);
+      ur5_t2_4230::ConveyorBeltControl::Request,
+      ur5_t2_4230::ConveyorBeltControl::Response> & event);
 
     /// \brief for setting ROS name space
     private: std::string robotNamespace_;

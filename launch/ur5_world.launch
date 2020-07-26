@@ -26,10 +26,8 @@
 	    <arg name="limited" value="$(arg limited)"/>
 	  </include>
 
-	<!-- Start the conveyor spawner node -->
-	<node name="conveyor_spawner" pkg="gilbreth_gazebo" type="conveyor_spawner_node" output="screen">
-		<rosparam command="load" file="$(find gilbreth_gazebo)/config/conveyor_objects.yaml"/>
-	</node>
+  <!-- spawn the conveyor_belt in gazebo -->
+	<node name="spawn_conveyor_belt" pkg="gazebo_ros" type="spawn_model" args="-file $(find ur5_t2_4230)/models/conveyor_belt/conveyor_belt.urdf -urdf -model conveyor_belt" />
 
 	<!-- push robot_description to factory and spawn robot in gazebo -->
 	  <node name="spawn_gazebo_model" pkg="gazebo_ros" type="spawn_model" args="-urdf -param robot_description -model robot -z 1 -y 1" respawn="false" output="screen" />
