@@ -20,11 +20,14 @@
 		</include>
 
 		<!-- conveyor belt -->
+		<include>
+			<uri>model://conveyor_belt</uri>
+			<pose>0 0 0.5 0.000000 0 0</pose>
+		</include>
+
 		<!-- <include>
 			<uri>model://conveyor_belt</uri>
-			<pose>0 0 0 0.000000 0 0</pose>
+			<pose>0 0 0.5 0 0 1.571</pose>
 		</include> -->
-             
-
 	</world>
 </sdf>

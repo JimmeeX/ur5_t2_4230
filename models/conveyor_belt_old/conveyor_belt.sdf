@@ -29,13 +29,13 @@
           </inertial>
           <!--Uncomment for debugging -->
           
-          <visual name="belt_visual">
+          <!-- <visual name="belt_visual">
             <geometry>
               <box>
                 <size>7.5 0.75461 0.18862</size>
               </box>
             </geometry>
-          </visual>
+          </visual> -->
         
           <collision name="belt_collision">
             <geometry>

@@ -28,7 +28,8 @@ Author: James Lin
             <arg name="use_sim_time" value="true" />
     </include>
 
-	<node name="spawn_conveyor_belt" pkg="gazebo_ros" type="spawn_model" args="-file $(find ur5_t2_4230)/models/conveyor_belt/model.sdf -sdf -model conveyor_belt" />
+
+	<!-- <node name="spawn_conveyor_belt" pkg="gazebo_ros" type="spawn_model" args="-file $(find ur5_t2_4230)/models/conveyor_belt/model.sdf -sdf -model conveyor_belt" /> -->
 
 
     <!-- Spawn Break Beam -->

@@ -82,6 +82,8 @@ void ConveyorBeltPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
     gzdbg<<"Using default linear speed "<<this->kMaxBeltLinVel<<std::endl;
   }
 
+  this->beltVelocity = this->kMaxBeltLinVel * this->beltPower / 100.0;
+
   // Set the point where the link will be moved to its starting pose.
   this->limit = this->joint->UpperLimit() - 0.6;
 
@@ -116,8 +118,8 @@ void ConveyorBeltPlugin::OnUpdate()
     // found an incorrect value in childLinkPose within
     // Joint::SetPositionMaximal(). This workaround makes sure that the right
     // numbers are always used in our scenario.
-    const ignition::math::Pose3d childLinkPose(1.20997, 2.5998, 0.8126, 0, 0, -1.57);
-    const ignition::math::Pose3d newChildLinkPose(1.20997, 2.98, 0.8126, 0, 0, -1.57);
+    const ignition::math::Pose3d childLinkPose(0, 0, 0, 0, 0, 0);
+    const ignition::math::Pose3d newChildLinkPose(0, 0.01, 0, 0, 0, 0);
     this->link->MoveFrame(childLinkPose, newChildLinkPose);
   }
 }
