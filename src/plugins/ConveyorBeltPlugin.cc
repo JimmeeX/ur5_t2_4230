@@ -66,7 +66,7 @@ void ConveyorBeltPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
 
   auto worldPtr = gazebo::physics::get_world();
   this->link = boost::static_pointer_cast<physics::Link>(
-    worldPtr->EntityByName(linkName));
+    worldPtr->GetEntity(linkName));
   if (!this->link)
   {
     gzerr << "Link not found" << std::endl;
@@ -85,7 +85,7 @@ void ConveyorBeltPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
   this->beltVelocity = this->kMaxBeltLinVel * this->beltPower / 100.0;
 
   // Set the point where the link will be moved to its starting pose.
-  this->limit = this->joint->UpperLimit() - 0.6;
+  this->limit = this->joint->GetUpperLimit(0) - 0.6;
 
   // Initialize Gazebo transport
   this->gzNode = transport::NodePtr(new transport::Node());
@@ -102,7 +102,7 @@ void ConveyorBeltPlugin::OnUpdate()
   this->joint->SetVelocity(0, this->beltVelocity);
 
   // Reset the belt.
-  if (this->joint->Position(0) >= this->limit()) {
+  if (this->joint->GetAngle(0) >= this->limit) {
     // Warning: Megahack!!
     // We should use "this->joint->SetPosition(0, 0)" here but I found that
     // this line occasionally freezes the joint. I tracked the problem and

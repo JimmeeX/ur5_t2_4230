@@ -104,7 +104,7 @@ void ProximityRayPlugin::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
     }
     if (this->useLinkFrame) {
       std::string linkName = this->parentSensor->ParentName();
-      this->link = boost::dynamic_pointer_cast<physics::Link>(this->world->EntityByName(linkName));
+      this->link = boost::dynamic_pointer_cast<physics::Link>(this->world->GetEntity(linkName));
     }
 
     this->objectDetected = false;
@@ -120,7 +120,7 @@ void ProximityRayPlugin::OnNewLaserScans()
 
     // Fill message
     std::lock_guard<std::mutex> lock(this->mutex);
-    msgs::Set(this->stateMsg.mutable_stamp(), this->world->SimTime());
+    msgs::Set(this->stateMsg.mutable_stamp(), this->world->GetSimTime());
     this->stateMsg.set_index(this->objectDetected);
 
     // Publish sensor state message
