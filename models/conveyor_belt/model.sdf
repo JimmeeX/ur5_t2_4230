@@ -83,8 +83,8 @@
 
     <plugin name="conveyor_belt_plugin" filename="libROSConveyorBeltPlugin.so">
       <power>100.0</power>
-      <!-- <robot_namespace>/gilbreth</robot_namespace> -->
-      <!-- <population_rate_modifier_topic>/gilbreth/population/rate_modifier</population_rate_modifier_topic> -->
+      <!-- <robot_namespace>/ur5_t2_4230</robot_namespace> -->
+      <!-- <population_rate_modifier_topic>/ur5_t2_4230/population/rate_modifier</population_rate_modifier_topic> -->
       <link>conveyor_belt::conveyor_belt_moving::belt</link>
       <max_belt_linear_vel>1.0</max_belt_linear_vel>
     </plugin>
