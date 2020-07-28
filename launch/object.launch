@@ -34,13 +34,20 @@ Author: James Lin
     </include>
 
 
+    <!--
+    ######
+    SPAWN TWO CONVEYOR BELTS
+    PS: Due to some hacky modelling, the real y location is shifted -0.45m. So, if you want the end of the conveyor to be at y=0.00, then set
+    the -y param to be 0.45.
+    ######
+    -->
     <!-- Spawn Conveyor System (In) -->
 	<node name="spawn_conveyor_belt_in" pkg="gazebo_ros" type="spawn_model"
-        args="-file $(find ur5_t2_4230)/models/conveyor_belt_in/model.sdf -sdf -model conveyor_belt_in -x 0.00 -y 0.00 -z 0.50" />
+        args="-file $(find ur5_t2_4230)/models/conveyor_belt_in/model.sdf -sdf -model conveyor_belt_in -x 0.00 -y 0.45 -z 0.50" />
 
     <!-- Spawn Conveyor System (Out) -->
 	<node name="spawn_conveyor_belt_out" pkg="gazebo_ros" type="spawn_model"
-        args="-file $(find ur5_t2_4230)/models/conveyor_belt_out/model.sdf -sdf -model conveyor_belt_out -x -2.00 -y 0.00 -z 0.50" />
+        args="-file $(find ur5_t2_4230)/models/conveyor_belt_out/model.sdf -sdf -model conveyor_belt_out -x -2.00 -y 0.45 -z 0.50" />
 
 
     <!-- Spawn Break Beam (In) -->
