@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<launch>
+	<!-- CREATE UR5 -->
+    <!-- Set Arguments -->
+    <arg name="sim" default="true" />
+    <arg name="limited" default="true" doc="If true, limits joint range [-PI, PI] on all joints." />
+    <arg name="transmission_hw_interface" default="hardware_interface/PositionJointInterface" />
+
+    <!-- Find Model description -->
+    <param unless="$(arg limited)" name="robot_description" command="$(find xacro)/xacro --inorder '$(find ur5_t2_4230)/models/ur5/ur5_robot.urdf.xacro' transmission_hw_interface:=$(arg transmission_hw_interface)" />
+    <param if="$(arg limited)" name="robot_description" command="$(find xacro)/xacro --inorder '$(find ur5_t2_4230)/models/ur5/ur5_joint_limited_robot.urdf.xacro' transmission_hw_interface:=$(arg transmission_hw_interface)" />
+
+	<!-- Spawn UR5 in Gazebo -->
+    <node name="spawn_gazebo_model" pkg="gazebo_ros" type="spawn_model" args="-urdf -param robot_description -model robot -z 1 -y 1" respawn="false" output="screen" />
+
+    <!-- Attach Controllers -->
+
+    <!-- Loads the joint_state_controller.yaml file and sends it to the controller_manager (http://wiki.ros.org/controller_manager) -->
+    <rosparam file="$(find ur5_t2_4230)/controller/joint_state_controller.yaml" command="load"/>
+    <node name="joint_state_controller_spawner" pkg="controller_manager" type="controller_manager" args="spawn joint_state_controller" respawn="false" output="screen"/>
+
+	<!-- Creates arm_controller topics & services -->
+    <rosparam file="$(find ur5_t2_4230)/controller/arm_controller_ur5.yaml" command="load"/>
+    <node name="arm_controller_spawner" pkg="controller_manager" type="controller_manager" args="spawn arm_controller" respawn="false" output="screen"/>
+
+    <!-- Utilities -->
+    <!--
+    Robot state publisher http://wiki.ros.org/robot_state_publisher
+    From a brief lookup, this adds a /joint_state topic which enables you to publish the state (ie, coordinate frames) of a robot to tf2
+    -->
+    <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+        <param name="publish_frequency" type="double" value="50.0" />
+        <param name="tf_prefix" type="string" value="" />
+    </node>
+
+    <!-- Fake Calibration (Publishes 'true' to /calibrated) -->
+    <node pkg="rostopic" type="rostopic" name="fake_joint_calibration"
+            args="pub /calibrated std_msgs/Bool true" />
+
+    <!-- Remap follow_joint_trajectory -->
+    <remap if="$(arg sim)" from="/follow_joint_trajectory" to="/arm_controller/follow_joint_trajectory"/>
+
+</launch>
