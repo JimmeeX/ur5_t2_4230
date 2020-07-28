@@ -21,6 +21,11 @@
 		<arg name="use_sim_time" value="true" />
 	</include>
 
+	<!-- Spawn Kinect Camera -->
+	<node name="spawn_kinect" pkg="gazebo_ros" type="spawn_model"
+		args="-file $(find ur5_t2_4230)/models/kinect/model.sdf -sdf -model kinect -x 1.00 -y 1.00 -z 1.00"
+	/>
+
 	<!-- Spawn ur5 -->
 	<include file="$(find ur5_t2_4230)/launch/spawn_robot.launch">
 		<arg name="sim" value="$(arg sim)" />
