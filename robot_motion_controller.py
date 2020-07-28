@@ -206,8 +206,8 @@ if __name__ == "__main__":
     print("Joint angles are:")
     for angle in angles:
         print("\t", angle[(0, 0)])
-    H = forward_kinematics(home_pos * pi/180.0)
-    print("\nEnd effector position is:")
+    H = forward_kinematics(angles * pi/180.0)
+    print("\nEnd effector position calculated from FK is:")
     print("\tx = ", H[(0, 3)], "m\n\ty = ", H[(1, 3)], "m\n\tz = ", H[(2, 3)], "m")
     # print("\nError in position is:")
     # print("\tx_error = ", (H[(0, 3)]-x), "m\n\ty_error = ", (H[(1, 3)]-y), "m\n\tz_error = ", (H[(2, 3)]-z), "m")
