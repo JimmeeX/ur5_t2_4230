@@ -18,8 +18,8 @@ satMin = 0.000;
 satMax = 1.000;
 
 % Define thresholds for value channel 3
-valMin = 0.245;
-valMax = 0.556;
+valMin = 0.760;
+valMax = 1.000;
 
 % Use the thresholds to simultaneously apply multiple binary masks to image
 block_mask = (image_HSV(:,:,1) >= hueMin ) & (image_HSV(:,:,1) <= hueMax) & ...
@@ -28,5 +28,6 @@ block_mask = (image_HSV(:,:,1) >= hueMin ) & (image_HSV(:,:,1) <= hueMax) & ...
 
 % Return the binary mask
 block = block_mask; % Make a copy of 'image_HSV'
+block = imfill(block, 'holes');
 
 end
