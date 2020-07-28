@@ -2,6 +2,7 @@
 <robot xmlns:xacro="http://wiki.ros.org/xacro">
 
   <gazebo>
+    <!-- Controller Manager that adds /controller_manager services && ensures the robot doesn't "flop" around -->
     <plugin name="ros_control" filename="libgazebo_ros_control.so">
       <!--robotNamespace>/</robotNamespace-->
       <!--robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType-->
@@ -14,7 +15,7 @@
       <timeout>5</timeout>
       <powerStateTopic>power_state</powerStateTopic>
       <powerStateRate>10.0</powerStateRate>
-      <fullChargeCapacity>87.78</fullChargeCapacity>     
+      <fullChargeCapacity>87.78</fullChargeCapacity>
       <dischargeRate>-474</dischargeRate>
       <chargeRate>525</chargeRate>
       <dischargeVoltage>15.52</dischargeVoltage>
