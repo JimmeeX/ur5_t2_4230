@@ -4,16 +4,23 @@ MTRN4230 Group Project source code.
 
 ## Project Structure
 
-- /include - C++ header files
+- /config - UR5 Controller Manager Config Files 
+- /include - C++ header files (mostly for plugins)
 - /launch - Launch Files to run the application
 - /models - Gazebo Models (.urdf, .sdf, .xacro, etc)
   - 4230_objects - Pickable objects of various colours and shapes
   - break_beam - Laser Proximity Sensor
-  - conveyor_belt - Conveyor Belt
+  - conveyor_belt_in - Conveyor Belt for Pickable Objects
+  - conveyor_belt_out - Conveyor Belt for Blue Delivery Containers
+  - kinect - RGB-D Sensor
+  - ur5 - UR5 Robot Arm Manipulator
 - /msg - Custom Messages for Publishers & Subscribers
+  - ConveyorBeltState - Conveyor Belt custom message
   - Proximity - Break Beam custom message
 - /src - ROS Nodes + Custom Scripts
   - spawner.py - Spawns objects & containers
+- /srv - Custom Service request / response definitions
+  - ConveyorBeltControl - Sets power to conveyor belts
 - /world - Gazebo World Files
 
 ## 3rd Party Packages

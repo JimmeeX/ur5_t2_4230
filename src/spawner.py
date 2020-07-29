@@ -38,13 +38,13 @@ SLEEP_RATE = 3 # Hz
 # Spawn Interval
 SPAWN_DELAY = 5.0 # seconds
 
-# Spawn Location TODO: Change based on conveyor location
+# Spawn Location set based on conveyor_in location
 DEFAULT_OBJ_Y = 1.5
 DEFAULT_OBJ_Z = 0.9 + 0.05 / 2 # Half up so object doesn't phase through ground
 DEFAULT_OBJ_MIN_X = 0.3
 DEFAULT_OBJ_MAX_X = 0.7
 
-# Spawn Location of Container TODO: Change based on conveyor location
+# Spawn Location of Container set based on conveyor_out location
 DEFAULT_CONTAINER_X = -0.5
 DEFAULT_CONTAINER_Y = 1
 DEFAULT_CONTAINER_Z = 1

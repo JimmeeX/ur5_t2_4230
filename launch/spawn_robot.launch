@@ -16,11 +16,11 @@
     <!-- Attach Controllers -->
 
     <!-- Loads the joint_state_controller.yaml file and sends it to the controller_manager (http://wiki.ros.org/controller_manager) -->
-    <rosparam file="$(find ur5_t2_4230)/controller/joint_state_controller.yaml" command="load"/>
+    <rosparam file="$(find ur5_t2_4230)/config/joint_state_controller.yaml" command="load"/>
     <node name="joint_state_controller_spawner" pkg="controller_manager" type="controller_manager" args="spawn joint_state_controller" respawn="false" output="screen"/>
 
 	<!-- Creates arm_controller topics & services -->
-    <rosparam file="$(find ur5_t2_4230)/controller/arm_controller_ur5.yaml" command="load"/>
+    <rosparam file="$(find ur5_t2_4230)/config/arm_controller_ur5.yaml" command="load"/>
     <node name="arm_controller_spawner" pkg="controller_manager" type="controller_manager" args="spawn arm_controller" respawn="false" output="screen"/>
 
     <!-- Utilities -->
