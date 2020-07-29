@@ -39,15 +39,15 @@ SLEEP_RATE = 3 # Hz
 SPAWN_DELAY = 5.0 # seconds
 
 # Spawn Location TODO: Change based on conveyor location
-DEFAULT_OBJ_X = 1.5
-DEFAULT_OBJ_Z = 0.05 / 2 # Half up so object doesn't phase through ground
-DEFAULT_OBJ_MIN_Y = 0.0
-DEFAULT_OBJ_MAX_Y = 1.0
+DEFAULT_OBJ_Y = 1.5
+DEFAULT_OBJ_Z = 0.9 + 0.05 / 2 # Half up so object doesn't phase through ground
+DEFAULT_OBJ_MIN_X = 0.3
+DEFAULT_OBJ_MAX_X = 0.7
 
 # Spawn Location of Container TODO: Change based on conveyor location
-DEFAULT_CONTAINER_X = 1.0
-DEFAULT_CONTAINER_Y = 3.0
-DEFAULT_CONTAINER_Z = 0.0
+DEFAULT_CONTAINER_X = -0.5
+DEFAULT_CONTAINER_Y = 1
+DEFAULT_CONTAINER_Z = 1
 
 
 
@@ -73,6 +73,9 @@ class Spawner():
         print("Connected to gazebo server!")
 
         self._spawn_client = rospy.ServiceProxy("gazebo/spawn_sdf_model", SpawnModel)
+
+        # Create an Initial Container
+        self.spawnContainer()
 
         # Infinite Loop
         self.spawnLoop()
@@ -140,8 +143,8 @@ class Spawner():
         if not pose:
             pose = Pose(
                 Point(
-                    x=DEFAULT_OBJ_X,
-                    y=random.uniform(DEFAULT_OBJ_MIN_Y, DEFAULT_OBJ_MAX_Y),
+                    x=random.uniform(DEFAULT_OBJ_MIN_X, DEFAULT_OBJ_MAX_X),
+                    y=DEFAULT_OBJ_Y,
                     z=DEFAULT_OBJ_Z
                 ),
                 Quaternion(
@@ -224,3 +227,4 @@ if __name__ == "__main__":
     rospy.init_node('spawner')
     Spawner()
     rospy.spin()
+    

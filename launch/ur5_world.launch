@@ -1,35 +1,80 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <launch>
-	<!-- overwriting these args -->
-	<arg name="debug" default="false" />
-	<arg name="gui" default="true" />
-	<arg name="pause" default="false" />
-	<arg name="world" default="$(find ur5_t2_4230)/world/ur5_world.world" />
+    <env name="GAZEBO_RESOURCE_PATH" value="$(find ur5_t2_4230)/media/materials" />
+    <env name="GAZEBO_MODEL_PATH" value="$(find ur5_t2_4230)/models" />
+
+	<!-- Gazebo Arguments -->
+    <arg name="debug" default="false" />
+    <arg name="verbose" default="false" />
+    <arg name="gui" default="true" />
+    <arg name="pause" default="false" />
+    <arg name="world" default="$(find ur5_t2_4230)/world/ur5_world.world" />
+
+	<!-- Robot Arguments -->
 	<arg name="limited" default="true"/>
-
 	<arg name="sim" default="true" />
-	<arg name ="camera_name" default = "camera" />
-	<arg name ="frame_name" default = "frame"/>
-	<arg name = "link_name" default = "world"/>
 
-	<!-- include gazebo_ros launcher -->
-	<include file="$(find gazebo_ros)/launch/empty_world.launch">
-		<arg name="world_name" value="$(arg world)" />
-		<arg name="debug" value="$(arg debug)" />
-		<arg name="gui" value="$(arg gui)" />
-		<arg name="paused" value="$(arg pause)" />
-		<arg name="use_sim_time" value="true" />
-	</include>
+    <!-- Add Arguments for Break Beam In (Proximity Laser Sensor) -->
+    <arg name="break_beam_in" value="break_beam_in_"/>
+    <param name="$(arg break_beam_in)description"
+        command="$(find xacro)/xacro --inorder '$(find ur5_t2_4230)/models/break_beam/break_beam.xacro' prefix:=$(arg break_beam_in)"/>
+
+    <!-- Add Arguments for Break Beam Out (Proximity Laser Sensor) -->
+    <arg name="break_beam_out" value="break_beam_out_"/>
+    <param name="$(arg break_beam_out)description"
+        command="$(find xacro)/xacro --inorder '$(find ur5_t2_4230)/models/break_beam/break_beam.xacro' prefix:=$(arg break_beam_out)"/>
+
+    <!-- include gazebo_ros launcher -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+            <arg name="world_name" value="$(arg world)" />
+            <arg name="debug" value="$(arg debug)" />
+            <arg name="verbose" value="$(arg verbose)" />
+            <arg name="gui" value="$(arg gui)" />
+            <arg name="paused" value="$(arg pause)" />
+            <arg name="use_sim_time" value="true" />
+    </include>
 
 	<!-- Spawn Kinect Camera -->
 	<node name="spawn_kinect" pkg="gazebo_ros" type="spawn_model"
-		args="-file $(find ur5_t2_4230)/models/kinect/model.sdf -sdf -model kinect -x 1.00 -y 1.00 -z 1.00"
+		args="-file $(find ur5_t2_4230)/models/kinect/model.sdf -sdf -model kinect -x 0.5 -y 0 -z 1.3 -R 3.141593 -P 1.5707965 -Y 3.141593"
 	/>
 
-	<!-- Spawn ur5 -->
+    <!--
+    ######
+    SPAWN TWO CONVEYOR BELTS
+    PS: Due to some hacky modelling, the real y location is shifted -0.45m. So, if you want the end of the conveyor to be at y=0.00, then set
+    the -y param to be 0.45.
+    ######
+    -->
+    <!-- Spawn Conveyor System (In) -->
+	<node name="spawn_conveyor_belt_in" pkg="gazebo_ros" type="spawn_model"
+        args="-file $(find ur5_t2_4230)/models/conveyor_belt_in/model.sdf -sdf -model conveyor_belt_in -x 0.50 -y -1.45 -z 0.50" />
+
+    <!-- Spawn Conveyor System (Out) -->
+	<node name="spawn_conveyor_belt_out" pkg="gazebo_ros" type="spawn_model"
+        args="-file $(find ur5_t2_4230)/models/conveyor_belt_out/model.sdf -sdf -model conveyor_belt_out -x -0.50 -y -1.45 -z 0.50" />
+
+
+    <!-- Spawn Break Beam (In) -->
+    <node name="$(arg break_beam_in)spawner" pkg="gazebo_ros" type="spawn_model" output="screen"
+        args="-urdf -x 1.20 -y 0.00 -z 0.62 -R 0.00 -P 0.00 -Y 0.00 -model $(arg break_beam_in) -param $(arg break_beam_in)description"/>
+
+    <!-- Spawn Break Beam (Out) -->
+    <node name="$(arg break_beam_out)spawner" pkg="gazebo_ros" type="spawn_model" output="screen"
+        args="-urdf -x -1.20 -y 0.00 -z 0.62 -Y -3.14 -model $(arg break_beam_out) -param $(arg break_beam_out)description"/>
+
+
+	<!-- Spawn UR5 Robot -->
 	<include file="$(find ur5_t2_4230)/launch/spawn_robot.launch">
 		<arg name="sim" value="$(arg sim)" />
 		<arg name="limited" value="$(arg limited)"/>
 	</include>
+
+	<!-- Spawn Spawner Node (spawner.py) -->
+	<node pkg="ur5_t2_4230" name="spawner" type="spawner.py" output="screen" />
+
+	<!-- [Temporary] Spawn Conveyor Test Beam node -->
+	<node pkg="ur5_t2_4230" name="test_conveyor_beam" type="test_conveyor_beam.py" output="screen" />
+
 
 </launch>

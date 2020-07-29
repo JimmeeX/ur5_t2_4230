@@ -56,8 +56,7 @@ std::string ProximityRayPlugin::Topic(std::string topicName) const
 void ProximityRayPlugin::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
 {
     // Get the name of the parent sensor
-    this->parentSensor =
-        std::dynamic_pointer_cast<sensors::RaySensor>(_parent);
+    this->parentSensor = std::dynamic_pointer_cast<sensors::RaySensor>(_parent);
 
     if (!this->parentSensor)
         gzthrow("ProximityRayPlugin requires a Ray Sensor as its parent");
@@ -67,8 +66,8 @@ void ProximityRayPlugin::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
     this->node = transport::NodePtr(new transport::Node());
     this->node->Init(worldName);
 
-    if (_sdf->HasElement("time_delay"))
-    {
+    // Read Time Delay
+    if (_sdf->HasElement("time_delay")) {
       double time_delay = _sdf->Get<double>("time_delay");
       this->parentSensor->SetUpdateRate(1.0/time_delay);
       gzdbg << "Setting update rate of parent sensor to " << 1.0/time_delay << " Hz\n";
@@ -77,17 +76,17 @@ void ProximityRayPlugin::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
       gzdbg << "Using update rate of parent sensor: " << this->parentSensor->UpdateRate() << " Hz\n";
     }
 
-    if (_sdf->HasElement("output_state_topic"))
-    {
+    // Read Output State Topic && Advertise
+    if (_sdf->HasElement("output_state_topic")) {
         this->stateTopic = _sdf->Get<std::string>("output_state_topic");
     }
     else {
         this->stateTopic = this->Topic("sensor_state");
     }
 
-    this->statePub =
-        this->node->Advertise<msgs::Header>(this->stateTopic, 50);
+    this->statePub = this->node->Advertise<msgs::Header>(this->stateTopic, 50);
 
+    // Read Output Change Topic
     if (_sdf->HasElement("output_change_topic"))
     {
         this->stateChangeTopic = _sdf->Get<std::string>("output_change_topic");
@@ -96,16 +95,14 @@ void ProximityRayPlugin::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sdf)
         this->stateChangeTopic = this->Topic("state_change");
     }
 
-    this->stateChangePub =
-        this->node->Advertise<msgs::Header>(this->stateChangeTopic, 50);
+    this->stateChangePub = this->node->Advertise<msgs::Header>(this->stateChangeTopic, 50);
 
+    // Read Use Link Frame
     this->useLinkFrame = true;
-    if (_sdf->HasElement("use_link_frame"))
-    {
+    if (_sdf->HasElement("use_link_frame")) {
       this->useLinkFrame = _sdf->Get<bool>("use_link_frame");
     }
-    if (this->useLinkFrame)
-    {
+    if (this->useLinkFrame) {
       std::string linkName = this->parentSensor->ParentName();
       this->link = boost::dynamic_pointer_cast<physics::Link>(this->world->GetEntity(linkName));
     }
