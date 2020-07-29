@@ -74,6 +74,9 @@ class Spawner():
 
         self._spawn_client = rospy.ServiceProxy("gazebo/spawn_sdf_model", SpawnModel)
 
+        # Create an Initial Container
+        self.spawnContainer()
+
         # Infinite Loop
         self.spawnLoop()
 
