@@ -120,7 +120,7 @@ class TestConveyorBeam():
 
 
 if __name__ == "__main__":
-    rospy.init_node('test_conveyor_beam', log_level=rospy.DEBUG)
+    rospy.init_node('test_conveyor_beam')
     TestConveyorBeam()
     rospy.spin()
     
