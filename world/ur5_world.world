@@ -11,5 +11,12 @@
 		<include>
 			<uri>model://ground_plane</uri>
 		</include>
+
+		<!-- kinect -->
+		<include>
+			<uri>model://kinect_ros</uri>
+			<static>true</static>
+			<pose>0 0 1.5 1.571 1.571 0</pose>
+		</include>
 	</world>
 </sdf>

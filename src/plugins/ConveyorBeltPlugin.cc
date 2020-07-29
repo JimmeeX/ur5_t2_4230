@@ -33,7 +33,7 @@ GZ_REGISTER_MODEL_PLUGIN(ConveyorBeltPlugin)
 /////////////////////////////////////////////////
 ConveyorBeltPlugin::~ConveyorBeltPlugin()
 {
-  event::Events::DisconnectWorldUpdateBegin(this->updateConnection);
+  this->updateConnection.reset();
 }
 
 /////////////////////////////////////////////////
@@ -76,12 +76,13 @@ void ConveyorBeltPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
   if(_sdf->HasElement("max_belt_linear_vel"))
   {
     this->kMaxBeltLinVel = _sdf->Get<double>("max_belt_linear_vel");
-    gzdbg << "Setting Max Belt Linear Velocity to " << this->kMaxBeltLinVel << std::endl;
   }
   else
   {
     gzdbg<<"Using default linear speed "<<this->kMaxBeltLinVel<<std::endl;
   }
+
+  this->beltVelocity = this->kMaxBeltLinVel * this->beltPower / 100.0;
 
   // Set the point where the link will be moved to its starting pose.
   this->limit = this->joint->GetUpperLimit(0) - 0.6;
@@ -89,14 +90,6 @@ void ConveyorBeltPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
   // Initialize Gazebo transport
   this->gzNode = transport::NodePtr(new transport::Node());
   this->gzNode->Init();
-
-  // Publisher for modifying the rate at which the belt is populated.
-  // TODO(dhood): this should not be in this class.
-  std::string populationRateModifierTopic = "population_rate_modifier";
-  if (_sdf->HasElement("population_rate_modifier_topic"))
-    populationRateModifierTopic = _sdf->Get<std::string>("population_rate_modifier_topic");
-  this->populationRateModifierPub =
-    this->gzNode->Advertise<msgs::GzString>(populationRateModifierTopic);
 
   // Listen to the update event that is broadcasted every simulation iteration.
   this->updateConnection = event::Events::ConnectWorldUpdateBegin(
@@ -107,18 +100,17 @@ void ConveyorBeltPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
 void ConveyorBeltPlugin::OnUpdate()
 {
   this->joint->SetVelocity(0, this->beltVelocity);
-  // gzdbg<<"[onUpdate]: "<< "\tLIMIT: " <<this->limit << "\tGETANGLE(0): " << this->joint->GetAngle(0) << std::endl;
+
   // Reset the belt.
-  if (this->joint->GetAngle(0) >= this->limit)
-  {
+  if (this->joint->GetAngle(0) >= this->limit) {
     // Warning: Megahack!!
     // We should use "this->joint->SetPosition(0, 0)" here but I found that
     // this line occasionally freezes the joint. I tracked the problem and
     // found an incorrect value in childLinkPose within
     // Joint::SetPositionMaximal(). This workaround makes sure that the right
     // numbers are always used in our scenario.
-    const ignition::math::Pose3d childLinkPose(1.20997, 2.5998, 0.8126, 0, 0, -1.57);
-    const ignition::math::Pose3d newChildLinkPose(1.20997, 2.98, 0.8126, 0, 0, -1.57);
+    const ignition::math::Pose3d childLinkPose(0, 0, 0, 0, 0, 0);
+    const ignition::math::Pose3d newChildLinkPose(0, 0.01, 0, 0, 0, 0);
     this->link->MoveFrame(childLinkPose, newChildLinkPose);
   }
 }
@@ -147,12 +139,13 @@ void ConveyorBeltPlugin::SetPower(const double _power)
 
   this->beltPower = _power;
 
-  // Publish a message on the rate modifier topic of the PopulationPlugin.
-  gazebo::msgs::GzString msg;
-  msg.set_data(std::to_string(_power / 100.0));
-  this->populationRateModifierPub->Publish(msg);
-
   // Convert the power (percentage) to a velocity.
   this->beltVelocity = this->kMaxBeltLinVel * this->beltPower / 100.0;
   gzdbg << "Received power of: " << _power << ", setting velocity to: " << this->beltVelocity << std::endl;
+
+  // Hack to "shake" the conveyor slightly (otherwise the objects don't seem to move...)
+  const ignition::math::Pose3d childLinkPose(0, 0, 0, 0, 0, 0);
+  const ignition::math::Pose3d newChildLinkPose(0, 0.0, 0.01, 0, 0, 0);
+  this->link->MoveFrame(childLinkPose, newChildLinkPose);
+
 }
