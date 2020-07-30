@@ -1,6 +1,6 @@
 Image Processing contains the MATLAB code responsible for feature identification and isolation
 
-READING IMAGE DATA FROM ROS
+READING IMAGE DATA FROM ROS:
 Use Get_XY_Gazebo.m to connect to the ROS environment
 - Remember to check and change IP address as necessary
 
