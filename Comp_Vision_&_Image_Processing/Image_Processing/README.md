@@ -1,5 +1,12 @@
 Image Processing contains the MATLAB code responsible for feature identification and isolation
 
+READING IMAGE DATA FROM ROS
+Use Get_XY_Gazebo.m to connect to the ROS environment
+- Remember to check and change IP address as necessary
+
+Currently only reads the image once.
+
+
 There are 3 MATLAB (.m) files of interest:
 1. isolateBlock.m contains the isolateBlock function, which creates and applies a binary mask isolating block/s in the image
 2. isolateIcon.m contains the isolateIcon function, which creates and applies a binary mask isolating icon/s in the image
