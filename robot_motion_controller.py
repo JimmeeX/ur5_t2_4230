@@ -142,6 +142,7 @@ def inverse_kinematics(x, y, z):
     # Due to multiple joint solutions, joint 2 is given joint rotation limit to avoid unwanted solutions
     joint2 = np.rad2deg(theta[1, :])
     size = np.size(joint2)
+    min_value = 0
     index = []
 
     for i in range(size):
@@ -151,9 +152,12 @@ def inverse_kinematics(x, y, z):
             element = i
             index.append(element)
     store_index = np.array(index)
-    min_value = np.abs(joint2[0, store_index[0]])
+    if len(store_index) == 0:
+        min_value = np.min(np.abs(joint2))
+    else:
+        min_value = np.abs(joint2[0, store_index[0]])
 
-    # Ideal solutions defined as solutions with minimum angle for joint 2
+    # filter possible solutions to a single solution that is the most ideal
     element = 0
     for index in store_index:
         if np.abs(joint2[0, index]) <= min_value:
@@ -166,15 +170,17 @@ def inverse_kinematics(x, y, z):
 if __name__ == "__main__":
     # Test values
     # Actual x, y, z will be received from image processing node
-    x = -0.154
-    y = -0.143
-    z = 0.322
+    x = -0.455
+    y = -0.2489
+    z = -0.4523
 
     # Set up publisher and subscriber protocols
 
     # Define a 'home' position for the robot to return to if no commands are received
-    home_pos = np.matrix([[11.588279356832517], [-13.63151596868293], [-133.13413638498815],
+    home_pos = np.matrix([[191.588279356832517], [-13.63151596868293], [-133.13413638498815],
                           [56.76565235367108],  [-90.00000000000000], [-78.41172064316748]])
+
+    test_pos = np.matrix([[11.46], [22.91], [34.38], [45.84], [57.3], [68.75]])
 
     # Might have to initialise robot position before entering control loop
 

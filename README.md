@@ -4,7 +4,7 @@ MTRN4230 Group Project source code.
 
 ## Project Structure
 
-- /config - UR5 Controller Manager Config Files 
+- /config - UR5 Controller Manager Config Files
 - /include - C++ header files (mostly for plugins)
 - /launch - Launch Files to run the application
 - /models - Gazebo Models (.urdf, .sdf, .xacro, etc)
@@ -46,6 +46,12 @@ Environment: **ROS Kinetic (Ubuntu 16.04)**
 
     ```bash
     cd ~/simulation_ws/src && git clone git@github.com:JimmeeX/ur5_t2_4230.git
+    ```
+
+    1.3. Install required packages for Gazebo Math Ignition
+
+    ```bash
+    sudo apt-get install libignition-math2-dev
     ```
 
 2. Build Environment

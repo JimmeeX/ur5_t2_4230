@@ -28,7 +28,8 @@ import random
 from collections import Counter
 
 # Object Combinations
-COLORS = ['blue', 'green', 'orange', 'pink', 'red']
+# COLORS = ['blue', 'green', 'orange', 'pink', 'red']
+COLORS = ['blue', 'green', 'red']
 SHAPES = ['circle', 'triangle', 'square']
 OBJECTS = [color + '_' + shape for shape in SHAPES for color in COLORS]
 
@@ -36,7 +37,7 @@ OBJECTS = [color + '_' + shape for shape in SHAPES for color in COLORS]
 SLEEP_RATE = 3 # Hz
 
 # Spawn Interval
-SPAWN_DELAY = 5.0 # seconds
+SPAWN_DELAY = 10.0 # seconds
 
 # Spawn Location set based on conveyor_in location
 DEFAULT_OBJ_Y = 1.5
