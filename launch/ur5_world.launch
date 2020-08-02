@@ -36,7 +36,7 @@
 
 	<!-- Spawn Kinect Camera -->
 	<node name="spawn_kinect" pkg="gazebo_ros" type="spawn_model"
-		args="-file $(find ur5_t2_4230)/models/kinect/model.sdf -sdf -model kinect -x 0.5 -y 0 -z 1.3 -R 3.141593 -P 1.5707965 -Y 3.141593"
+		args="-file $(find ur5_t2_4230)/models/kinect/model.sdf -sdf -model kinect -x 0.465 -y 0 -z 0.775 -R 3.141593 -P 1.5707965 -Y 3.141593"
 	/>
 
     <!--
@@ -48,20 +48,20 @@
     -->
     <!-- Spawn Conveyor System (In) -->
 	<node name="spawn_conveyor_belt_in" pkg="gazebo_ros" type="spawn_model"
-        args="-file $(find ur5_t2_4230)/models/conveyor_belt_in/model.sdf -sdf -model conveyor_belt_in -x 0.50 -y -1.45 -z 0.50" />
+        args="-file $(find ur5_t2_4230)/models/conveyor_belt_in/model.sdf -sdf -model conveyor_belt_in -x 0.50 -y -1.45 -z 0.10" />
 
     <!-- Spawn Conveyor System (Out) -->
 	<node name="spawn_conveyor_belt_out" pkg="gazebo_ros" type="spawn_model"
-        args="-file $(find ur5_t2_4230)/models/conveyor_belt_out/model.sdf -sdf -model conveyor_belt_out -x -0.50 -y -1.45 -z 0.50" />
+        args="-file $(find ur5_t2_4230)/models/conveyor_belt_out/model.sdf -sdf -model conveyor_belt_out -x -0.50 -y -1.45 -z 0.10" />
 
 
     <!-- Spawn Break Beam (In) -->
     <node name="$(arg break_beam_in)spawner" pkg="gazebo_ros" type="spawn_model" output="screen"
-        args="-urdf -x 1.20 -y 0.00 -z 0.62 -R 0.00 -P 0.00 -Y 0.00 -model $(arg break_beam_in) -param $(arg break_beam_in)description"/>
+        args="-urdf -x 1.20 -y -0.025 -z 0.22 -R 0.00 -P 0.00 -Y 0.00 -model $(arg break_beam_in) -param $(arg break_beam_in)description"/>
 
     <!-- Spawn Break Beam (Out) -->
     <node name="$(arg break_beam_out)spawner" pkg="gazebo_ros" type="spawn_model" output="screen"
-        args="-urdf -x -1.20 -y 0.00 -z 0.62 -Y -3.14 -model $(arg break_beam_out) -param $(arg break_beam_out)description"/>
+        args="-urdf -x -1.20 -y -0.20 -z 0.22 -Y -3.14 -model $(arg break_beam_out) -param $(arg break_beam_out)description"/>
 
 
 	<!-- Spawn UR5 Robot -->
