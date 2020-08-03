@@ -25,6 +25,9 @@
     <arg name="spawn_auto" default="true" />
 
 
+    <!-- Conveyor Power ([0-100]%) -->
+    <arg name='conveyor_power' default='25.0' />
+
 	<!-- Gazebo Arguments -->
     <arg name="debug" default="false" />
     <arg name="verbose" default="false" />
@@ -116,7 +119,12 @@
 	<!-- <node pkg="ur5_t2_4230" name="test_conveyor_beam" type="test_conveyor_beam.py" output="screen" /> -->
 
     <!-- Spawn Order Manager -->
-    <!-- <node pkg="ur5_t2_4230" name="order_manager" type="order_manager.py" output="screen" > -->
+    <node pkg="ur5_t2_4230" name="order_manager" type="order_manager.py" output="screen" >
+        <rosparam param="object_colors" subst_value="True">$(arg object_colors)</rosparam>
+        <rosparam param="object_shapes" subst_value="True">$(arg object_shapes)</rosparam>
+        <rosparam param="conveyor_power" subst_value="True">$(arg conveyor_power)</rosparam>
+
+    </node>
     <!-- </ -->
 
 
