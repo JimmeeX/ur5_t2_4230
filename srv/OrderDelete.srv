@@ -1,0 +1,7 @@
+## request
+string id
+
+---
+# response
+bool success
+string message

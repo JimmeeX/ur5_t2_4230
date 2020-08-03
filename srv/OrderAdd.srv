@@ -1,0 +1,9 @@
+# request
+string category
+string value
+uint8 goal
+
+---
+# response
+bool success
+string message

@@ -57,6 +57,7 @@ add_message_files(
     msg
   FILES
     Proximity.msg
+    Order.msg
     ConveyorBeltState.msg
 )
 
@@ -66,6 +67,9 @@ add_service_files(
     srv
   FILES
     ConveyorBeltControl.srv
+    OrderAdd.srv
+    OrderDelete.srv
+    OrderGet.srv
 )
 
 ## Generate actions in the 'action' folder
