@@ -1,5 +1,5 @@
 ## request
-string id
+int64 id
 
 ---
 # response
