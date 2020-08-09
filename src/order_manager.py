@@ -5,7 +5,9 @@ Main Flow Manager
 Manages Orders on Server-side
 
 Author: James Lin
-
+TODO:
+    - Testing (Logic)
+    - Testing with actual modules and not mock functions
 """
 
 import rospy
@@ -67,6 +69,7 @@ class OrderManager():
         self._conveyor_power = rospy.get_param("order_manager/conveyor_power")
         self._colors = rospy.get_param("order_manager/object_colors")
         self._shapes = rospy.get_param("order_manager/object_shapes")
+        self._is_container_ready = False # Boolean stating whether container is ready for pick-and-drop
 
         self._order_list = OrderList(
             valid_colors=self._colors + ['none'],
@@ -97,6 +100,10 @@ class OrderManager():
         # Temporary Testing
         self._servers['vision_detect_object'] = rospy.Service("/vision/detect_object", Trigger, self.handleVisionDetectObjectRequest)
         self._servers['motion_move_to_object'] = rospy.Service("/motion/move_to_object", MoveToObject, self.handleMotionMoveToObjectRequest)
+        self._servers['motion_move_to_home'] = rospy.Service("/motion/move_to_home", Trigger, self.handleMockTrigger)
+        self._servers['motion_pickup_object'] = rospy.Service("/motion/pickup_object", Trigger, self.handleMockTrigger)
+        self._servers['motion_drop_object'] = rospy.Service("/motion/drop_object", Trigger, self.handleMockTrigger)
+        self._servers['motion_move_to_container'] = rospy.Service("/motion/move_to_container", Trigger, self.handleMockTrigger)
 
 
         # Initialise Clients
@@ -107,6 +114,7 @@ class OrderManager():
         self._clients['motion_move_to_home'] = rospy.ServiceProxy("/motion/move_to_home", Trigger)
         self._clients['motion_move_to_object'] = rospy.ServiceProxy("/motion/move_to_object", MoveToObject)
         self._clients['motion_pickup_object'] = rospy.ServiceProxy("/motion/pickup_object", Trigger)
+        self._clients['motion_drop_object'] = rospy.ServiceProxy("/motion/drop_object", Trigger)
         self._clients['motion_move_to_container'] = rospy.ServiceProxy("/motion/move_to_container", Trigger)
 
         return
@@ -135,7 +143,7 @@ class OrderManager():
         success, message = self._order_list.delete_order(id=request.id)
         if not success: rospy.logerr(message)
 
-        response = OrderAddResponse(
+        response = OrderDeleteResponse(
             success=success,
             message=message
         )
@@ -261,6 +269,7 @@ class OrderManager():
         """
         If a container/object arrives to break beam, then we stop to process the new order
         """
+
         if not msg.data: return # Ignore objects leaving beams
 
         if id == 'in':
@@ -271,27 +280,71 @@ class OrderManager():
                 return
 
             # Get Vision Feedback
+            rospy.loginfo('[OrderManager] Waiting for Vision Feedback...')
             response_object_detect = self.sendVisionObjectDetectRequest()
             if response_object_detect is None:
                 self.startConveyorIn()
                 return
-
             color, shape, x, y, z = response_object_detect
+            rospy.loginfo('[OrderManager] Got Vision Feedback: color - ' + color + '\tshape - '+ shape + '\tx - ' + str(x) + '\ty - ' + str(y) + '\tz - ' + str(z))
+
+            rospy.loginfo('[OrderManager] Checking if object is needed...')
             # Check Order is needed
             if not self._order_list.is_object_needed(color=color, shape=shape):
+                rospy.loginfo('[OrderManager] Object is not needed...resuming conveyor')
                 self.startConveyorIn()
                 return
+            rospy.loginfo('[OrderManager] Object is needed!')
 
             # Move to object
+            rospy.loginfo('[OrderManager] Triggering Move To Object...')
             response_move_to_object = self.sendMoveToObjectRequest(x=x, y=y, z=z)
             if not (response_move_to_object and response_move_to_object.success):
-                # TODO: Move to home as part of cleanup?
+                self.sendTriggerRequest(service_key='motion_move_to_home')
                 self.startConveyorIn()
                 return
+            rospy.loginfo('[OrderManager] Successfully Moved to Object!')
 
-            rospy.loginfo('[OrderManager] Successful so far...')
-            # TODO: Continue the flow
-            # ...
+            # Pickup Object
+            rospy.loginfo('[OrderManager] Triggering Pickup Object')
+            response_pickup_object = self.sendTriggerRequest(service_key='motion_pickup_object')
+            if not (response_pickup_object and response_pickup_object.success):
+                self.sendTriggerRequest(service_key='motion_move_to_home')
+                self.startConveyorIn()
+                return
+            rospy.loginfo('[OrderManager] Successfully Picked up object!')
+
+            # Move to container
+            rospy.loginfo('[OrderManager] Triggering Move to Container...')
+            response_move_to_container = self.sendTriggerRequest('motion_move_to_container')
+            if not (response_move_to_container and response_move_to_container.success):
+                self.sendTriggerRequest(service_key='motion_move_to_home')
+                self.startConveyorIn()
+                return
+            rospy.loginfo('[OrderManager] Succesfully Moved to Container!')
+
+            if not self._is_container_ready: self.waitForContainer()
+
+            # Drop Object
+            rospy.loginfo('[OrderManager] Triggering Drop Object to Container...')
+            response_drop_object = self.sendTriggerRequest('motion_drop_object')
+            if not (response_drop_object and response_drop_object.success):
+                self.sendTriggerRequest(service_key='motion_move_to_home')
+                self.startConveyorIn()
+                return
+            rospy.loginfo('[OrderManager] Successfully Dropped Object to Container!')
+
+            # Object Dropped Successfully
+            # Update order
+            is_order_done, new_order_ready = self._order_list.update_order()
+            if is_order_done: self.startConveyorOut(spawn=new_order_ready)
+
+            # Reset
+            self.sendTriggerRequest(service_key='motion_move_to_home')
+            self.startConveyorIn()
+            return
+
+
 
         elif id == 'out':
             response_conveyor = self.stopConveyorOut()
@@ -324,14 +377,24 @@ class OrderManager():
         """Activate Conveyor Belt Out; Spawn Container if necessary (if order exists)"""
         if spawn: self._publishers['spawner_create_container'].publish(Empty())
         response = self.sendConveyorControlRequest(id='out', state='on')
+        self._is_container_ready = False
         return
 
 
     def stopConveyorOut(self):
         """Stop Conveyor Belt Out"""
         response = self.sendConveyorControlRequest(id='out', state='off')
+        self._is_container_ready = True
         return response
 
+
+    def waitForContainer(self):
+        """Loops until container arrives"""
+        rospy.loginfo('[OrderManager] Waiting for Container...')
+        while not self._is_container_ready and not rospy.is_shutdown():
+            self._rate.sleep()
+        rospy.loginfo('[OrderManager] Container has arrived!')
+        return
 
     """
     #################################
@@ -367,6 +430,17 @@ class OrderManager():
         response = TriggerResponse(
             success=True,
             message="red triangle 0.25 0.05 0.3"
+        )
+
+        return response
+
+
+    def handleMockTrigger(self, request):
+        """Mock Response"""
+
+        response = TriggerResponse(
+            success=True,
+            message="Successful Trigger Message"
         )
 
         return response

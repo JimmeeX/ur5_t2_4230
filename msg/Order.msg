@@ -3,4 +3,3 @@ string color
 string shape
 uint8 goal
 uint8 qty
-string status
