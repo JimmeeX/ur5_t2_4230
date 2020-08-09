@@ -22,6 +22,9 @@ from ur5_t2_4230.srv import (
     ConveyorBeltControl,
     ConveyorBeltControlRequest,
     ConveyorBeltControlResponse,
+    MoveToObject,
+    MoveToObjectRequest,
+    MoveToObjectResponse,
     OrderAdd,
     OrderAddRequest,
     OrderAddResponse,
@@ -93,11 +96,20 @@ class OrderManager():
         self._clients = {}
         self._clients['conveyor_control_in'] = rospy.ServiceProxy("/ur5_t2_4230/conveyor/control/in", ConveyorBeltControl)
         self._clients['conveyor_control_out'] = rospy.ServiceProxy("/ur5_t2_4230/conveyor/control/out", ConveyorBeltControl)
+        self._clients['vision_detect_object'] = rospy.ServiceProxy("/vision/detect_object", Trigger)
+        self._clients['motion_move_to_home'] = rospy.ServiceProxy("/motion/move_to_home", Trigger)
+        self._clients['motion_move_to_object'] = rospy.ServiceProxy("/motion/move_to_object", MoveToObject)
+        self._clients['motion_pickup_object'] = rospy.ServiceProxy("/motion/pickup_object", Trigger)
+        self._clients['motion_move_to_container'] = rospy.ServiceProxy("/motion/move_to_container", Trigger)
 
         return
 
 
-    """SERVER-SIDE HANDLERS"""
+    """
+    ####################
+    SERVER-SIDE HANDLERS
+    ####################
+    """
     def handleOrderAddRequest(self, request):
         # TODO
         rospy.loginfo(request)
@@ -132,12 +144,90 @@ class OrderManager():
         )
         return response
 
+
     """
+    #####################
+    CLIENT-SIDE FUNCTIONS
+    #####################
+    """
+
+    def sendConveyorControlRequest(self, id, state):
+        """
+        Handles Turning both Conveyor On/Off by sending requests to
+            - /ur5_t2_4230/conveyor/control/in
+            - /ur5_t2_4230/conveyor/control/out
+
+        Returns ConveyorBeltControlResponse object if exist otherwise None
+        """
+
+        service_name = 'conveyor_control_' + id
+        client = self._clients[service_name]
+
+        if state == 'on': power = self._conveyor_power # Default Conveyor Power
+        elif state == 'off': power = 0.0 # Turn off Conveyor
+
+        request = ConveyorBeltControlRequest(ConveyorBeltState(power=power))
+        try:
+            response = client(request)
+            if response.success: rospy.loginfo('[OrderManager] Successfully turn ' + state + ' ' + service_name)
+            else: rospy.logerr('[OrderManager] Conveyor control failed. Please try again')
+            return response
+        except rospy.ServiceException as exc:
+            rospy.logerr('[OrderManager] Service did not process request: ' + str(exc))
+            return None
+
+
+    def sendTriggerRequest(self, service_name):
+        """
+        General Trigger Request for any trigger-based service
+
+        Returns TriggerResponse object
+        """
+        client = self._clients[service_name]
+
+        request = TriggerRequest()
+        try:
+            response = client(request)
+            if response.success: rospy.loginfo('[OrderManager] - ' + service_name + ': ' + response.message)
+            else: rospy.logerr('[OrderManager] - ' + service_name + ': ' + response.message)
+            return response
+        except rospy.ServiceException as exc:
+            rospy.logerr('[OrderManager] Service did not process request: ' + str(exc))
+            return None
+
+
+    def sendMoveToObjectRequest(self, x, y, z):
+        """
+        Send Custom Trigger for robot to move to object
+        """
+        service_name = '/motion/move_to_object'
+        client = self._clients[service_name]
+
+        request = MoveToObjectRequest(
+            location=Point(
+                x=x,
+                y=y,
+                z=z
+            )
+        )
+        try:
+            response = client(request)
+            if response.success: rospy.loginfo('[OrderManager] - ' + service_name + ': ' + response.message)
+            else: rospy.logerr('[OrderManager] - ' + service_name + ': ' + response.message)
+            return response
+        except rospy.ServiceException as exc:
+            rospy.logerr('[OrderManager] Service did not process request: ' + str(exc))
+            return None
+
+
+    """
+    ##########################
     CLASS SUBSCRIBER CALLBACKS
+    ##########################
     """
 
     def handleVisionCallback(self, msg):
-        # TODO
+        # TODO (also temporary if vision is converted to server-side)
         rospy.loginfo('[OrderManager - handleVisionCallback]' + str(msg))
 
         # print(msg)
@@ -152,16 +242,11 @@ class OrderManager():
 
         if id == 'in': self._publishers['spawner_set_auto'].publish(Bool(False))
 
-        client = self._clients['conveyor_control_' + id]
-        request = ConveyorBeltControlRequest(ConveyorBeltState(power=0.00))
+        # Stop Conveyor
+        response = self.sendConveyorControlRequest(id=id, state='off')
 
-        try:
-            response = client(request)
-            rospy.loginfo('[OrderManager] Successfully stopped conveyor_belt_' + id)
-        except rospy.ServiceException as exc:
-            rospy.logerr("[OrderManager] Service did not process request: " + str(exc))
+        return response
 
-        return
 
 
 if __name__ == "__main__":
