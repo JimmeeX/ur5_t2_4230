@@ -3,13 +3,12 @@
 import time
 
 class Order():
-    def __init__(self, color, shape, goal, status='queued'):
+    def __init__(self, color, shape, goal):
         self._id = int(time.time() * 1000)  # Unique Unix Timestamp in milliseconds
         self._color = color                 # Any valid color or 'none'
         self._shape = shape                 # Any valid shape or 'none'
         self._goal = goal                   # Target Quantity
         self._qty = 0                       # Current Quantity
-        self._status = status               # queued, doing, done
 
     @property
     def id(self):
@@ -36,42 +35,35 @@ class Order():
         return self._qty
 
 
-    @property
-    def status(self):
-        return self._status
-
-
     def inc_qty(self):
         """Increment Quantity when a new object has been placed"""
         self._qty += 1
 
 
-    def set_status(self, status):
-        self._status = status
-
-
 class OrderList():
     def __init__(self, valid_colors, valid_shapes):
-        self._orders = []
-        self._order_doing = None
+        self._orders_queued = []
+        self._orders_doing = [] # List, but for this implementation, there will only be one order 'doing' at a time
+        self._orders_done = []
         self._valid_colors = valid_colors
         self._valid_shapes = valid_shapes
 
 
     @property
     def orders_queued(self):
-        return list(filter(lambda o: o.status == 'queued', self._orders))
+        """Gets queue of orders (sorted oldest first)"""
+        return self._orders_queued
 
 
     @property
     def orders_doing(self):
-        if self._order_doing is None: return []
-        return [self._order_doing]
+        return self._orders_doing
 
 
     @property
     def orders_done(self):
-        return list(filter(lambda o: o.status == 'done', self._orders))
+        """Gets list of finished orders (sorted newest first)"""
+        return self._orders_done
 
 
     def add_order(self, color, shape, goal):
@@ -87,25 +79,24 @@ class OrderList():
         # Valid Order
 
         # Check if there is an order that is currently 'doing'
-        if self._order_doing is None:
+        if len(self._orders_doing) == 0:
+            # Add it straight to the 'doing' queue
             order = Order(
                 color=color,
                 shape=shape,
                 goal=goal,
-                status='doing'
             )
             triggerSpawnContainer = True
-            self._order_doing = order
+            self._orders_doing.append(order)
         else:
+            # Add it to the waiting queue
             order = Order(
                 color=color,
                 shape=shape,
                 goal=goal,
-                status='queued'
             )
             triggerSpawnContainer = False
-
-        self._orders.append(order)
+            self._orders_queued.append(order)
 
         return (True, 'Order added successfully', triggerSpawnContainer)
 
@@ -114,9 +105,9 @@ class OrderList():
         """
         - Can only remove orders that are 'queued'
         """
-        new_orders = list(filter(lambda o: o.id == id and o.status == 'queued', self._orders))
-        if len(new_orders) == len(self._orders) - 1:
-            self._orders = new_orders.copy()
+        new_orders = list(filter(lambda o: o.id == id, self._orders_queued))
+        if len(new_orders) == len(self._orders_queued) - 1:
+            self._orders_queued = new_orders.copy()
             return (True, 'Order deleted successfully')
         else:
             return (False, 'Failed to delete order')
@@ -124,36 +115,45 @@ class OrderList():
 
     def is_object_needed(self, color, shape):
         """Checks if object is needed for current order"""
-        if self._order_doing is None: return False
+        if len(self._orders_doing) == 0: return False
 
-        if self._order_doing.color != 'none':
-            if color != self._order_doing.color: return False
+        order = self._orders_doing[0]
+        if order.color != 'none':
+            if color != order.color: return False
 
-        if self._order_doing.shape == 'none':
-            if shape != self._order_doing.shape: return False
+        if order.shape != 'none':
+            if shape != order.shape: return False
 
         return True
 
-    def finish_order(self):
+    def update_order(self):
         """
-        Sets current order to done, and takes in the next order in the queue to work on
+        Updates current order, checks if it's finished, and takes in the next order in the queue to work on if needed
+
+        Returns Tuple
+        - is_order_done
+        - new_order_ready
         """
-        # TODO
-        pass
+        is_order_done = False
+        new_order_ready = False
 
+        if len(self._orders_doing) == 0: return (False, False)
 
-    def _get_orders_by_status(self, status):
-        # TODO
-        return list(sorted(filter(lambda o: o.status == status, self._orders), key=lambda o: o.id))
+        # Update Current Order
+        order = self._orders_doing[0]
+        order.inc_qty()
 
+        if order.qty == order.goal:
+            is_order_done = True
 
-    # def get_orders_by_status(self):
+            # Move order from doing to done
+            order = self._orders_doing.pop()
+            self._orders_done.insert(0, order) # Insert at beginning to enforce newest done at beginning of list
 
+            # Take the next item in the queue to doing if exists
+            if len(self._orders_queued) > 0:
+                new_order_ready = True
+                new_order = self._orders_queued.pop(0)
+                self._orders_doing.append(new_order)
 
-
-
-
-
-
-
-
+        return is_order_done, new_order_ready
