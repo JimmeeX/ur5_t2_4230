@@ -2,8 +2,8 @@
 
 ---
 # response
-Order[] orders_queue
+Order[] orders_queued
+Order[] orders_doing
 Order[] orders_done
-Order doing
 bool success
 string message

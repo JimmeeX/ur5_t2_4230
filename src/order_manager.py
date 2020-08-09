@@ -68,7 +68,10 @@ class OrderManager():
         self._colors = rospy.get_param("order_manager/object_colors")
         self._shapes = rospy.get_param("order_manager/object_shapes")
 
-        self._order_list = OrderList() # Initialise with no current orders
+        self._order_list = OrderList(
+            valid_colors=self._colors + ['none'],
+            valid_shapes=self._shapes + ['none']
+        )
         self._rate = rospy.Rate(SLEEP_RATE)
 
 
@@ -115,34 +118,35 @@ class OrderManager():
     ####################
     """
     def handleOrderAddRequest(self, request):
-        # TODO
-        rospy.loginfo(request)
-        # rospy.loginfo('[OrderManager - handleOrderAddRequest] ', request)
+        # Validate && Add Order to Order List
+        success, message, trigger_container = self._order_list.add_order(color=request.color, shape=request.shape, goal=request.goal)
+        if not success: rospy.logerr(message)
+
+        if trigger_container: self.startConveyorOut(spawn=True)
 
         response = OrderAddResponse(
-            success=True,
-            message="Order added successfully"
+            success=success,
+            message=message
         )
         return response
 
 
     def handleOrderDeleteRequest(self, request):
-        # TODO
-        rospy.loginfo('[OrderManager - handleOrderDeleteRequest] '+ str(request))
-
+        success, message = self._order_list.delete_order(id=request.id)
+        if not success: rospy.logerr(message)
 
         response = OrderAddResponse(
-            success=True,
-            message="Order deleted successfully"
+            success=success,
+            message=message
         )
         return response
 
 
     def handleOrderGetRequest(self, request):
-        rospy.loginfo('[OrderManager - handleOrderGetRequest] ' + str(request))
-        # TODO
-
-        response = OrderAddResponse(
+        response = OrderGetResponse(
+            orders_queued=self._order_list.orders_queued,
+            orders_doing=self._order_list.orders_doing,
+            orders_done=self._order_list.orders_done,
             success=True,
             message="Order retrieved successfully"
         )
@@ -204,7 +208,7 @@ class OrderManager():
         """
         Wrapper of sendTriggerRequest for Vision Object Detect with message parsing.
 
-        Returns tuple if object exists; otherwise None
+        Returns tuple (eg, ('red', 'triangle', 0.25, 0.05, 0.3)) if object exists; otherwise None
         """
         response = self.sendTriggerRequest(service_key='vision_detect_object')
         if response and response.success:
@@ -213,6 +217,7 @@ class OrderManager():
             args = message.split()
             return (args[0], args[1], float(args[2]), float(args[3]), float(args[4]))
         else: return None
+
 
     def sendMoveToObjectRequest(self, x, y, z):
         """
@@ -271,11 +276,20 @@ class OrderManager():
                 self.startConveyorIn()
                 return
 
-            # TODO: Check Order is needed
+            color, shape, x, y, z = response_object_detect
+            # Check Order is needed
+            if not self._order_list.is_object_needed(color=color, shape=shape):
+                self.startConveyorIn()
+                return
 
             # Move to object
-            response_move_to_object = self.sendMoveToObjectRequest(x=0.0, y=0.0, z=0.0)
+            response_move_to_object = self.sendMoveToObjectRequest(x=x, y=y, z=z)
+            if not (response_move_to_object and response_move_to_object.success):
+                # TODO: Move to home as part of cleanup?
+                self.startConveyorIn()
+                return
 
+            rospy.loginfo('[OrderManager] Successful so far...')
             # TODO: Continue the flow
             # ...
 
@@ -308,7 +322,7 @@ class OrderManager():
 
     def startConveyorOut(self, spawn=False):
         """Activate Conveyor Belt Out; Spawn Container if necessary (if order exists)"""
-        self._publishers['spawner_create_container'].publish(Empty())
+        if spawn: self._publishers['spawner_create_container'].publish(Empty())
         response = self.sendConveyorControlRequest(id='out', state='on')
         return
 
