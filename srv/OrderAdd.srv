@@ -1,6 +1,6 @@
 # request
-string category
-string value
+string color
+string shape
 uint8 goal
 
 ---

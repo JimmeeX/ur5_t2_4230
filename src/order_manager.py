@@ -91,6 +91,10 @@ class OrderManager():
         self._servers['order_delete'] = rospy.Service('order_manager/delete', OrderDelete, self.handleOrderDeleteRequest)
         self._servers['order_get'] = rospy.Service('order_manager/get', OrderGet, self.handleOrderGetRequest)
 
+        # Temporary Testing
+        self._servers['vision_detect_object'] = rospy.Service("/vision/detect_object", Trigger, self.handleVisionDetectObjectRequest)
+        self._servers['motion_move_to_object'] = rospy.Service("/motion/move_to_object", MoveToObject, self.handleMotionMoveToObjectRequest)
+
 
         # Initialise Clients
         self._clients = {}
@@ -160,8 +164,8 @@ class OrderManager():
         Returns ConveyorBeltControlResponse object if exist otherwise None
         """
 
-        service_name = 'conveyor_control_' + id
-        client = self._clients[service_name]
+        service_key = 'conveyor_control_' + id
+        client = self._clients[service_key]
 
         if state == 'on': power = self._conveyor_power # Default Conveyor Power
         elif state == 'off': power = 0.0 # Turn off Conveyor
@@ -169,7 +173,7 @@ class OrderManager():
         request = ConveyorBeltControlRequest(ConveyorBeltState(power=power))
         try:
             response = client(request)
-            if response.success: rospy.loginfo('[OrderManager] Successfully turn ' + state + ' ' + service_name)
+            if response.success: rospy.loginfo('[OrderManager] Successfully turn ' + state + ' ' + service_key)
             else: rospy.logerr('[OrderManager] Conveyor control failed. Please try again')
             return response
         except rospy.ServiceException as exc:
@@ -177,31 +181,45 @@ class OrderManager():
             return None
 
 
-    def sendTriggerRequest(self, service_name):
+    def sendTriggerRequest(self, service_key):
         """
         General Trigger Request for any trigger-based service
 
         Returns TriggerResponse object
         """
-        client = self._clients[service_name]
+        client = self._clients[service_key]
 
         request = TriggerRequest()
         try:
             response = client(request)
-            if response.success: rospy.loginfo('[OrderManager] - ' + service_name + ': ' + response.message)
-            else: rospy.logerr('[OrderManager] - ' + service_name + ': ' + response.message)
+            if response.success: rospy.loginfo('[OrderManager] - ' + service_key + ': ' + response.message)
+            else: rospy.logerr('[OrderManager] - ' + service_key + ': ' + response.message)
             return response
         except rospy.ServiceException as exc:
             rospy.logerr('[OrderManager] Service did not process request: ' + str(exc))
             return None
 
 
+    def sendVisionObjectDetectRequest(self):
+        """
+        Wrapper of sendTriggerRequest for Vision Object Detect with message parsing.
+
+        Returns tuple if object exists; otherwise None
+        """
+        response = self.sendTriggerRequest(service_key='vision_detect_object')
+        if response and response.success:
+            # Parse Message to get Information
+            message = response.message
+            args = message.split()
+            return (args[0], args[1], float(args[2]), float(args[3]), float(args[4]))
+        else: return None
+
     def sendMoveToObjectRequest(self, x, y, z):
         """
         Send Custom Trigger for robot to move to object
         """
-        service_name = '/motion/move_to_object'
-        client = self._clients[service_name]
+        service_key = 'motion_move_to_object'
+        client = self._clients[service_key]
 
         request = MoveToObjectRequest(
             location=Point(
@@ -212,8 +230,8 @@ class OrderManager():
         )
         try:
             response = client(request)
-            if response.success: rospy.loginfo('[OrderManager] - ' + service_name + ': ' + response.message)
-            else: rospy.logerr('[OrderManager] - ' + service_name + ': ' + response.message)
+            if response.success: rospy.loginfo('[OrderManager] - ' + service_key + ': ' + response.message)
+            else: rospy.logerr('[OrderManager] - ' + service_key + ': ' + response.message)
             return response
         except rospy.ServiceException as exc:
             rospy.logerr('[OrderManager] Service did not process request: ' + str(exc))
@@ -240,10 +258,102 @@ class OrderManager():
         """
         if not msg.data: return # Ignore objects leaving beams
 
-        if id == 'in': self._publishers['spawner_set_auto'].publish(Bool(False))
+        if id == 'in':
+            # Stop Conveyor In
+            response_conveyor = self.stopConveyorIn()
+            if not response_conveyor.success:
+                self.startConveyorIn()
+                return
 
-        # Stop Conveyor
-        response = self.sendConveyorControlRequest(id=id, state='off')
+            # Get Vision Feedback
+            response_object_detect = self.sendVisionObjectDetectRequest()
+            if response_object_detect is None:
+                self.startConveyorIn()
+                return
+
+            # TODO: Check Order is needed
+
+            # Move to object
+            response_move_to_object = self.sendMoveToObjectRequest(x=0.0, y=0.0, z=0.0)
+
+            # TODO: Continue the flow
+            # ...
+
+        elif id == 'out':
+            response_conveyor = self.stopConveyorOut()
+            return
+
+        return
+
+
+    """
+    ################
+    HELPER FUNCTIONS
+    ################
+    """
+
+    def startConveyorIn(self):
+        """Continue Spawning Objects && Moving Conveyor Belt"""
+        self._publishers['spawner_set_auto'].publish(Bool(True))
+        response = self.sendConveyorControlRequest(id='in', state='on')
+        return response
+
+
+    def stopConveyorIn(self):
+        """Stop Spawning Objects && Stop Conveyor Belt"""
+        self._publishers['spawner_set_auto'].publish(Bool(False))
+        response = self.sendConveyorControlRequest(id='in', state='off')
+        return response
+
+
+    def startConveyorOut(self, spawn=False):
+        """Activate Conveyor Belt Out; Spawn Container if necessary (if order exists)"""
+        self._publishers['spawner_create_container'].publish(Empty())
+        response = self.sendConveyorControlRequest(id='out', state='on')
+        return
+
+
+    def stopConveyorOut(self):
+        """Stop Conveyor Belt Out"""
+        response = self.sendConveyorControlRequest(id='out', state='off')
+        return response
+
+
+    """
+    #################################
+    MOCK SERVER FUNCTIONS FOR TESTING
+    #################################
+    """
+
+    def handleMotionMoveToObjectRequest(self, request):
+        """Mock Response Demo wait 5 seconds"""
+        print(request)
+        # point = request.location
+        # rospy.logwarn(point.x, point.y, point.z)
+
+        motionIsFinished = False
+        counter = 0
+        while not motionIsFinished and not rospy.is_shutdown():
+            if counter >= 5.0 * SLEEP_RATE: motionIsFinished = True
+            counter += 1
+            # Publish Feedback??
+
+            self._rate.sleep()
+
+        response = MoveToObjectResponse(
+            success=True,
+            message="Robot move to object successfully"
+        )
+
+        return response
+
+    def handleVisionDetectObjectRequest(self, request):
+        """Mock Response"""
+
+        response = TriggerResponse(
+            success=True,
+            message="red triangle 0.25 0.05 0.3"
+        )
 
         return response
 
