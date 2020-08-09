@@ -3,13 +3,13 @@
 import time
 
 class Order():
-    def __init__(self, category, value, goal, status='queued'):
-        self._id = time.time()    # Unique Unix Timestamp
-        self._category = category # color, shape
-        self._value = value
-        self._goal = goal
-        self._qty = 0
-        self._status = status # queued, doing, done
+    def __init__(self, color, shape, goal, status='queued'):
+        self._id = time.time()  # Unique Unix Timestamp
+        self._color = color     # Any valid color or 'none'
+        self._shape = shape     # Any valid shape or 'none'
+        self._goal = goal       # Target Quantity
+        self._qty = 0           # Current Quantity
+        self._status = status   # queued, doing, done
 
     @property
     def id(self):
@@ -17,13 +17,13 @@ class Order():
 
 
     @property
-    def category(self):
-        return self._category
+    def color(self):
+        return self._color
 
 
     @property
-    def value(self):
-        return self._value
+    def shape(self):
+        return self._shape
 
 
     @property
@@ -55,7 +55,7 @@ class OrderList():
         self._orders = []
 
 
-    def add_order(self, id, category, value, qty, status):
+    def add_order(self, id, color, shape, qty, status):
         # TODO
         pass
 
