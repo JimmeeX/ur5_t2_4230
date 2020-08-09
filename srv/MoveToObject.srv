@@ -1,5 +1,5 @@
 # request
-Point location
+geometry_msgs/Point location
 
 ---
 # response
