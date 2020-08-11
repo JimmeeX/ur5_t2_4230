@@ -9,7 +9,7 @@ clear all;
 close all;
 
 % Connect to the ROS environment
-ipaddress = '192.168.1.110';
+ipaddress = '192.168.1.108';
 robotType = 'Gazebo'
 rosshutdown;
 rosinit(ipaddress);
@@ -67,7 +67,15 @@ while 1
                 [X, Y] = getCentreCoordinates(stats(k));
                 
                 % Get Z coordinate
-                Z = round(xyz(Y, X, 3),3);
+                Z = xyz(X, Y, 3);
+                %Z = min(xyz(X-50:X+50,Y-50:Y+50,3));
+               
+                
+                fprintf('X = %f, Y = %f, Z = %f\n', X, Y, Z);
+                
+                X = -X/640*(640*500/480)/1000 + 1/3;
+                Y = 0.25 - Y/480*(480*500/480)/1000 + 0.5;
+                Z = -(Z - 0.575) + 0.25;
                 
                 % Get shape
                 blockImage = imcrop(testIm, stats(k).BoundingBox);
