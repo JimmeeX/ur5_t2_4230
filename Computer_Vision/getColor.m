@@ -1,16 +1,15 @@
-function color = getColor(im)
-% pixelValue = im(x,y,:);
-
-colors = ["red", "green", "blue"];
-
-% [value, index] = max(pixelValue);
-% 
-% disp(pixelValue);
-% disp(value);
-% disp(index);
-% disp(colors(index));
-% color = colors(index);
-
-color = colors(randi(3));
-
+function color = getColor(image, X, Y)
+    rgb = image(Y, X, :);
+    
+    [~, I] = max(rgb);
+    
+    switch I
+        case 1
+            color = 'red';
+        case 2
+            color = 'green';
+        case 3
+            color = 'blue';
+    end
 end
+

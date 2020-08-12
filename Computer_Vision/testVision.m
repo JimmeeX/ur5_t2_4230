@@ -25,6 +25,7 @@ while 1
     
     subplot(3,2,[3 4 5 6]);
     imshow(im);
+    
 
     for k=1:length(stats)
         bbox = stats(k).BoundingBox;
@@ -36,57 +37,25 @@ while 1
             bbox = stats(k).BoundingBox;
             
             % Get Color
-            color = getColor(block);
-            
+            color = getColor(im, X, Y);           
+
             % Get Shape
             blockImage = imcrop(im, bbox);
             shape = getShape(blockImage);
             
+            % Transform coordinates
+            [Xt, Yt] = transformCoordinates(X, Y);
+            
             % Add Bounding Rectangle
-            rectangle('Position', bbox, 'EdgeColor', color, 'LineWidth', 3)
-            text(X-width/2, Y, shape, 'fontsize', 10, 'FontWeight', 'bold', 'Color', color);
+            rectangle('Position', bbox, 'EdgeColor', 'b', 'LineWidth', 3)
+            hold on
+            plot(X, Y, 'bx', 'MarkerSize', 8)
+            hold off
+            text(X-width/2, Y-height, strcat(color, {' '}, shape), 'fontsize', 10, 'FontWeight', 'bold', 'Color', 'm');
+            text(X-width/2, Y+height, strcat(num2str(Xt), {', '}, num2str(Yt)), 'fontsize', 10, 'FontWeight', 'bold', 'Color', 'y');
+            
         end
     end
-    % Get Color
-    
-    % Get Shape
-    
-    % Visualise
+
     pause(0.1);
 end
-% for k=1:length(stats)
-%     % Disregard erroneous regions by only taking regions large
-%     % enough to be a block
-%     if (stats(k).FilledArea > 1500)
-%         % Get X and Y coordinates
-%         [X, Y] = getCentreCoordinates(stats(k));
-% 
-%         % Get Z coordinate
-%         Z = xyz(X, Y, 3);
-%         %Z = min(xyz(X-50:X+50,Y-50:Y+50,3));
-% 
-% 
-%         fprintf('X = %f, Y = %f, Z = %f\n', X, Y, Z);
-% 
-%         X = -X/640*(640*500/480)/1000 + 1/3;
-%         Y = 0.25 - Y/480*(480*500/480)/1000 + 0.5;
-%         Z = -(Z - 0.575) + 0.25;
-% 
-%         % Get shape
-%         blockImage = imcrop(testIm, stats(k).BoundingBox);
-%         [Shape] = getShape(blockImage);
-% 
-%         % Print out all obtained information
-%         fprintf('Block num %d:\n', k);
-%         fprintf('X = %d, Y = %d, Z = %d\n', X, Y, Z);
-%         fprintf('Shape: %s\n', Shape);
-%         %plot(X, Y, 'bx', 'MarkerSize', 8, 'LineWidth', 2);
-% 
-%         % Publish message on topic '/msg/computer_vision'
-%         visionpub = rospublisher('/msg/computer_vision', 'std_msgs/String');
-%         msg = rosmessage(visionpub);
-%         msg.Data = sprintf("%s %f %f %f\n", Shape, X, Y, Z);
-%         send(visionpub, msg);
-%         fprintf('Sent: %s\n', msg.Data);
-%     end
-% end
