@@ -10,7 +10,7 @@ close all;
 
 % Connect to the ROS environment
 ipaddress = '127.0.0.1';
-robotType = 'Gazebo'
+robotType = 'Gazebo';
 rosshutdown;
 rosinit(ipaddress);
 
@@ -19,7 +19,7 @@ rosinit(ipaddress);
 
 beamSub = rossubscriber('/break_beam_in_sensor', 'std_msgs/Bool');
 
-visionserver = rossvcserver('/vision/detect_object', 'std_srvs/Empty', @getData);
+visionserver = rossvcserver('/vision/detect_object', 'rosbridge_library/SendBytes', @getData);
 testclient = rossvcclient('/vision');
 
 % Continuous loop to run image processing
@@ -45,21 +45,21 @@ end
 
 
 function response = getData(~, ~, response)
+    % Image Processing Variables
+    BLOCK_AREA_THRESHOLD = 1500;
+
+    % Transform Variables
+    IM_WIDTH = 640;
+    IM_HEIGHT = 480;
+    CONVEYOR_HEIGHT = 0.5; % m
+    PIXEL_TO_REAL = CONVEYOR_HEIGHT / IM_HEIGHT; % m/pixel
+
+
     imSub = rossubscriber('/camera/color/image_raw');
     pcSub = rossubscriber('/camera/depth/points');
-    
-%     disp("A");
-    
+        
     % Get the RGB image from the ROS environment
-    testIm  = readImage(receive(imSub,5));
-    
-%     disp(testIm);
-
-    % DEBUGGING - show the image obtained
-    figure(1)
-    imshow(testIm);
-    hold on;
-    title('RGB Image received from ROS');
+    im  = readImage(receive(imSub,5));
 
     % Get the depth data from the ROS environment and convert data to
     % be in the same format as the RGB images
@@ -68,41 +68,29 @@ function response = getData(~, ~, response)
     xyz = readXYZ(ptcloud);
 
     % Isolate blocks in current image + clean up image
-    block = getBlockMask(testIm); % Extract block/s
-    imshow(block)
-%     disp(block);
+    block = getBlockMask(im); % Extract block/s
+
     % Get properties of the individual blocks from the binary mask - currently
     %only needs 'BoundingBox' and 'Centroid'
     stats = regionprops(block, 'BoundingBox', 'Centroid', 'FilledArea', 'PixelIdxList');
-
-%     disp(stats);
-    disp("AA");
     
     % For each region (there should only be 1 at a time), get the centre coordinates and shape
     for k=1:length(stats)
+        bbox = stats(k).BoundingBox;
+
         % Disregard erroneous regions by only taking regions large
         % enough to be a block
-        disp("C");
         
-        if (stats(k).FilledArea > 1500)
+        if (stats(k).FilledArea > BLOCK_AREA_THRESHOLD)
             % Get X and Y coordinates
             [X, Y] = getCentreCoordinates(stats(k));
 
-            pixelValue = testIm(x,y,:);
-
-            colors = ["red", "green", "blue"];
-
-            [value, index] = max(pixelValue);
-
-            disp(pixelValue);
-            disp(value);
-            disp(index);
-            disp(colors(index));
-            blockColor = colors(index);
-
+            % Get Color
+            color = getColor(block);
             
-%             blockColor = getColor(testIm, X, Y);
-            disp(blockColor);
+            % Get Shape
+            blockImage = imcrop(im, bbox);
+            shape = getShape(blockImage);
             
             % Get Z coordinate
             Z = xyz(X, Y, 3);
@@ -113,19 +101,15 @@ function response = getData(~, ~, response)
             Y = 0.25 - Y/480*(480*500/480)/1000 + 0.5;
             Z = -(Z - 0.575) + 0.25;
 
-            % Get shape
-            blockImage = imcrop(testIm, stats(k).BoundingBox);
-            [Shape] = getShape(blockImage);
-
             % Print out all obtained information
             fprintf('Block num %d:\n', k);
             fprintf('X = %d, Y = %d, Z = %d\n', X, Y, Z);
-            fprintf('Shape: %s\n', Shape);
+            fprintf('Shape: %s\n', shape);
             %plot(X, Y, 'bx', 'MarkerSize', 8, 'LineWidth', 2);
 
             % Return server message
-            response.Str = sprintf("%s %f %f %f\n", Shape, X, Y, Z);
-            fprintf('Sent: %s\n', response.Str);
+            response.Data = sprintf("%s %s %f %f %f\n", shape, color, X, Y, Z);
+            fprintf('Sent: %s\n', response.Data);
         end
     end
 
