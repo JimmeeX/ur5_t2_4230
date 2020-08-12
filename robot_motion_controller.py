@@ -18,6 +18,11 @@ from math import acos as acos
 from math import asin as asin
 from math import sqrt as sqrt
 from math import pi as pi
+from std_msgs.msg import Header
+from trajectory_msgs.msg import JointTrajectory
+from trajectory_msgs.msg import JointTrajectoryPoint
+import rospy
+
 
 a = np.array([0, -0.425, -0.39225, 0, 0, 0])
 d = np.array([0.089159, 0, 0, 0.10915, 0.09465, 0.0823], np.float)
@@ -167,14 +172,24 @@ def inverse_kinematics(x, y, z):
     return ideal_angles
 
 
+def sub_echo(data):
+    # Callback function should maybe set a flag that enables robot movement to begin
+    rospy.loginfo("I heard %s", data.data)
+
+
 if __name__ == "__main__":
     # Test values
     # Actual x, y, z will be received from image processing node
+    
     x = -0.455
     y = -0.2489
     z = -0.4523
 
+    rospy.init_node('robot_motion')
     # Set up publisher and subscriber protocols
+    pub = rospy.Publisher('joint_waypoints', JointTrajectory, queue_size=10)
+    sub = rospy.Subscriber('image_processing', String, sub_echo)
+
 
     # Define a 'home' position for the robot to return to if no commands are received
     home_pos = np.matrix([[191.588279356832517], [-13.63151596868293], [-133.13413638498815],
