@@ -38,7 +38,11 @@ from ur5_t2_4230.srv import (
     OrderGetResponse
 )
 
+
 from std_srvs.srv import (
+    Empty as srvEmpty,
+    EmptyRequest,
+    EmptyResponse,
     Trigger,
     TriggerRequest,
     TriggerResponse,
@@ -98,7 +102,7 @@ class OrderManager():
         self._servers['order_get'] = rospy.Service('order_manager/get', OrderGet, self.handleOrderGetRequest)
 
         # Temporary Testing
-        self._servers['vision_detect_object'] = rospy.Service("/vision/detect_object", Trigger, self.handleVisionDetectObjectRequest)
+        # self._servers['vision_detect_object'] = rospy.Service("/vision/detect_object", Trigger, self.handleVisionDetectObjectRequest)
         self._servers['motion_move_to_object'] = rospy.Service("/motion/move_to_object", MoveToObject, self.handleMotionMoveToObjectRequest)
         self._servers['motion_move_to_home'] = rospy.Service("/motion/move_to_home", Trigger, self.handleMockTrigger)
         self._servers['motion_pickup_object'] = rospy.Service("/motion/pickup_object", Trigger, self.handleMockTrigger)
@@ -110,7 +114,7 @@ class OrderManager():
         self._clients = {}
         self._clients['conveyor_control_in'] = rospy.ServiceProxy("/ur5_t2_4230/conveyor/control/in", ConveyorBeltControl)
         self._clients['conveyor_control_out'] = rospy.ServiceProxy("/ur5_t2_4230/conveyor/control/out", ConveyorBeltControl)
-        self._clients['vision_detect_object'] = rospy.ServiceProxy("/vision/detect_object", Trigger)
+        self._clients['vision_detect_object'] = rospy.ServiceProxy("/vision/detect_object", srvEmpty) # TODO: Temporary
         self._clients['motion_move_to_home'] = rospy.ServiceProxy("/motion/move_to_home", Trigger)
         self._clients['motion_move_to_object'] = rospy.ServiceProxy("/motion/move_to_object", MoveToObject)
         self._clients['motion_pickup_object'] = rospy.ServiceProxy("/motion/pickup_object", Trigger)
@@ -212,19 +216,43 @@ class OrderManager():
             return None
 
 
+    def sendEmptyRequest(self, service_key): # TODO: TEMPORARY
+        """
+        General Trigger Request for any trigger-based service
+
+        Returns TriggerResponse object
+        """
+        client = self._clients[service_key]
+
+        request = EmptyRequest()
+        try:
+            response = client(request)
+            # if response.success: rospy.loginfo('[OrderManager] - ' + service_key + ': ' + response.message)
+            # else: rospy.logerr('[OrderManager] - ' + service_key + ': ' + response.message)
+            return response
+        except rospy.ServiceException as exc:
+            rospy.logerr('[OrderManager] Service did not process request: ' + str(exc))
+            return None
+
+
     def sendVisionObjectDetectRequest(self):
         """
         Wrapper of sendTriggerRequest for Vision Object Detect with message parsing.
 
         Returns tuple (eg, ('red', 'triangle', 0.25, 0.05, 0.3)) if object exists; otherwise None
         """
-        response = self.sendTriggerRequest(service_key='vision_detect_object')
-        if response and response.success:
-            # Parse Message to get Information
-            message = response.message
-            args = message.split()
-            return (args[0], args[1], float(args[2]), float(args[3]), float(args[4]))
-        else: return None
+        response = self.sendEmptyRequest(service_key='vision_detect_object') # TODO: TEMPORARY
+
+        return None
+
+        # return response
+
+        # if response and response.success:
+        #     # Parse Message to get Information
+        #     message = response.message
+        #     args = message.split()
+        #     return (args[0], args[1], float(args[2]), float(args[3]), float(args[4]))
+        # else: return None
 
 
     def sendMoveToObjectRequest(self, x, y, z):

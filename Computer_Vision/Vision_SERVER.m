@@ -9,7 +9,7 @@ clear all;
 close all;
 
 % Connect to the ROS environment
-ipaddress = '192.168.1.108';
+ipaddress = '127.0.0.1';
 robotType = 'Gazebo'
 rosshutdown;
 rosinit(ipaddress);
@@ -19,7 +19,7 @@ rosinit(ipaddress);
 
 beamSub = rossubscriber('/break_beam_in_sensor', 'std_msgs/Bool');
 
-visionserver = rossvcserver('/vision', 'roseus/StringString', @getData);
+visionserver = rossvcserver('/vision/detect_object', 'std_srvs/Empty', @getData);
 testclient = rossvcclient('/vision');
 
 % Continuous loop to run image processing
@@ -47,15 +47,19 @@ end
 function response = getData(~, ~, response)
     imSub = rossubscriber('/camera/color/image_raw');
     pcSub = rossubscriber('/camera/depth/points');
-
+    
+%     disp("A");
+    
     % Get the RGB image from the ROS environment
     testIm  = readImage(receive(imSub,5));
+    
+%     disp(testIm);
 
     % DEBUGGING - show the image obtained
-    %figure(1)
-    %imshow(testIm);
-    %hold on;
-    %title('RGB Image received from ROS');
+    figure(1)
+    imshow(testIm);
+    hold on;
+    title('RGB Image received from ROS');
 
     % Get the depth data from the ROS environment and convert data to
     % be in the same format as the RGB images
@@ -65,20 +69,41 @@ function response = getData(~, ~, response)
 
     % Isolate blocks in current image + clean up image
     block = getBlockMask(testIm); % Extract block/s
-    %imshow(block)
-
+    imshow(block)
+%     disp(block);
     % Get properties of the individual blocks from the binary mask - currently
     %only needs 'BoundingBox' and 'Centroid'
     stats = regionprops(block, 'BoundingBox', 'Centroid', 'FilledArea', 'PixelIdxList');
 
+%     disp(stats);
+    disp("AA");
+    
     % For each region (there should only be 1 at a time), get the centre coordinates and shape
     for k=1:length(stats)
         % Disregard erroneous regions by only taking regions large
         % enough to be a block
+        disp("C");
+        
         if (stats(k).FilledArea > 1500)
             % Get X and Y coordinates
             [X, Y] = getCentreCoordinates(stats(k));
 
+            pixelValue = testIm(x,y,:);
+
+            colors = ["red", "green", "blue"];
+
+            [value, index] = max(pixelValue);
+
+            disp(pixelValue);
+            disp(value);
+            disp(index);
+            disp(colors(index));
+            blockColor = colors(index);
+
+            
+%             blockColor = getColor(testIm, X, Y);
+            disp(blockColor);
+            
             % Get Z coordinate
             Z = xyz(X, Y, 3);
             
@@ -110,6 +135,8 @@ end
 %scatter3(ptcloud)
 %title('Depth point cloud received from ROS');
 %rostopic list;
+
+
 
 
 
