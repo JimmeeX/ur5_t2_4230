@@ -26,7 +26,7 @@
 
 
     <!-- Conveyor Power ([0-100]%) -->
-    <arg name='conveyor_power' default='100.0' />
+    <arg name='conveyor_power' default='25.0' />
 
 	<!-- Gazebo Arguments -->
     <arg name="debug" default="false" />
