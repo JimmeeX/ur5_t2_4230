@@ -1,0 +1,93 @@
+@font-face {
+    font-family: "Lato";
+    src: url(../Fonts/Lato-Regular.ttf) format("truetype");
+}
+
+.ordersHeader {
+    font-family: "Lato";
+    font-size: 16px;
+    font-weight: bold;
+    color: #334150;
+    text-align: left;
+}
+
+.createHeader {
+    font-family: "Lato";
+    font-size: 14px;
+    font-weight: bold;
+    color: #334150;
+    text-align: left;
+}
+
+.createSegment {
+    /* width: 300px; */
+    background-color: #FBFCFD;
+}
+
+.ui.button.addToQueueButton {
+    margin-left: 40px;
+}
+
+.ui.segment.createSegmentComponent {
+    background-color: #FBFCFD;
+}
+
+.ui.button.createOrderAddButton {
+    background-color:#FFFFFF;
+    border: 1px solid #DEDEDF;
+    color: #334150;
+}
+
+.ui.button.createOrderAddButton:hover {
+    background-color: #ebecee;
+}
+
+.ui.button.createOrderAddButton:active {
+    background-color: #e1e5e9;
+}
+
+.queueHeader {
+    font-family: "Lato";
+    font-size: 14px;
+    font-weight: bold;
+    color: #334150;
+    text-align: left;
+}
+
+.preparingHeader {
+    font-family: "Lato";
+    font-size: 14px;
+    font-weight: bold;
+    color: #334150;
+    text-align: left;
+}
+
+.completedHeader {
+    font-family: "Lato";
+    font-size: 14px;
+    font-weight: bold;
+    color: #334150;
+    text-align: left;
+}
+
+.orderListItemShape {
+    font-family: "Lato";
+    font-size: 12px;
+    font-weight: bold;
+    color: #334150;
+    text-align: left;
+}
+
+.orderListItemColour {
+    font-family: "Lato";
+    font-size: 11px;
+    color: #334150;
+    text-align: left;
+}
+
+.orderListItemIndex {
+    font-family: "Lato";
+    font-size: 11px;
+    color: #334150;
+    text-align: left;
+}

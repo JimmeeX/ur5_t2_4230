@@ -1,0 +1,16 @@
+@font-face {
+    font-family: "Lato";
+    src: url(../Fonts/Lato-Regular.ttf) format("truetype");
+}
+
+.environmentHeaderWrapper {
+
+}
+
+.environmentHeader {
+    font-family: "Lato";
+    font-size: 16px;
+    font-weight: bold;
+    color: #334150;
+    text-align: left;
+}
