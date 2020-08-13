@@ -119,17 +119,15 @@
         <rosparam param="spawn_auto" subst_value="True">$(arg spawn_auto)</rosparam>
     </node>
 
-	<!-- [Temporary] Spawn Conveyor Test Beam node -->
-	<!-- <node pkg="ur5_t2_4230" name="test_conveyor_beam" type="test_conveyor_beam.py" output="screen" /> -->
-
     <!-- Spawn Order Manager -->
     <node pkg="ur5_t2_4230" name="order_manager" type="order_manager.py" output="screen" >
         <rosparam param="object_colors" subst_value="True">$(arg object_colors)</rosparam>
         <rosparam param="object_shapes" subst_value="True">$(arg object_shapes)</rosparam>
         <rosparam param="conveyor_power" subst_value="True">$(arg conveyor_power)</rosparam>
-
     </node>
-    <!-- </ -->
 
+    <!-- Spawn Motion Controller -->
+    <node pkg="ur5_t2_4230" name="motion" type="motion.py" output="screen" >
+    </node>
 
 </launch>
