@@ -20,13 +20,13 @@
     <!-- Object Shapes: Can use circle, triangle, square -->
     <arg name="object_shapes" default="['circle', 'triangle', 'square']" />
     <!-- Spawn Delay between objects (seconds) -->
-    <arg name="spawn_delay" default="7.0" />
+    <arg name="spawn_delay" default="5.0" />
     <!-- True for objects to spawn automatically; False to prevent spawning -->
     <arg name="spawn_auto" default="true" />
 
 
     <!-- Conveyor Power ([0-100]%) -->
-    <arg name='conveyor_power' default='25.0' />
+    <arg name='conveyor_power' default='50.0' />
 
 	<!-- Gazebo Arguments -->
     <arg name="debug" default="false" />
@@ -107,6 +107,10 @@
     #######################
     -->
 
+    <!-- Launch Web Socket to connect to Web GUI -->
+	<include file="$(find ur5_t2_4230)/launch/web.launch"></include>
+
+
 	<!-- Spawn Spawner Node (spawner.py) -->
 	<node pkg="ur5_t2_4230" name="spawner" type="spawner.py" output="screen">
         <rosparam param="object_colors" subst_value="True">$(arg object_colors)</rosparam>
@@ -115,17 +119,15 @@
         <rosparam param="spawn_auto" subst_value="True">$(arg spawn_auto)</rosparam>
     </node>
 
-	<!-- [Temporary] Spawn Conveyor Test Beam node -->
-	<!-- <node pkg="ur5_t2_4230" name="test_conveyor_beam" type="test_conveyor_beam.py" output="screen" /> -->
-
     <!-- Spawn Order Manager -->
     <node pkg="ur5_t2_4230" name="order_manager" type="order_manager.py" output="screen" >
         <rosparam param="object_colors" subst_value="True">$(arg object_colors)</rosparam>
         <rosparam param="object_shapes" subst_value="True">$(arg object_shapes)</rosparam>
         <rosparam param="conveyor_power" subst_value="True">$(arg conveyor_power)</rosparam>
-
     </node>
-    <!-- </ -->
 
+    <!-- Spawn Motion Controller -->
+    <node pkg="ur5_t2_4230" name="motion" type="motion.py" output="screen" >
+    </node>
 
 </launch>
