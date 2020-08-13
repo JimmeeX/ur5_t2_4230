@@ -6,7 +6,7 @@ function shape = getShape(blockImage)
     
     [height, width, ~] = size(blockImage);
     grayimage = rgb2gray(blockImage);
-    corners = detectFASTFeatures(grayimage, 'MinContrast', 0.4, 'ROI', [10, 10, width-20, height-20]);
+    corners = detectFASTFeatures(grayimage, 'MinQuality', 0.75, 'ROI', [10, 10, width-20, height-20]);
     %imshow(grayimage); hold on;
     %plot(corners);
     
