@@ -20,7 +20,7 @@ rosinit(ipaddress);
 beamSub = rossubscriber('/break_beam_in_sensor', 'std_msgs/Bool');
 
 visionserver = rossvcserver('/vision/detect_object', 'rosbridge_library/SendBytes', @getData);
-testclient = rossvcclient('/vision');
+testclient = rossvcclient('/vision/detect_object');
 
 % Continuous loop to run image processing
 while 1
@@ -37,8 +37,8 @@ while 1
     
      % If there is a block in position, run image processing
     if (detectblock == 1)
-        testreq = call(testclient);
-        disp(testreq.Str)
+        testreq = call(testclient, 'Timeout', 20);
+        disp(testreq.Data)
     end
 
 end
@@ -49,17 +49,17 @@ function response = getData(~, ~, response)
     BLOCK_AREA_THRESHOLD = 1500;
 
     % Transform Variables
-    IM_WIDTH = 640;
-    IM_HEIGHT = 480;
-    CONVEYOR_HEIGHT = 0.5; % m
-    PIXEL_TO_REAL = CONVEYOR_HEIGHT / IM_HEIGHT; % m/pixel
-
-
+    %IM_WIDTH = 640;
+    %IM_HEIGHT = 480;
+    %CONVEYOR_HEIGHT = 0.5; % m
+    %PIXEL_TO_REAL = CONVEYOR_HEIGHT / IM_HEIGHT; % m/pixel
+    
     imSub = rossubscriber('/camera/color/image_raw');
     pcSub = rossubscriber('/camera/depth/points');
+    pause(1);
         
     % Get the RGB image from the ROS environment
-    im  = readImage(receive(imSub,5));
+    im = readImage(imSub.LatestMessage);
 
     % Get the depth data from the ROS environment and convert data to
     % be in the same format as the RGB images
@@ -84,32 +84,41 @@ function response = getData(~, ~, response)
         if (stats(k).FilledArea > BLOCK_AREA_THRESHOLD)
             % Get X and Y coordinates
             [X, Y] = getCentreCoordinates(stats(k));
-
-            % Get Color
-            color = getColor(block);
             
+            % Get Z coordinate
+            Z = xyz(Y, X, 3);
+            
+           % Get Color
+            color = getColor(im, X, Y);           
+
             % Get Shape
             blockImage = imcrop(im, bbox);
             shape = getShape(blockImage);
             
-            % Get Z coordinate
-            Z = xyz(X, Y, 3);
+            % Transform coordinates
+            [Xt, Yt, Zt] = transformCoordinates(X, Y, Z);
             
-            % Transform coordinates into robot's frame of reference
-            %fprintf('X = %f, Y = %f, Z = %f\n', X, Y, Z);
-            X = -X/640*(640*500/480)/1000 + 1/3;
-            Y = 0.25 - Y/480*(480*500/480)/1000 + 0.5;
-            Z = -(Z - 0.575) + 0.25;
-
             % Print out all obtained information
-            fprintf('Block num %d:\n', k);
-            fprintf('X = %d, Y = %d, Z = %d\n', X, Y, Z);
-            fprintf('Shape: %s\n', shape);
-            %plot(X, Y, 'bx', 'MarkerSize', 8, 'LineWidth', 2);
+            %fprintf('Block num %d:\n', k);
+            %fprintf('X = %d, Y = %d, Z = %d\n', Xt, Yt, Zt);
+            %fprintf('Color: %s, Shape: %s\n', color, shape);
 
             % Return server message
-            response.Data = sprintf("%s %s %f %f %f\n", shape, color, X, Y, Z);
+            response.Data = sprintf("%s %s %f %f %f\n", color, shape, Xt, Yt, Zt);
             fprintf('Sent: %s\n', response.Data);
+            
+            % Show Image
+            figure(1)
+            imshow(im)
+            rectangle('Position', bbox, 'EdgeColor', 'b', 'LineWidth', 3)
+            hold on
+            plot(X, Y, 'bx', 'MarkerSize', 8)
+            hold off
+            width = bbox(3);
+            height = bbox(4);
+            text(X-width/2, Y-height, strcat(color, {' '}, shape), 'fontsize', 10, 'FontWeight', 'bold', 'Color', 'm');
+            text(X-width/2, Y+height, strcat(num2str(Xt), {', '}, num2str(Yt)), 'fontsize', 10, 'FontWeight', 'bold', 'Color', 'y');
+            
         end
     end
 
@@ -119,9 +128,5 @@ end
 %scatter3(ptcloud)
 %title('Depth point cloud received from ROS');
 %rostopic list;
-
-
-
-
 
 
