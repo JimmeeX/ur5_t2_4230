@@ -54,6 +54,12 @@ Environment: **ROS Kinetic (Ubuntu 16.04)**
     sudo apt-get install libignition-math2-dev
     ```
 
+    1.4. Install required package for custom srv for Matlab
+
+    ```bash
+    sudo apt-get install ros-kinetic-rosbridge-library
+    ```
+
 2. Build Environment
 
     2.1. Enable ROS Commands & Access to Packages (Protip: Add this to ~/.bashrc)

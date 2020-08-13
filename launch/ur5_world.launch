@@ -20,7 +20,7 @@
     <!-- Object Shapes: Can use circle, triangle, square -->
     <arg name="object_shapes" default="['circle', 'triangle', 'square']" />
     <!-- Spawn Delay between objects (seconds) -->
-    <arg name="spawn_delay" default="10.0" />
+    <arg name="spawn_delay" default="7.0" />
     <!-- True for objects to spawn automatically; False to prevent spawning -->
     <arg name="spawn_auto" default="true" />
 
