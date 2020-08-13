@@ -18,10 +18,10 @@ from math import acos as acos
 from math import asin as asin
 from math import sqrt as sqrt
 from math import pi as pi
-from std_msgs.msg import Header
-from trajectory_msgs.msg import JointTrajectory
-from trajectory_msgs.msg import JointTrajectoryPoint
-import rospy
+#from std_msgs.msg import Header
+#from trajectory_msgs.msg import JointTrajectory
+#from trajectory_msgs.msg import JointTrajectoryPoint
+#import rospy
 
 
 a = np.array([0, -0.425, -0.39225, 0, 0, 0])
@@ -172,23 +172,31 @@ def inverse_kinematics(x, y, z):
     return ideal_angles
 
 
-def sub_echo(data):
-    # Callback function should maybe set a flag that enables robot movement to begin
-    rospy.loginfo("I heard %s", data.data)
+#def sub_echo(data):
+#    # Callback function should maybe set a flag that enables robot movement to begin
+#    rospy.loginfo("I heard %s", data.data)
+
+def handle_get_coordinates(request):
+    print("Received coordinates: " + request.x + ", " + request.y + ", " + request.z)
+    angles = inverse_kinematics(request.x, request.y, request.z)
+    return angles
 
 
 if __name__ == "__main__":
     # Test values
     # Actual x, y, z will be received from image processing node
-    
-    x = -0.455
-    y = -0.2489
-    z = -0.4523
+    x = -0.5
+    y = 0.0
+    z = 0.25
 
     rospy.init_node('robot_motion')
+    server = rospy.Service('motion/move_to_object', ReceiveCoordinates, handle_get_coordinates)
+    #server2 = rospy.Service('receive_coordinates', ReceiveCoordinates, handle_get_coordinates)
+    #server3 = rospy.Service('receive_coordinates', ReceiveCoordinates, handle_get_coordinates)
+    
     # Set up publisher and subscriber protocols
-    pub = rospy.Publisher('joint_waypoints', JointTrajectory, queue_size=10)
-    sub = rospy.Subscriber('image_processing', String, sub_echo)
+    #pub = rospy.Publisher('joint_waypoints', JointTrajectory, queue_size=10)
+    # sub = rospy.Subscriber('image_processing', String, sub_echo)
 
 
     # Define a 'home' position for the robot to return to if no commands are received
@@ -226,7 +234,7 @@ if __name__ == "__main__":
     angles = inverse_kinematics(x, y, z)
     print("Joint angles are:")
     for angle in angles:
-        print("\t", angle[(0, 0)])
+        print("\t", angle[(0, 0)]*pi/180.0)
     H = forward_kinematics(angles * pi/180.0)
     print("\nEnd effector position calculated from FK is:")
     print("\tx = ", H[(0, 3)], "m\n\ty = ", H[(1, 3)], "m\n\tz = ", H[(2, 3)], "m")
