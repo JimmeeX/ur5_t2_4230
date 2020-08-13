@@ -27,7 +27,6 @@ end
 
 function response = getData(~, ~, response)
     % Image Processing Variables
-    disp("A");
     BLOCK_AREA_THRESHOLD = 1500;
     
     imSub = rossubscriber('/camera/color/image_raw');
