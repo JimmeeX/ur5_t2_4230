@@ -285,9 +285,6 @@ class OrderSegment extends Component {
                                                             <div style={{width:"100%",height:"50%"}}>
                                                             <p className="orderListItemIndex">Qty: {value.goal}</p>
                                                             </div>
-                                                            <div style={{width:"100%",height:"50%"}}>
-                                                                <p className="orderListItemColour">Id: {value.id}</p>
-                                                            </div>
                                                         </Grid>
                                                     </Grid>
                                                 </List.Content>
@@ -376,9 +373,6 @@ class OrderSegment extends Component {
                                                             <p className="orderListItemIndex">Qty: {value.goal} 
                                                             <Icon name='check' size='small' verticalAlign='middle' style={{color:colourMap['green'],paddingLeft:"10px"}}/>
                                                             </p>
-                                                            </div>
-                                                            <div style={{width:"100%",height:"50%"}}>
-                                                                <p className="orderListItemColour">Id: {value.id}</p>
                                                             </div>
                                                         </Grid>
                                                     </Grid>
