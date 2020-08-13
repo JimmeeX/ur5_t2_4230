@@ -31,7 +31,7 @@ def send_movement_command():
 
         traj.points = []
         traj.points.append(pts)
-        pub.publihs(traj)
+        pub.publish(traj)
         rate.sleep()
 
 
