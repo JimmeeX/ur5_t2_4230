@@ -106,7 +106,7 @@ class OrderManager():
 
         # Temporary Testing
         # self._servers['vision_detect_object'] = rospy.Service("/vision/detect_object", SendBytes, self.handleVisionDetectObjectRequest)
-        self._servers['motion_move_to_object'] = rospy.Service("/motion/move_to_object", MoveToObject, self.handleMotionMoveToObjectRequest)
+        # self._servers['motion_move_to_object'] = rospy.Service("/motion/move_to_object", MoveToObject, self.handleMotionMoveToObjectRequest)
         self._servers['motion_move_to_home'] = rospy.Service("/motion/move_to_home", Trigger, self.handleMockTrigger)
         self._servers['motion_pickup_object'] = rospy.Service("/motion/pickup_object", Trigger, self.handleMockTrigger)
         self._servers['motion_drop_object'] = rospy.Service("/motion/drop_object", Trigger, self.handleMockTrigger)
@@ -325,7 +325,7 @@ class OrderManager():
 
             # Move to object
             rospy.loginfo('[OrderManager] Triggering Move To Object...')
-            response_move_to_object = self.sendMoveToObjectRequest(x=x, y=y, z=z)
+            response_move_to_object = self.sendMoveToObjectRequest(x=y, y=x, z=z)
             if not (response_move_to_object and response_move_to_object.success):
                 self.sendTriggerRequest(service_key='motion_move_to_home')
                 self.startConveyorIn()

@@ -14,6 +14,12 @@ from std_srvs.srv import (
     TriggerResponse,
 )
 
+from ur5_t2_4230.srv import (
+    MoveToObject,
+    MoveToObjectRequest,
+    MoveToObjectResponse,
+)
+
 import rospy
 
 from utils.kinematics import (
@@ -37,16 +43,17 @@ class Motion():
 
         # Initialise Servers
         self._servers = {}
-        self._servers['motion_move_to_home'] = rospy.Service("/motion/move_to_home", Trigger, self.handleMockTrigger)
+        self._servers['motion_move_to_object'] = rospy.Service("/motion/move_to_object", MoveToObject, self.handleMotionMoveToObjectRequest)
+
+        # self._servers['motion_move_to_home'] = rospy.Service("/motion/move_to_home", Trigger, self.handleMockTrigger)
         # self._servers['motion_pickup_object'] = rospy.Service("/motion/pickup_object", Trigger, self.handleMockTrigger)
         # self._servers['motion_drop_object'] = rospy.Service("/motion/drop_object", Trigger, self.handleMockTrigger)
         # self._servers['motion_move_to_container'] = rospy.Service("/motion/move_to_container", Trigger, self.handleMockTrigger)
     
     def handleMotionMoveToObjectRequest(self, request):
         """Mock Response Demo wait 5 seconds"""
-        # print(request)
         point = request.location
-        rospy.logwarn(point.x, point.y, point.z)
+        rospy.loginfo('[Motion] Moving Arm to Object - ' + str(point.x) + ', ' + str(point.y) + ', ' + str(point.z))
 
         # Inverse Kinematics on X,Y,Z --> Joint Positions
         q = inverse_kinematics(point.x, point.y, point.z)
@@ -67,6 +74,7 @@ class Motion():
         #     # Publish Feedback??
 
         #     self._rate.sleep()
+        
 
         response = MoveToObjectResponse(
             success=True,
@@ -77,15 +85,32 @@ class Motion():
 
     
     def publishArmControllerCommand(self, waypoints):
+        
+        # Create the topic message
         traj = JointTrajectory()
         traj.header = Header()
-        traj.joint_names = ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint',
-                            'wrist_joint_1', 'wrist_joint_2', 'wrist_joint_3']
+        # Joint names for UR5
+        traj.joint_names = ['shoulder_pan_joint', 'shoulder_lift_joint',
+                            'elbow_joint', 'wrist_1_joint', 'wrist_2_joint',
+                            'wrist_3_joint']
+
+        pts = JointTrajectoryPoint()
+        traj.header.stamp = rospy.Time.now()
+        pts.positions = waypoints
+        pts.time_from_start = rospy.Duration(1.0)
+
+        traj.points = []
+        traj.points.append(pts)
+
+
+
         
-        traj.points = JointTrajectoryPoint(
-            positions=list([waypoints]),
-            time_from_start=rospy.Duration(2.0)
-        )
+        # rospy.logwarn(waypoints)
+
+        # traj.points = JointTrajectoryPoint(
+        #     positions=waypoints,
+        #     time_from_start=rospy.Duration(2.0)
+        # )
 
         self._publishers['arm_controller_command'].publish(traj)
 

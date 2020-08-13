@@ -168,8 +168,8 @@ def inverse_kinematics(x, y, z):
         if np.abs(joint2[0, index]) <= min_value:
             min_value = np.abs(joint2[0, index])
             element = index
-    ideal_angles = np.rad2deg(theta[:, element])
-    return ideal_angles
+    # ideal_angles = np.rad2deg(theta[:, element])
+    return theta[:, element].flatten().tolist()[0]
 
 
 #def sub_echo(data):
@@ -189,8 +189,8 @@ if __name__ == "__main__":
     y = 0.0
     z = 0.25
 
-    rospy.init_node('robot_motion')
-    server = rospy.Service('motion/move_to_object', ReceiveCoordinates, handle_get_coordinates)
+    # rospy.init_node('robot_motion')
+    # server = rospy.Service('motion/move_to_object', ReceiveCoordinates, handle_get_coordinates)
     #server2 = rospy.Service('receive_coordinates', ReceiveCoordinates, handle_get_coordinates)
     #server3 = rospy.Service('receive_coordinates', ReceiveCoordinates, handle_get_coordinates)
     
@@ -232,11 +232,16 @@ if __name__ == "__main__":
 
     # Testing section
     angles = inverse_kinematics(x, y, z)
-    print("Joint angles are:")
-    for angle in angles:
-        print("\t", angle[(0, 0)]*pi/180.0)
-    H = forward_kinematics(angles * pi/180.0)
-    print("\nEnd effector position calculated from FK is:")
-    print("\tx = ", H[(0, 3)], "m\n\ty = ", H[(1, 3)], "m\n\tz = ", H[(2, 3)], "m")
+    print(type(angles))
+    print(angles)
+    # angles.reshape()
+    print(angles)
+
+    # print("Joint angles are:")
+    # for angle in angles:
+    #     print("\t", angle[(0, 0)]*pi/180.0)
+    # H = forward_kinematics(angles * pi/180.0)
+    # print("\nEnd effector position calculated from FK is:")
+    # print("\tx = ", H[(0, 3)], "m\n\ty = ", H[(1, 3)], "m\n\tz = ", H[(2, 3)], "m")
     # print("\nError in position is:")
     # print("\tx_error = ", (H[(0, 3)]-x), "m\n\ty_error = ", (H[(1, 3)]-y), "m\n\tz_error = ", (H[(2, 3)]-z), "m")
