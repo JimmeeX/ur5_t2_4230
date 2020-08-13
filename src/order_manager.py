@@ -105,7 +105,7 @@ class OrderManager():
         self._servers['order_get'] = rospy.Service('order_manager/get', OrderGet, self.handleOrderGetRequest)
 
         # Temporary Testing
-        self._servers['vision_detect_object'] = rospy.Service("/vision/detect_object", SendBytes, self.handleVisionDetectObjectRequest)
+        # self._servers['vision_detect_object'] = rospy.Service("/vision/detect_object", SendBytes, self.handleVisionDetectObjectRequest)
         self._servers['motion_move_to_object'] = rospy.Service("/motion/move_to_object", MoveToObject, self.handleMotionMoveToObjectRequest)
         self._servers['motion_move_to_home'] = rospy.Service("/motion/move_to_home", Trigger, self.handleMockTrigger)
         self._servers['motion_pickup_object'] = rospy.Service("/motion/pickup_object", Trigger, self.handleMockTrigger)
