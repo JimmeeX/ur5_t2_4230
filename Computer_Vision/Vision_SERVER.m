@@ -17,46 +17,21 @@ rosinit(ipaddress);
 % Subscribe to the necessary topics (RGB Image, Image Depth, Break Beam
 % Sensor)
 
-beamSub = rossubscriber('/break_beam_in_sensor', 'std_msgs/Bool');
-
 visionserver = rossvcserver('/vision/detect_object', 'rosbridge_library/SendBytes', @getData);
-testclient = rossvcclient('/vision/detect_object');
 
 % Continuous loop to run image processing
 while 1
-    
-    % Get the status of the break beam
-    % Find if the break beam has detected a block
-    % Flag it if the break beam has been triggered
-    data = receive(beamSub,5);
-    detectblock = 0;
-    if data.Data == 1 && breakbeamStatus == 0
-        detectblock = 1;
-    end
-    breakbeamStatus = data.Data;
-    
-     % If there is a block in position, run image processing
-    if (detectblock == 1)
-        testreq = call(testclient, 'Timeout', 20);
-        disp(testreq.Data)
-    end
-
+    pause(0.01);
 end
 
 
 function response = getData(~, ~, response)
     % Image Processing Variables
+    disp("A");
     BLOCK_AREA_THRESHOLD = 1500;
-
-    % Transform Variables
-    %IM_WIDTH = 640;
-    %IM_HEIGHT = 480;
-    %CONVEYOR_HEIGHT = 0.5; % m
-    %PIXEL_TO_REAL = CONVEYOR_HEIGHT / IM_HEIGHT; % m/pixel
     
     imSub = rossubscriber('/camera/color/image_raw');
     pcSub = rossubscriber('/camera/depth/points');
-    pause(1);
         
     % Get the RGB image from the ROS environment
     im = readImage(imSub.LatestMessage);
@@ -121,7 +96,6 @@ function response = getData(~, ~, response)
             
         end
     end
-
 end
 
 %figure(2)

@@ -11,7 +11,7 @@
     <param if="$(arg limited)" name="robot_description" command="$(find xacro)/xacro --inorder '$(find ur5_t2_4230)/models/ur5/ur5_joint_limited_robot.urdf.xacro' transmission_hw_interface:=$(arg transmission_hw_interface)" />
 
 	<!-- Spawn UR5 in Gazebo -->
-    <node name="spawn_gazebo_model" pkg="gazebo_ros" type="spawn_model" args="-urdf -param robot_description -model robot -y 0 -z 0.30 -Y 1.57" respawn="false" output="screen" />
+    <node name="spawn_gazebo_model" pkg="gazebo_ros" type="spawn_model" args="-urdf -param robot_description -model robot -y 0 -z 0.30 -Y 0.0" respawn="false" output="screen" />
 
     <!-- Attach Controllers -->
 

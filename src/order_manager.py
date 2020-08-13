@@ -87,7 +87,6 @@ class OrderManager():
 
         # Initialise Subscribers
         self._subscribers = {}
-        self._subscribers['msg_computer_vision'] = rospy.Subscriber("/msg/computer_vision", String, self.handleVisionCallback, queue_size=1)
         self._subscribers['break_beam_in_change'] = rospy.Subscriber("/break_beam_in_sensor_change", Bool, self.handleProximityChangeCallback, ('in'))
         self._subscribers['break_beam_out_change'] = rospy.Subscriber("/break_beam_out_sensor_change", Bool, self.handleProximityChangeCallback, ('out'))
 
@@ -107,10 +106,10 @@ class OrderManager():
         # Temporary Testing
         # self._servers['vision_detect_object'] = rospy.Service("/vision/detect_object", SendBytes, self.handleVisionDetectObjectRequest)
         # self._servers['motion_move_to_object'] = rospy.Service("/motion/move_to_object", MoveToObject, self.handleMotionMoveToObjectRequest)
-        self._servers['motion_move_to_home'] = rospy.Service("/motion/move_to_home", Trigger, self.handleMockTrigger)
-        self._servers['motion_pickup_object'] = rospy.Service("/motion/pickup_object", Trigger, self.handleMockTrigger)
+        # self._servers['motion_move_to_home'] = rospy.Service("/motion/move_to_home", Trigger, self.handleMockTrigger)
+        # self._servers['motion_pickup_object'] = rospy.Service("/motion/pickup_object", Trigger, self.handleMockTrigger)
         self._servers['motion_drop_object'] = rospy.Service("/motion/drop_object", Trigger, self.handleMockTrigger)
-        self._servers['motion_move_to_container'] = rospy.Service("/motion/move_to_container", Trigger, self.handleMockTrigger)
+        # self._servers['motion_move_to_container'] = rospy.Service("/motion/move_to_container", Trigger, self.handleMockTrigger)
 
 
         # Initialise Clients
@@ -124,6 +123,7 @@ class OrderManager():
         self._clients['motion_drop_object'] = rospy.ServiceProxy("/motion/drop_object", Trigger)
         self._clients['motion_move_to_container'] = rospy.ServiceProxy("/motion/move_to_container", Trigger)
 
+        # Move Robot to Home (Container)
         return
 
 
@@ -284,14 +284,6 @@ class OrderManager():
     ##########################
     """
 
-    def handleVisionCallback(self, msg):
-        # TODO (also temporary if vision is converted to server-side)
-        rospy.loginfo('[OrderManager - handleVisionCallback]' + str(msg))
-
-        # print(msg)
-        # shape, x, y, z = self.parseVision(msg)
-        return
-
     def handleProximityChangeCallback(self, msg, id):
         """
         If a container/object arrives to break beam, then we stop to process the new order
@@ -325,9 +317,9 @@ class OrderManager():
 
             # Move to object
             rospy.loginfo('[OrderManager] Triggering Move To Object...')
-            response_move_to_object = self.sendMoveToObjectRequest(x=y, y=x, z=z)
+            response_move_to_object = self.sendMoveToObjectRequest(x=x, y=y, z=z)
             if not (response_move_to_object and response_move_to_object.success):
-                self.sendTriggerRequest(service_key='motion_move_to_home')
+                self.sendTriggerRequest(service_key='motion_move_to_container')
                 self.startConveyorIn()
                 return
             rospy.loginfo('[OrderManager] Successfully Moved to Object!')
@@ -336,7 +328,7 @@ class OrderManager():
             rospy.loginfo('[OrderManager] Triggering Pickup Object')
             response_pickup_object = self.sendTriggerRequest(service_key='motion_pickup_object')
             if not (response_pickup_object and response_pickup_object.success):
-                self.sendTriggerRequest(service_key='motion_move_to_home')
+                self.sendTriggerRequest(service_key='motion_move_to_container')
                 self.startConveyorIn()
                 return
             rospy.loginfo('[OrderManager] Successfully Picked up object!')
@@ -345,7 +337,7 @@ class OrderManager():
             rospy.loginfo('[OrderManager] Triggering Move to Container...')
             response_move_to_container = self.sendTriggerRequest('motion_move_to_container')
             if not (response_move_to_container and response_move_to_container.success):
-                self.sendTriggerRequest(service_key='motion_move_to_home')
+                self.sendTriggerRequest(service_key='motion_move_to_container')
                 self.startConveyorIn()
                 return
             rospy.loginfo('[OrderManager] Succesfully Moved to Container!')
@@ -356,7 +348,6 @@ class OrderManager():
             rospy.loginfo('[OrderManager] Triggering Drop Object to Container...')
             response_drop_object = self.sendTriggerRequest('motion_drop_object')
             if not (response_drop_object and response_drop_object.success):
-                self.sendTriggerRequest(service_key='motion_move_to_home')
                 self.startConveyorIn()
                 return
             rospy.loginfo('[OrderManager] Successfully Dropped Object to Container!')
@@ -367,7 +358,7 @@ class OrderManager():
             if is_order_done: self.startConveyorOut(spawn=new_order_ready)
 
             # Reset
-            self.sendTriggerRequest(service_key='motion_move_to_home')
+            # self.sendTriggerRequest(service_key='motion_move_to_home')
             self.startConveyorIn()
             return
 
@@ -455,7 +446,7 @@ class OrderManager():
         """Mock Response"""
 
         response = SendBytesResponse(
-            data="red triangle 0.25 0.05 0.3"
+            data="red triangle 0.0 0.5 0.25"
         )
 
         return response

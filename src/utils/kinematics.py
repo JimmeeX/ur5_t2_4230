@@ -169,7 +169,19 @@ def inverse_kinematics(x, y, z):
             min_value = np.abs(joint2[0, index])
             element = index
     # ideal_angles = np.rad2deg(theta[:, element])
-    return theta[:, element].flatten().tolist()[0]
+    # return theta[:, element].flatten().tolist()[0]
+
+    ideal_angles =  theta[:, element].flatten().tolist()[0]
+    for i in range(len(ideal_angles)):
+        angle = ideal_angles[i]
+        if angle > pi:
+            angle = -2*pi + angle
+            ideal_angles[i] = angle
+        if angle < -pi:
+            angle = 2*pi + angle
+            ideal_angles[i] = angle
+
+    return ideal_angles
 
 
 #def sub_echo(data):
@@ -185,9 +197,9 @@ def handle_get_coordinates(request):
 if __name__ == "__main__":
     # Test values
     # Actual x, y, z will be received from image processing node
-    x = -0.5
+    x = 1.0
     y = 0.0
-    z = 0.25
+    z = 0.0
 
     # rospy.init_node('robot_motion')
     # server = rospy.Service('motion/move_to_object', ReceiveCoordinates, handle_get_coordinates)
@@ -233,9 +245,9 @@ if __name__ == "__main__":
     # Testing section
     angles = inverse_kinematics(x, y, z)
     print(type(angles))
-    print(angles)
+    print(np.array(angles)* 180 / pi)
     # angles.reshape()
-    print(angles)
+    # print(angles)
 
     # print("Joint angles are:")
     # for angle in angles:
