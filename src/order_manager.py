@@ -105,7 +105,7 @@ class OrderManager():
         self._servers['order_get'] = rospy.Service('order_manager/get', OrderGet, self.handleOrderGetRequest)
 
         # Temporary Testing
-        # self._servers['vision_detect_object'] = rospy.Service("/vision/detect_object", SendBytes, self.handleVisionDetectObjectRequest)
+        self._servers['vision_detect_object'] = rospy.Service("/vision/detect_object", SendBytes, self.handleVisionDetectObjectRequest)
         self._servers['motion_move_to_object'] = rospy.Service("/motion/move_to_object", MoveToObject, self.handleMotionMoveToObjectRequest)
         self._servers['motion_move_to_home'] = rospy.Service("/motion/move_to_home", Trigger, self.handleMockTrigger)
         self._servers['motion_pickup_object'] = rospy.Service("/motion/pickup_object", Trigger, self.handleMockTrigger)
@@ -192,8 +192,8 @@ class OrderManager():
         request = ConveyorBeltControlRequest(ConveyorBeltState(power=power))
         try:
             response = client(request)
-            if response.success: rospy.loginfo('[OrderManager] Successfully turn ' + state + ' ' + service_key)
-            else: rospy.logerr('[OrderManager] Conveyor control failed. Please try again')
+            # if response.success: rospy.loginfo('[OrderManager] Successfully turn ' + state + ' ' + service_key)
+            # else: rospy.logerr('[OrderManager] Conveyor control failed. Please try again')
             return response
         except rospy.ServiceException as exc:
             rospy.logerr('[OrderManager] Service did not process request: ' + str(exc))
@@ -245,10 +245,6 @@ class OrderManager():
         Returns tuple (eg, ('red', 'triangle', 0.25, 0.05, 0.3)) if object exists; otherwise None
         """
         response = self.sendBytesRequest(service_key='vision_detect_object')
-
-        return None
-
-        # return response
 
         if response and response.data:
             # Parse Message to get Information

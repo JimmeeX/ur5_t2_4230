@@ -107,6 +107,10 @@
     #######################
     -->
 
+    <!-- Launch Web Socket to connect to Web GUI -->
+	<include file="$(find ur5_t2_4230)/launch/web.launch"></include>
+
+
 	<!-- Spawn Spawner Node (spawner.py) -->
 	<node pkg="ur5_t2_4230" name="spawner" type="spawner.py" output="screen">
         <rosparam param="object_colors" subst_value="True">$(arg object_colors)</rosparam>

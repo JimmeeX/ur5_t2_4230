@@ -39,6 +39,7 @@ class OrderSegment extends Component {
         };
         this.rosPoll = null;
         this.addOrderServiceClient = null;
+        this.getOrderServiceClient = null;
     }
 
     handleAddToQueueClick = () => {
@@ -48,7 +49,7 @@ class OrderSegment extends Component {
             shape : this.state.newOrderShape,
             goal: this.state.newOrderQty,
         });
-        this.addOrderServiceClient.callService(request, function(result) {
+        this.addOrderServiceClient.callService(request, (result) => {
             console.log('Result for service call on '
               + this.addOrderServiceClient.name
               + ': '
@@ -79,12 +80,22 @@ class OrderSegment extends Component {
     }
 
     componentDidMount() {
-        var addOrderServiceClient = new ROSLIB.Service({
+        this.addOrderServiceClient = new ROSLIB.Service({
             ros : ros,
-            name : '/add_order',
+            name : 'order_manager/add',
         });
+
+        this.getOrderServiceClient = new ROSLIB.Service({
+            ros : ros,
+            name : 'order_manager/get',
+        });
+
         this.rosPoll = setInterval(() => {
-            console.log("Poll for changes")
+            var request = new ROSLIB.ServiceRequest({});
+
+            this.getOrderServiceClient.callService(request, (response) => {
+                console.log(response);
+            })
         }, 1000)
     }
 
