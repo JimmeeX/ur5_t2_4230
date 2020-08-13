@@ -88,13 +88,13 @@ function DashboardPage(props) {
                             <OrderSegment />
                         </Grid>
                         <Grid item xs={12}>
-                            <KinematicsSegment />
+                            {/* <KinematicsSegment /> */}
                         </Grid>
                         <Grid item xs={6}>
-                            <VisionSegment />
+                            {/* <VisionSegment /> */}
                         </Grid>
                         <Grid item xs={6}>
-                            <EnvironmentSegment />
+                            {/* <EnvironmentSegment /> */}
                         </Grid>
                     </Grid>
                 </div>

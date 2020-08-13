@@ -30,12 +30,13 @@ class OrderSegment extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            newOrderQty: 0,
+            newOrderQty: 1,
             newOrderColour: 'none',
             newOrderShape: 'none',
             orderQueue: [],
             orderInPrep: [],
             ordersCompleted: [],
+            // ordersCompleted: [{id:"123456789",goal:3,shape:'square',color:'red'}],
         };
         this.rosPoll = null;
         this.addOrderServiceClient = null;
@@ -95,6 +96,22 @@ class OrderSegment extends Component {
 
             this.getOrderServiceClient.callService(request, (response) => {
                 console.log(response);
+                console.log(response.orders_queued);
+                if (JSON.stringify(response.orders_queued) != JSON.stringify(this.state.orderQueue.length)) {
+                    this.setState({
+                        orderQueue: response.orders_queued
+                    });
+                }
+                if (JSON.stringify(response.orders_doing) != JSON.stringify(this.state.orderInPrep)) {
+                    this.setState({
+                        orderInPrep: response.orders_doing
+                    });
+                }
+                if (JSON.stringify(response.orders_done) != JSON.stringify(this.state.ordersCompleted)) {
+                    this.setState({
+                        ordersCompleted: response.orders_done
+                    });
+                }
             })
         }, 1000)
     }
@@ -254,18 +271,23 @@ class OrderSegment extends Component {
                                                 <List.Content>
                                                     <Grid container alignItems="center" spacing={2}>
                                                         <Grid item xs={2}>
-                                                            <Icon name={shapeIconMap[value.shape]} size='large' verticalAlign='middle' style={{color:colourMap[value.colour]}}/>
+                                                            <Icon name={shapeIconMap[value.shape]} size='large' verticalAlign='middle' style={{color:colourMap[value.color]}}/>
                                                         </Grid>
-                                                        <Grid item xs={8}>
+                                                        <Grid item xs={5}>
                                                             <div style={{width:"100%",height:"50%"}}>
                                                                 <p className="orderListItemShape">{value.shape}</p>
                                                             </div>
                                                             <div style={{width:"100%",height:"50%"}}>
-                                                                <p className="orderListItemColour">{value.colour}</p>
+                                                                <p className="orderListItemColour">{value.color}</p>
                                                             </div>
                                                         </Grid>
-                                                        <Grid item xs={2}>
-                                                            <p className="orderListItemIndex">Qty: {value.qty}</p>
+                                                        <Grid item xs={5}>
+                                                            <div style={{width:"100%",height:"50%"}}>
+                                                            <p className="orderListItemIndex">Qty: {value.goal}</p>
+                                                            </div>
+                                                            <div style={{width:"100%",height:"50%"}}>
+                                                                <p className="orderListItemColour">Id: {value.id}</p>
+                                                            </div>
                                                         </Grid>
                                                     </Grid>
                                                 </List.Content>
@@ -282,7 +304,44 @@ class OrderSegment extends Component {
                                     <Segment>
                                         <p className="preparingHeader"><Icon name='cogs' size='small' />Preparing</p>
                                     </Segment>
-                                    <Segment>Middle</Segment>
+                                    <Segment>
+                                        {
+                                            (this.state.orderInPrep.length == 0) ?
+                                            <p>None</p>
+                                            :      
+                                        <List divided relaxed>
+                                        {
+                                            this.state.orderInPrep.map((value,index,arr) => (
+                                            <List.Item>
+                                                <List.Content>
+                                                    <Grid container alignItems="center" spacing={2}>
+                                                        <Grid item xs={2}>
+                                                            <Icon name={shapeIconMap[value.shape]} size='large' verticalAlign='middle' style={{color:colourMap[value.color]}}/>
+                                                        </Grid>
+                                                        <Grid item xs={5}>
+                                                            <div style={{width:"100%",height:"50%"}}>
+                                                                <p className="orderListItemShape">{value.shape}</p>
+                                                            </div>
+                                                            <div style={{width:"100%",height:"50%"}}>
+                                                                <p className="orderListItemColour">{value.color}</p>
+                                                            </div>
+                                                        </Grid>
+                                                        <Grid item xs={5}>
+                                                            <div style={{width:"100%",height:"50%"}}>
+                                                            <p className="orderListItemIndex">Target: {value.goal}</p>
+                                                            </div>
+                                                            <div style={{width:"100%",height:"50%"}}>
+                                                                <p className="orderListItemColour">Collected: {value.qty}</p>
+                                                            </div>
+                                                        </Grid>
+                                                    </Grid>
+                                                </List.Content>
+                                            </List.Item>
+                                            ))
+                                        }
+                                        </List>
+                                        }
+                                    </Segment>
                                 </Segment.Group>
                             </Grid>
                             <Grid item xs={3}>
@@ -290,7 +349,46 @@ class OrderSegment extends Component {
                                     <Segment>
                                         <p className="completedHeader"><Icon name='check' size='small' />Completed</p>
                                     </Segment>
-                                    <Segment>Middle</Segment>
+                                    <Segment>
+                                        {
+                                            (this.state.ordersCompleted.length == 0) ?
+                                            <p>None</p>
+                                            :      
+                                        <List divided relaxed>
+                                        {
+                                            this.state.ordersCompleted.map((value,index,arr) => (
+                                            <List.Item>
+                                                <List.Content>
+                                                    <Grid container alignItems="center" spacing={2}>
+                                                        <Grid item xs={2}>
+                                                            <Icon name={shapeIconMap[value.shape]} size='large' verticalAlign='middle' style={{color:colourMap[value.color]}}/>
+                                                        </Grid>
+                                                        <Grid item xs={5}>
+                                                            <div style={{width:"100%",height:"50%"}}>
+                                                                <p className="orderListItemShape">{value.shape}</p>
+                                                            </div>
+                                                            <div style={{width:"100%",height:"50%"}}>
+                                                                <p className="orderListItemColour">{value.color}</p>
+                                                            </div>
+                                                        </Grid>
+                                                        <Grid item xs={5}>
+                                                            <div style={{width:"100%",height:"50%"}}>
+                                                            <p className="orderListItemIndex">Qty: {value.goal} 
+                                                            <Icon name='check' size='small' verticalAlign='middle' style={{color:colourMap['green'],paddingLeft:"10px"}}/>
+                                                            </p>
+                                                            </div>
+                                                            <div style={{width:"100%",height:"50%"}}>
+                                                                <p className="orderListItemColour">Id: {value.id}</p>
+                                                            </div>
+                                                        </Grid>
+                                                    </Grid>
+                                                </List.Content>
+                                            </List.Item>
+                                            ))
+                                        }
+                                        </List>
+                                        }
+                                    </Segment>
                                 </Segment.Group>
                             </Grid>
                         </Grid>
