@@ -5,9 +5,6 @@ Main Flow Manager
 Manages Orders on Server-side
 
 Author: James Lin
-TODO:
-    - Testing (Logic)
-    - Testing with actual modules and not mock functions
 """
 
 import rospy
