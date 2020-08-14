@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <launch>
+    <!-- 
+    Launch File to Specifically launch the UR5 Robot Model (w/ controllers) into Gazebo (note, Gazebo Sever must be running)
+
+    Source: Huang, L., Zhao, H., Implementation of UR5 pick and place in ROS-Gazebo with a USB cam and vacuum grippers, (2018), GitHub repository, https://github.com/lihuang3/ur5_ROS-Gazebo.git
+    Modified By: James Lin
+    -->
+
 	<!-- CREATE UR5 -->
     <!-- Set Arguments -->
     <arg name="sim" default="true" />

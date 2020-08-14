@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <launch>
     <!--
+    This Launch File is responsible for launching all the models in Gazebo and
+    all ROS based nodes (such as Order Manager, Spawner, Motion)
+
+    Author: James Lin
+    Credits: Martin Pham
+    -->
+
+    <!--
     #####################
     ENVIONRMENT VARIABLES
     #####################

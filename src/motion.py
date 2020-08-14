@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 
-# MTRN4230 Group 6 Assignment
-# Checkpoint 2
-# Simple robot motion
+"""
+Motion & Robot Arm Controller
+Responsible for any movement for the robot arm
 
+Author: James Lin
+Credits: Matt Bourke
+"""
 
 from std_msgs.msg import Header
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
@@ -55,6 +58,7 @@ class Motion():
 
 
         # Sleep for duration until move robot to home position
+        # Without sleep, handleMovetoContainer will somtimes not run in Gazebo
         shouldMoveToHome = False
         counter = 0
         while not shouldMoveToHome and not rospy.is_shutdown():
@@ -145,31 +149,6 @@ class Motion():
             self._rate.sleep()
 
         return
-
-
-
-
-# def send_movement_command():
-#     rospy.init_node('send_joints')
-#     pub = rospy.Publisher('/arm_controller/command', JointTrajectory, queue_size=10)
-#     traj = JointTrajectory()
-#     traj.header = Header()
-#     joint.joint_names = ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint',
-#                          'wrist_joint_1', 'wrist_joint_2', 'wrist_joint_3']
-#     rate = rospy.Rate(0.5)
-#     count = 0
-#     pts = JointTrajectoryPoint()
-#     traj.header.stamp = rospy.Time.now()
-
-#     while not rospy.is_shutdown():
-#         count += 1
-#         pts.positions = waypoints[count%len(waypoints)]
-#         pts.time_from_start = rospy.Duration(1.0)
-
-#         traj.points = []
-#         traj.points.append(pts)
-#         pub.publish(traj)
-#         rate.sleep()
 
 
 if __name__ == '__main__':
