@@ -1,7 +1,40 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <launch>
+    <!--
+    This Launch File is responsible for launching all the models in Gazebo and
+    all ROS based nodes (such as Order Manager, Spawner, Motion)
+
+    Author: James Lin
+    Credits: Martin Pham
+    -->
+
+    <!--
+    #####################
+    ENVIONRMENT VARIABLES
+    #####################
+    -->
     <env name="GAZEBO_RESOURCE_PATH" value="$(find ur5_t2_4230)/media/materials" />
     <env name="GAZEBO_MODEL_PATH" value="$(find ur5_t2_4230)/models" />
+
+    <!--
+    ####################
+    ARGUMENT DEFINITIONS
+    ####################
+    -->
+
+    <!-- Object Arguments -->
+    <!-- Object Colours: Can use red, green, blue, orange, pink -->
+    <arg name="object_colors" default="['red', 'green', 'blue']" />
+    <!-- Object Shapes: Can use circle, triangle, square -->
+    <arg name="object_shapes" default="['circle', 'triangle', 'square']" />
+    <!-- Spawn Delay between objects (seconds) -->
+    <arg name="spawn_delay" default="5.0" />
+    <!-- True for objects to spawn automatically; False to prevent spawning -->
+    <arg name="spawn_auto" default="true" />
+
+
+    <!-- Conveyor Power ([0-100]%) -->
+    <arg name='conveyor_power' default='50.0' />
 
 	<!-- Gazebo Arguments -->
     <arg name="debug" default="false" />
@@ -10,9 +43,11 @@
     <arg name="pause" default="false" />
     <arg name="world" default="$(find ur5_t2_4230)/world/ur5_world.world" />
 
+
 	<!-- Robot Arguments -->
 	<arg name="limited" default="true"/>
 	<arg name="sim" default="true" />
+
 
     <!-- Add Arguments for Break Beam In (Proximity Laser Sensor) -->
     <arg name="break_beam_in" value="break_beam_in_"/>
@@ -24,7 +59,13 @@
     <param name="$(arg break_beam_out)description"
         command="$(find xacro)/xacro --inorder '$(find ur5_t2_4230)/models/break_beam/break_beam.xacro' prefix:=$(arg break_beam_out)"/>
 
-    <!-- include gazebo_ros launcher -->
+
+    <!--
+    ######################
+    SPAWN GAZEBO && MODELS
+    ######################
+    -->
+    <!-- SPAWN GAZEBO Server (and client if gui=true)-->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
             <arg name="world_name" value="$(arg world)" />
             <arg name="debug" value="$(arg debug)" />
@@ -34,17 +75,15 @@
             <arg name="use_sim_time" value="true" />
     </include>
 
-	<!-- Spawn Kinect Camera -->
+	<!-- Spawn Kinect RGB-D Camera -->
 	<node name="spawn_kinect" pkg="gazebo_ros" type="spawn_model"
 		args="-file $(find ur5_t2_4230)/models/kinect/model.sdf -sdf -model kinect -x 0.465 -y 0 -z 0.775 -R 3.141593 -P 1.5707965 -Y 3.141593"
 	/>
 
     <!--
-    ######
     SPAWN TWO CONVEYOR BELTS
     PS: Due to some hacky modelling, the real y location is shifted -0.45m. So, if you want the end of the conveyor to be at y=0.00, then set
     the -y param to be 0.45.
-    ######
     -->
     <!-- Spawn Conveyor System (In) -->
 	<node name="spawn_conveyor_belt_in" pkg="gazebo_ros" type="spawn_model"
@@ -54,7 +93,7 @@
 	<node name="spawn_conveyor_belt_out" pkg="gazebo_ros" type="spawn_model"
         args="-file $(find ur5_t2_4230)/models/conveyor_belt_out/model.sdf -sdf -model conveyor_belt_out -x -0.50 -y -1.45 -z 0.10" />
 
-
+    <!-- Spawn Break Beams -->
     <!-- Spawn Break Beam (In) -->
     <node name="$(arg break_beam_in)spawner" pkg="gazebo_ros" type="spawn_model" output="screen"
         args="-urdf -x 1.20 -y -0.025 -z 0.22 -R 0.00 -P 0.00 -Y 0.00 -model $(arg break_beam_in) -param $(arg break_beam_in)description"/>
@@ -63,18 +102,40 @@
     <node name="$(arg break_beam_out)spawner" pkg="gazebo_ros" type="spawn_model" output="screen"
         args="-urdf -x -1.20 -y -0.20 -z 0.22 -Y -3.14 -model $(arg break_beam_out) -param $(arg break_beam_out)description"/>
 
-
 	<!-- Spawn UR5 Robot -->
 	<include file="$(find ur5_t2_4230)/launch/spawn_robot.launch">
 		<arg name="sim" value="$(arg sim)" />
 		<arg name="limited" value="$(arg limited)"/>
 	</include>
 
+
+    <!--
+    #######################
+    SPAWN NODES && SERVICES
+    #######################
+    -->
+
+    <!-- Launch Web Socket to connect to Web GUI -->
+	<include file="$(find ur5_t2_4230)/launch/web.launch"></include>
+
+
 	<!-- Spawn Spawner Node (spawner.py) -->
-	<node pkg="ur5_t2_4230" name="spawner" type="spawner.py" output="screen" />
+	<node pkg="ur5_t2_4230" name="spawner" type="spawner.py" output="screen">
+        <rosparam param="object_colors" subst_value="True">$(arg object_colors)</rosparam>
+        <rosparam param="object_shapes" subst_value="True">$(arg object_shapes)</rosparam>
+        <rosparam param="spawn_delay" subst_value="True">$(arg spawn_delay)</rosparam>
+        <rosparam param="spawn_auto" subst_value="True">$(arg spawn_auto)</rosparam>
+    </node>
 
-	<!-- [Temporary] Spawn Conveyor Test Beam node -->
-	<node pkg="ur5_t2_4230" name="test_conveyor_beam" type="test_conveyor_beam.py" output="screen" />
+    <!-- Spawn Order Manager -->
+    <node pkg="ur5_t2_4230" name="order_manager" type="order_manager.py" output="screen" >
+        <rosparam param="object_colors" subst_value="True">$(arg object_colors)</rosparam>
+        <rosparam param="object_shapes" subst_value="True">$(arg object_shapes)</rosparam>
+        <rosparam param="conveyor_power" subst_value="True">$(arg conveyor_power)</rosparam>
+    </node>
 
+    <!-- Spawn Motion Controller -->
+    <node pkg="ur5_t2_4230" name="motion" type="motion.py" output="screen" >
+    </node>
 
 </launch>

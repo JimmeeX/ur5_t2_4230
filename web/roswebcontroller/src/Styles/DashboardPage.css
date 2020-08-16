@@ -1,0 +1,146 @@
+@font-face {
+    font-family: "Lato";
+    src: url(../Fonts/Lato-Regular.ttf) format("truetype");
+}
+
+.root {
+    background-color: #F5F6FA;
+}
+
+.wcsSidebar {
+    width: 100px;
+    height: 100vh;
+    background-color: #334150;
+    position: fixed;
+}
+
+.sideSquare {
+    height: 80px;
+    border-bottom: 1px solid #5A6877;
+}
+
+.logo {
+    width: 45px;
+    padding-top: 14px;
+}
+
+.wcsMainContentWrapper {
+    position: absolute;
+    top: 0px;
+    left: 100px;
+    margin: 0;
+    width: 100%;
+}
+
+.wcsBanner {
+    height: 80px;
+    width: 100%;
+    background-color: white;
+    -webkit-box-shadow: 0px 2px 6px 0px rgba(0,0,0,0.16);
+    -moz-box-shadow: 0px 2px 6px 0px rgba(0,0,0,0.16);
+    box-shadow: 0px 2px 6px 0px rgba(0,0,0,0.16);
+}
+
+.bannerHeaderGroupWrapper {
+    width: 195px;
+    height: 100%;
+    border-right: 1px solid #DADADB;
+    display: inline-block;
+    float: left;
+}
+
+.bannerHeaderWrapper {
+    width: 100%;
+    height: 50%;
+}
+.bannerSubHeaderWrapper {
+    width: 100%;
+    height: 50%;
+}
+
+.bannerHeader {
+    font-family: "Lato";
+    font-weight: bold;
+    font-size: 16px;
+    color: #2185D0;
+    margin: 0;
+    padding-top: 20px;
+    padding-left: 20px;
+    text-align: left;
+}
+
+.bannerSubHeader {
+    font-family: "Lato";
+    font-size: 13px;
+    color: #334150;
+    margin: 0;
+    text-align: left;
+    padding-left: 20px;
+}
+
+.bannerPageHeaderWrapper {
+    display: inline-block;
+    width: 300px;
+    height: 100%;
+    float: left;
+}
+
+.bannerPageHeader {
+    font-family: "Lato";
+    font-size: 18px;
+    color: #334150;
+    margin: 0;
+    text-align: left;
+    padding-left: 20px;
+    padding-top: 30px;
+}
+
+.bannerVersionWrapper {
+    display: inline-block;
+    width: 200px;
+    height: 100%;
+    float: right;
+}
+
+.bannerVersion {
+    font-family: "Lato";
+    font-size: 12px;
+    color: #334150;
+    margin: 0;
+    text-align: left;
+    padding-left: 20px;
+    padding-top: 30px;
+}
+
+.sidebarGroupNameWrapper {
+    display: block;
+    margin-top: 65vh;
+    width: 100%;
+    height:100px;
+}
+
+.sidebarGroupName {
+    font-family: "Lato";
+    color: #FFFFFF;
+    font-size: 12px;
+}
+
+.sidebarRosWrapper {
+    display: block;
+    margin-top: 2.5vh;
+    width: 100%;
+    height:100px;
+}
+
+.sidebarRos {
+    font-family: "Lato";
+    color: #FFFFFF;
+    font-size: 12px;
+}
+
+.contentBodyWrapper {
+    width: 93%;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 30px;
+}

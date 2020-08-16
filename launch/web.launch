@@ -1,0 +1,4 @@
+<launch>
+    <!-- Launch File to open a web socket that communicates to the Web GUI via localhost:9090 -->
+    <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" />
+</launch>

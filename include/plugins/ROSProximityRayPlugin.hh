@@ -30,7 +30,8 @@
 
 // ROS
 #include <ros/ros.h>
-#include <ur5_t2_4230/Proximity.h>
+#include <std_msgs/Bool.h>
+// #include <ur5_t2_4230/Proximity.h>
 
 namespace gazebo
 {
@@ -63,7 +64,7 @@ namespace gazebo
     protected: ros::Publisher stateChangePub;
 
     /// \brief ROS message for the sensor state
-    protected: ur5_t2_4230::Proximity state_msg;
+    protected: std_msgs::Bool state_msg;
 
     /// \brief for setting ROS namespace
     protected: std::string robotNamespace;

@@ -1,0 +1,9 @@
+## request
+
+---
+# response
+Order[] orders_queued
+Order[] orders_doing
+Order[] orders_done
+bool success
+string message

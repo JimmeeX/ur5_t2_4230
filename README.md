@@ -3,32 +3,23 @@
 MTRN4230 Group Project source code.
 
 ## Project Structure
-
-- /config - UR5 Controller Manager Config Files 
+- /config - UR5 Controller Manager Config Files
 - /include - C++ header files (mostly for plugins)
 - /launch - Launch Files to run the application
 - /models - Gazebo Models (.urdf, .sdf, .xacro, etc)
-  - 4230_objects - Pickable objects of various colours and shapes
-  - break_beam - Laser Proximity Sensor
-  - conveyor_belt_in - Conveyor Belt for Pickable Objects
-  - conveyor_belt_out - Conveyor Belt for Blue Delivery Containers
-  - kinect - RGB-D Sensor
-  - ur5 - UR5 Robot Arm Manipulator
 - /msg - Custom Messages for Publishers & Subscribers
-  - ConveyorBeltState - Conveyor Belt custom message
-  - Proximity - Break Beam custom message
-- /src - ROS Nodes + Custom Scripts
-  - spawner.py - Spawns objects & containers
+- /src - ROS Nodes, plugin scripts, test scripts, utility functions
 - /srv - Custom Service request / response definitions
-  - ConveyorBeltControl - Sets power to conveyor belts
+- /web - React-based Web GUI
 - /world - Gazebo World Files
 
-## 3rd Party Packages
+## 3rd Party ROS Packages
 
 Name | Description | Notes
 ---|---|---
 [universal_robot](https://github.com/ros-industrial/universal_robot) | Provides UR Models for Simulation | Already installed
 [ur5_ROS-Gazebo](https://github.com/lihuang3/ur5_ROS-Gazebo) | UR5 Examples | Already installed
+[rosbridge_server, rosbridge_library](https://github.com/RobotWebTools/rosbridge_suite) | Required for Web-based GUI | Not Installed
 
 ## Installation & Setup
 
@@ -48,6 +39,30 @@ Environment: **ROS Kinetic (Ubuntu 16.04)**
     cd ~/simulation_ws/src && git clone git@github.com:JimmeeX/ur5_t2_4230.git
     ```
 
+    1.3. Install required packages for Gazebo Math Ignition
+
+    ```bash
+    sudo apt-get install libignition-math2-dev
+    ```
+
+    1.4. Install required package for custom srv for Matlab
+
+    ```bash
+    sudo apt-get install ros-kinetic-rosbridge-library
+    ```
+
+    1.5. Install rosbridge_server to communicate with Web GUI
+    ```bash
+    sudo apt-get install ros-kinetic-rosbridge_server
+    ```
+
+    1.6. Install npm (or Yarn) to launch the Web GUI
+    ```bash
+    curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
+    sudo apt-get install -y nodejs
+    ```
+
+
 2. Build Environment
 
     2.1. Enable ROS Commands & Access to Packages (Protip: Add this to ~/.bashrc)
@@ -56,7 +71,7 @@ Environment: **ROS Kinetic (Ubuntu 16.04)**
     source ~/simulation_ws/devel/setup.bash
     ```
 
-    2.2. Disable GPU Config for Gazebo (otherwise Gazebo will crash) (Protip: Add this to ~/.bashrc)
+    2.2. Disable GPU Config for Gazebo (otherwise Gazebo will crash) (Protip: Add this to ~/.bashrc). Note that if your environment has a GPU driver, you can ignore this.
 
     ```bash
     export SVGA_VGPU10=0
@@ -74,12 +89,28 @@ Environment: **ROS Kinetic (Ubuntu 16.04)**
     cd ~/simulation_ws && catkin_make
     ```
 
+    2.5. Update npm packages for Web GUI
+
+    ```bash
+    cd ~/simulation_ws/src/ur5_t2_4230/web/roswebcontroller
+    npm install
+    ```
+
 3. Run
 
     3.1. Launch Gazebo Simulation Environment
 
     ```bash
     roslaunch ur5_t2_4230 ur5_world.launch
+    ```
+
+    3.2. Run ```Computer_Vision/Vision_SERVER.m``` on MATLAB (change ipaddress for your environment)
+
+    3.3. Launch Web GUI
+
+    ```bash
+    cd ~/simulation_ws/src/ur5_t2_4230/web/roswebcontroller
+    npm start
     ```
 
 ## Development

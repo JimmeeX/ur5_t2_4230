@@ -34,8 +34,8 @@ class TestConveyorBeam():
         self._rate = rospy.Rate(SLEEP_RATE)
 
         # Initialise Subscribers
-        self._bb_in_sub = rospy.Subscriber("/break_beam_in_sensor_change", Proximity, self.handleProximityChange, ('in'))
-        self._bb_out_sub = rospy.Subscriber("/break_beam_out_sensor_change", Proximity, self.handleProximityChange, ('out'))
+        self._bb_in_sub = rospy.Subscriber("/break_beam_in_sensor_change", Bool, self.handleProximityChange, ('in'))
+        self._bb_out_sub = rospy.Subscriber("/break_beam_out_sensor_change", Bool, self.handleProximityChange, ('out'))
 
         # Initialise Publishers
         self._spawn_container_pub = rospy.Publisher("/spawner/create_container", Empty, queue_size=1)
@@ -57,7 +57,7 @@ class TestConveyorBeam():
         rospy.logdebug('[handleProximityChange - ' + id + '] msg: ' + str(msg))
 
         # Incoming Objects
-        if not msg.object_detected: return True
+        if not msg.data: return True
 
         # Stop Conveyor
         request = ConveyorBeltControlRequest(ConveyorBeltState(power=0.00))

@@ -73,14 +73,14 @@ void ROSProximityRayPlugin::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sd
   {
     this->frameId = _sdf->Get<std::string>("frame_id");
   }
-  this->state_msg.header.frame_id = this->frameId;
+  // this->state_msg.header.frame_id = this->frameId;
 
   this->rosnode = new ros::NodeHandle(this->robotNamespace);
 
   // Initialize the publishers
-  this->statePub = this->rosnode->advertise<ur5_t2_4230::Proximity>(
+  this->statePub = this->rosnode->advertise<std_msgs::Bool>(
     this->stateTopic, 1, true);
-  this->stateChangePub = this->rosnode->advertise<ur5_t2_4230::Proximity>(
+  this->stateChangePub = this->rosnode->advertise<std_msgs::Bool>(
     this->stateChangeTopic, 1, true);
 
   // Callback for laser scans
@@ -94,13 +94,13 @@ void ROSProximityRayPlugin::Load(sensors::SensorPtr _parent, sdf::ElementPtr _sd
 // Update the controller
 void ROSProximityRayPlugin::OnNewLaserScans()
 {
-  auto now = this->world->GetSimTime();
+  // auto now = this->world->GetSimTime();
   bool stateChanged = this->ProcessScan();
-  this->state_msg.header.stamp.sec = now.sec;
-  this->state_msg.header.stamp.nsec = now.nsec;
-  this->state_msg.object_detected = this->objectDetected;
-  this->state_msg.min_range = this->sensingRangeMin;
-  this->state_msg.max_range = this->sensingRangeMax;
+  // this->state_msg.header.stamp.sec = now.sec;
+  // this->state_msg.header.stamp.nsec = now.nsec;
+  this->state_msg.data = this->objectDetected;
+  // this->state_msg.min_range = this->sensingRangeMin;
+  // this->state_msg.max_range = this->sensingRangeMax;
   this->statePub.publish(this->state_msg);
   if (stateChanged)
   {

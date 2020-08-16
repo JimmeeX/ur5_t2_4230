@@ -1,0 +1,9 @@
+# request
+string color
+string shape
+uint8 goal
+
+---
+# response
+bool success
+string message

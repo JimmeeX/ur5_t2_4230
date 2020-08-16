@@ -54,3 +54,6 @@ qtcreator-*
 CATKIN_IGNORE
 
 # Feel free to add more here
+include/plugins/ConveyorBeltPlugin_melodic.hh
+src/plugins/ConveyorBeltPlugin_melodic.cc
+src/plugins/ProximityRayPlugin_melodic.cc

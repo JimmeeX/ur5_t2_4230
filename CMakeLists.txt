@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  geometry_msgs
   message_generation
 )
 
@@ -57,6 +58,7 @@ add_message_files(
     msg
   FILES
     Proximity.msg
+    Order.msg
     ConveyorBeltState.msg
 )
 
@@ -66,6 +68,10 @@ add_service_files(
     srv
   FILES
     ConveyorBeltControl.srv
+    MoveToObject.srv
+    OrderAdd.srv
+    OrderDelete.srv
+    OrderGet.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -78,7 +84,8 @@ add_service_files(
 # Generate added messages and services with any dependencies listed here
 generate_messages(
   DEPENDENCIES
-  std_msgs  # Or other packages containing msgs
+    std_msgs  # Or other packages containing msgs
+    geometry_msgs
 )
 
 ################################################

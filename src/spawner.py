@@ -27,16 +27,8 @@ import random
 
 from collections import Counter
 
-# Object Combinations
-COLORS = ['blue', 'green', 'orange', 'pink', 'red']
-SHAPES = ['circle', 'triangle', 'square']
-OBJECTS = [color + '_' + shape for shape in SHAPES for color in COLORS]
-
 # ROS Internal Timer
 SLEEP_RATE = 3 # Hz
-
-# Spawn Interval
-SPAWN_DELAY = 5.0 # seconds
 
 # Spawn Location set based on conveyor_in location
 DEFAULT_OBJ_Y = 1.5
@@ -50,32 +42,40 @@ DEFAULT_CONTAINER_Y = 1
 DEFAULT_CONTAINER_Z = 1
 
 
-
 # Generate Objects
 class Spawner():
     def __init__(self, *args, **kwargs):
-        print("Initialising Spawner Node")
-        self._rate = rospy.Rate(SLEEP_RATE)
+        rospy.loginfo("[Spawner] Initialising Spawner Node")
+
+        # Wait for Services to be ready
+        rospy.loginfo("[Spawner] Waiting for gazebo/spawn_sdf_model service...")
+        rospy.wait_for_service("gazebo/spawn_sdf_model")
+        rospy.loginfo("[Spawner] Connected to gazebo server!")
+
 
         # Initialise Variables
-        self._is_auto = True
+        # Grab Parameters from <rosparam> in the launch file
+        self._is_auto = rospy.get_param("spawner/spawn_auto")
+        self._spawn_delay = rospy.get_param("spawner/spawn_delay")
+        self._colors = rospy.get_param("spawner/object_colors")
+        self._shapes = rospy.get_param("spawner/object_shapes")
+
+        self._objects = [color + '_' + shape for shape in self._shapes for color in self._colors]
         self._object_counter = Counter()
         self._container_counter = 0
+        self._rate = rospy.Rate(SLEEP_RATE)
 
-        # Initialise Publishers & Subscribers
-        rospy.Subscriber("/spawner/set_auto", Bool, self.handleSetAuto, queue_size=1)
-        rospy.Subscriber("/spawner/create_object", String, self.handleCreateObject, queue_size=1)
-        rospy.Subscriber("/spawner/create_container", Empty, self.handleCreateContainer, queue_size=1)
 
-        # Initialise Servers & Clients
-        print("Waiting for gazebo/spawn_sdf_model service...")
-        rospy.wait_for_service("gazebo/spawn_sdf_model")
-        print("Connected to gazebo server!")
+        # Initialise Subscribers
+        self._subscribers = {}
+        self._subscribers['spawner_set_auto'] = rospy.Subscriber("/spawner/set_auto", Bool, self.handleSetAuto, queue_size=1)
+        self._subscribers['spawner_create_object'] = rospy.Subscriber("/spawner/create_object", String, self.handleCreateObject, queue_size=1)
+        self._subscribers['spawner_create_container'] = rospy.Subscriber("/spawner/create_container", Empty, self.handleCreateContainer, queue_size=1)
 
-        self._spawn_client = rospy.ServiceProxy("gazebo/spawn_sdf_model", SpawnModel)
 
-        # Create an Initial Container
-        self.spawnContainer()
+        # Initialise Clients
+        self._clients = {}
+        self._clients['gazebo_spawn_sdf_model'] = rospy.ServiceProxy("gazebo/spawn_sdf_model", SpawnModel)
 
         # Infinite Loop
         self.spawnLoop()
@@ -90,9 +90,9 @@ class Spawner():
         while not rospy.is_shutdown():
             if not self._is_auto: continue
 
-            if counter >= SPAWN_DELAY * SLEEP_RATE:
+            if counter >= self._spawn_delay * SLEEP_RATE:
                 # Select Random Object
-                model = OBJECTS[random.randint(0, len(OBJECTS)-1)]
+                model = self._objects[random.randint(0, len(self._objects)-1)]
 
                 # Spawn Object & Reset Counter
                 self.spawnObject(model)
@@ -165,12 +165,13 @@ class Spawner():
 
         # Send Request && Process Response
         try:
-            response = self._spawn_client(request)
-            print('Successfully spawned ' + model_name)
+            client = self._clients['gazebo_spawn_sdf_model']
+            response = client(request)
+            rospy.loginfo('[Spawner] Successfully spawned ' + model_name)
             self._object_counter[model] += 1
 
         except rospy.ServiceException as exc:
-            print("Service did not process request: " + str(exc))
+            rospy.logerr("[Spawner] Service did not process request: " + str(exc))
             return False
 
         return True
@@ -211,12 +212,13 @@ class Spawner():
 
         # Send Request && Process Response
         try:
-            response = self._spawn_client(request)
-            print('Successfully spawned ' + model_name)
+            client = self._clients['gazebo_spawn_sdf_model']
+            response = client(request)
+            rospy.loginfo('[Spawner] Successfully spawned ' + model_name)
             self._container_counter += 1
 
         except rospy.ServiceException as exc:
-            print("Service did not process request: " + str(exc))
+            rospy.logerr("[Spawner] Service did not process request: " + str(exc))
             return False
 
         return True
@@ -227,4 +229,3 @@ if __name__ == "__main__":
     rospy.init_node('spawner')
     Spawner()
     rospy.spin()
-    
