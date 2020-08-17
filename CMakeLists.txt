@@ -69,14 +69,11 @@ add_service_files(
     srv
   FILES
     ConveyorBeltControl.srv
-<<<<<<< Updated upstream
     MoveToObject.srv
     OrderAdd.srv
     OrderDelete.srv
     OrderGet.srv
-=======
     VacuumGripperControl.srv
->>>>>>> Stashed changes
 )
 
 ## Generate actions in the 'action' folder
