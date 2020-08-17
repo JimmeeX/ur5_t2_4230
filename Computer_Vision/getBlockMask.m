@@ -1,8 +1,7 @@
-  
 function [block] = getBlockMask(image)
 
 % MTRN4230 T2 2020 - Group Assignment: Computer Vision & Image Processing
-% isolateIcon function isolates the block/s present in image file 'image'
+% getBlockMask function isolates the block/s present in image file 'image'
 % Written by Jason Jia Sheng Quek | z5117285
 % Modified by Rowena Dai | z5075936 - returns binary mask only
 
