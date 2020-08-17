@@ -2,7 +2,7 @@ clear all;
 close all;
 
 % Connect to the ROS environment
-ipaddress = '127.0.0.1';
+ipaddress = '192.168.0.6'; % Must update
 robotType = 'Gazebo';
 rosshutdown;
 rosinit(ipaddress);
@@ -41,7 +41,8 @@ while 1
 
             % Get Shape
             blockImage = imcrop(im, bbox);
-            shape = getShape(blockImage);
+%             shape = getShape(blockImage);
+            [shape,circ] = getIconShape(blockImage);
             
             % Transform coordinates
             [Xt, Yt] = transformCoordinates(X, Y);
@@ -51,8 +52,16 @@ while 1
             hold on
             plot(X, Y, 'bx', 'MarkerSize', 8)
             hold off
-            text(X-width/2, Y-height, strcat(color, {' '}, shape), 'fontsize', 10, 'FontWeight', 'bold', 'Color', 'm');
-            text(X-width/2, Y+height, strcat(num2str(Xt), {', '}, num2str(Yt)), 'fontsize', 10, 'FontWeight', 'bold', 'Color', 'y');
+            
+%             text(X-width/2, Y-height, strcat(color, {' '}, shape), ...
+%                 'fontsize', 10, 'FontWeight', 'bold', 'Color', 'm');
+            
+            text(X-width/2, Y-height, strcat(color, {' '}, shape, {' | '}, num2str(circ)), ...
+                'fontsize', 10, 'FontWeight', 'bold', 'Color', 'm');
+            
+            text(X-width/2, Y+height, ...
+                strcat(num2str(Xt), {', '}, num2str(Yt)), ...
+                'fontsize', 10, 'FontWeight', 'bold', 'Color', 'y');
             
         end
     end
