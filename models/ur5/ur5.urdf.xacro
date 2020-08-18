@@ -355,6 +355,38 @@
       </collision>
     </link>
 
+    <link name="left_end_effector">
+      <gravity>0</gravity>
+      <visual>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <geometry>
+          <box size="0.01 0.01 0.01"/>
+        </geometry>
+        <material name="transparent">
+          <color rgba="0 0 0 0"/>
+        </material>
+      </visual>
+      <inertial>
+        <origin rpy="0 0 0" xyz="0.000000 0.000000 0.000000"/>
+        <mass value="0.0001"/>
+        <inertia ixx="1e-08" ixy="0" ixz="0" iyy="1e-08" iyz="0" izz="1e-08"/>
+      </inertial>
+    </link>
+    <joint name="left_end_joint" type="revolute">
+      <parent link="wrist_3_link" />
+      <child link="left_end_effector" />
+      <origin rpy="0 0 0" xyz="0.08 0 .44" />
+      <limit effort="30" velocity="1.0" lower="0" upper="0" />
+    </joint>
+    <gazebo>
+      <plugin name="gazebo_ros_vacuum_gripper" filename="libgazebo_ros_vacuum_gripper.so">
+        <robotNamespace>/robot/left_vacuum_gripper</robotNamespace>
+        <bodyName>left_end_effector</bodyName>
+        <topicName>grasping</topicName>
+      </plugin>
+    </gazebo>
+
+
     <xacro:ur_arm_transmission prefix="${prefix}" hw_interface="${transmission_hw_interface}" />
     <xacro:ur_arm_gazebo prefix="${prefix}" />
 
