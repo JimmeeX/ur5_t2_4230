@@ -53,7 +53,7 @@ Environment: **ROS Kinetic (Ubuntu 16.04)**
 
     1.5. Install rosbridge_server to communicate with Web GUI
     ```bash
-    sudo apt-get install ros-kinetic-rosbridge_server
+    sudo apt-get install ros-kinetic-rosbridge-server
     ```
 
     1.6. Install npm (or Yarn) to launch the Web GUI
