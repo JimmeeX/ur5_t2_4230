@@ -67,8 +67,9 @@ function response = getData(~, ~, response)
 
             % Get Shape
             blockImage = imcrop(im, bbox);
-            shape = getShape(blockImage);
-            
+%             shape = getShape(blockImage);
+            [shape,~] = getIconShape(blockImage);
+
             % Transform coordinates
             [Xt, Yt, Zt] = transformCoordinates(X, Y, Z);
             
