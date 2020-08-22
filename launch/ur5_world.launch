@@ -10,7 +10,7 @@
 
     <!--
     #####################
-    ENVIONRMENT VARIABLES
+    ENVIRONMENT VARIABLES
     #####################
     -->
     <env name="GAZEBO_RESOURCE_PATH" value="$(find ur5_t2_4230)/media/materials" />
