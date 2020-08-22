@@ -68,7 +68,7 @@
       <robot_namespace>/ur5_t2_4230</robot_namespace>
       <topic>conveyor/control/in</topic>
       <link>conveyor_belt_in::conveyor_belt_in_moving::belt</link>
-      <power>25.0</power>
+      <power>50.0</power>
     </plugin>
 
   </model>
