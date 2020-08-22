@@ -37,8 +37,8 @@
     <arg name='conveyor_power' default='50.0' />
 
 	<!-- Gazebo Arguments -->
-    <arg name="debug" default="false" />
-    <arg name="verbose" default="false" />
+    <arg name="debug" default="true" />
+    <arg name="verbose" default="true" />
     <arg name="gui" default="true" />
     <arg name="pause" default="false" />
     <arg name="world" default="$(find ur5_t2_4230)/world/ur5_world.world" />

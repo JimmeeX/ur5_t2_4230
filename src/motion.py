@@ -10,6 +10,7 @@ Credits: Matt Bourke
 
 from std_msgs.msg import Header
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
+from ur5_t2_4230.msg import VacuumGripperState
 
 from std_srvs.srv import (
     Trigger,
@@ -21,6 +22,9 @@ from ur5_t2_4230.srv import (
     MoveToObject,
     MoveToObjectRequest,
     MoveToObjectResponse,
+    VacuumGripperControl,
+    VacuumGripperControlRequest,
+    VacuumGripperControlResponse
 )
 
 import rospy
@@ -48,13 +52,16 @@ class Motion():
         self._publishers = {}
         self._publishers['arm_controller_command'] = rospy.Publisher('/arm_controller/command', JointTrajectory, queue_size=10)
 
-
         # Initialise Servers
         self._servers = {}
         self._servers['motion_move_to_object'] = rospy.Service("/motion/move_to_object", MoveToObject, self.handleMotionMoveToObjectRequest)
         self._servers['motion_pickup_object'] = rospy.Service("/motion/pickup_object", Trigger, self.handlePickupObjectRequest)
         # self._servers['motion_drop_object'] = rospy.Service("/motion/drop_object", Trigger, self.handleMockTrigger)
         self._servers['motion_move_to_container'] = rospy.Service("/motion/move_to_container", Trigger, self.handleMovetoContainer)
+
+        # Initialise Clients
+        self._clients = {}
+        self._clients['gripper_control'] = rospy.ServiceProxy('/robot/left_vacuum_gripper/gripper/control', VacuumGripperControl)
 
 
         # Sleep for duration until move robot to home position
@@ -79,6 +86,24 @@ class Motion():
         q = inverse_kinematics(point.x, point.y, point.z)
 
         self.publishArmControllerCommand(q)
+
+
+        # PICKUP Object
+        response_pickup_object = self.sendGripperControlRequest(enable=True)
+        if not (response_pickup_object and response_pickup_object.success):
+            response = MoveToObjectResponse(
+                success=False,
+                message="Robot Gripper failed to operate"
+            )
+            return response
+
+        isObjectPickedUp = False
+        counter = 0
+        while not isObjectPickedUp and not rospy.is_shutdown():
+            if counter >= 3.0 * SLEEP_RATE: isObjectPickedUp = True
+            counter += 1
+
+            self._rate.sleep()
 
         response = MoveToObjectResponse(
             success=True,
@@ -149,6 +174,27 @@ class Motion():
             self._rate.sleep()
 
         return
+
+
+    def sendGripperControlRequest(self, enable):
+        """
+        Handles Turning Robot Gripper On/Off
+
+        Returns VacuumGripperControlResponse object if exist otherwise None
+        """
+
+        service_key = 'gripper_control'
+        client = self._clients[service_key]
+
+        request = VacuumGripperControlRequest(enable=enable)
+        try:
+            response = client(request)
+            if response.success: rospy.loginfo('[Motion] Successfully set gripper ' + str(enable))
+            else: rospy.logerr('[Motion] Conveyor control failed. Please try again')
+            return response
+        except rospy.ServiceException as exc:
+            rospy.logerr('[Motion] Service did not process request: ' + str(exc))
+            return None
 
 
 if __name__ == '__main__':

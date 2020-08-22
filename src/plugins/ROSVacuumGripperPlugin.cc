@@ -77,6 +77,7 @@ void ROSVacuumGripperPlugin::Load(physics::ModelPtr _parent,
     robotNamespace = _sdf->GetElement(
       "robot_namespace")->Get<std::string>() + "/";
   }
+  gzdbg << "[VacuumPlugin] robotNamespace" << robotNamespace << std::endl;
 
   std::string controlTopic = "gripper/control";
   if (_sdf->HasElement("control_topic"))

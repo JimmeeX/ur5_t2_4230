@@ -360,7 +360,7 @@
       <visual>
         <origin rpy="0 0 0" xyz="0 0 0"/>
         <geometry>
-          <box size="0.01 0.01 0.01"/>
+          <box size="0.05 0.05 0.05"/>
         </geometry>
         <material name="transparent">
           <color rgba="0 0 0 0"/>
@@ -375,14 +375,30 @@
     <joint name="left_end_joint" type="revolute">
       <parent link="wrist_3_link" />
       <child link="left_end_effector" />
-      <origin rpy="0 0 0" xyz="0.08 0 .44" />
+      <origin rpy="0 0 0" xyz="0.00 0.07 0.00" />
       <limit effort="30" velocity="1.0" lower="0" upper="0" />
     </joint>
     <gazebo>
-      <plugin name="gazebo_ros_vacuum_gripper" filename="libgazebo_ros_vacuum_gripper.so">
+      <!-- <plugin name="gazebo_ros_vacuum_gripper" filename="libgazebo_ros_vacuum_gripper.so">
         <robotNamespace>/robot/left_vacuum_gripper</robotNamespace>
         <bodyName>left_end_effector</bodyName>
-        <topicName>grasping</topicName>
+        <topicName>enable</topicName>
+      </plugin> -->
+      <plugin name="ros_vacuum_gripper" filename="libROSVacuumGripperPlugin.so">
+        <grasp_check>
+          <detach_steps>40</detach_steps>
+          <attach_steps>1</attach_steps>
+          <min_contact_count>1</min_contact_count>
+        </grasp_check>
+
+        <!-- <xacro:insert_block name="drops_info" /> -->
+
+        <suction_cup_link>left_end_effector</suction_cup_link>
+
+        <!-- ROS -->
+        <robot_namespace>/robot/left_vacuum_gripper</robot_namespace>
+        <control_topic>gripper/control</control_topic>
+        <state_topic>gripper/state</state_topic>
       </plugin>
     </gazebo>
 

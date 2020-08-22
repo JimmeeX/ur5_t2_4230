@@ -9,7 +9,7 @@ height_of_robot = 0.3;
 
 
 
-spacing = 0.01;
+spacing = 0.001;
 
 dist_per_pixel = conveyor_width/im_height;
 

@@ -239,6 +239,7 @@ void VacuumGripperPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
           << "] not found!\n";
     return;
   }
+  gzdbg << "[VacuumPlugin] Suction Cup Link Found! [" << suctionCupLinkElem->Get<std::string>() << "]" << std::endl;
 
   if (_sdf->HasElement("drops"))
   {

@@ -17,7 +17,7 @@
           <min_contact_count>1</min_contact_count>
         </grasp_check>
 
-        <xacro:insert_block name="drops_info" />
+        <drops_info/>
 
         <suction_cup_link>${gripper_link}</suction_cup_link>
 
