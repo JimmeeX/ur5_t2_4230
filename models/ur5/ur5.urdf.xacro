@@ -355,6 +355,58 @@
       </collision>
     </link>
 
+    <link name="left_end_effector">
+      <gravity>0</gravity>
+
+      <collision name="collision">
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <geometry>
+          <cylinder length="0.005" radius="0.02"/>
+        </geometry>
+      </collision>
+
+      <visual>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <geometry>
+          <cylinder length="0.005" radius="0.02"/>
+        </geometry>
+      </visual>
+
+      <inertial>
+        <origin rpy="0 0 0" xyz="0.000000 0.000000 0.000000"/>
+        <mass value="0.0001"/>
+        <inertia ixx="1e-08" ixy="0" ixz="0" iyy="1e-08" iyz="0" izz="1e-08"/>
+      </inertial>
+    </link>
+    <joint name="left_end_joint" type="revolute">
+      <parent link="wrist_3_link" />
+      <child link="left_end_effector" />
+      <origin rpy="${pi/2} 0 0" xyz="0.00 0.085 0.00" />
+      <limit effort="30" velocity="1.0" lower="0" upper="0" />
+    </joint>
+    <gazebo>
+      <!-- <plugin name="gazebo_ros_vacuum_gripper" filename="libgazebo_ros_vacuum_gripper.so">
+        <robotNamespace>/robot/left_vacuum_gripper</robotNamespace>
+        <bodyName>left_end_effector</bodyName>
+        <topicName>enable</topicName>
+      </plugin> -->
+      <plugin name="ros_vacuum_gripper" filename="libROSVacuumGripperPlugin.so">
+        <grasp_check>
+          <detach_steps>40</detach_steps>
+          <attach_steps>1</attach_steps>
+          <min_contact_count>1</min_contact_count>
+        </grasp_check>
+
+        <suction_cup_link>left_end_effector</suction_cup_link>
+
+        <!-- ROS -->
+        <robot_namespace>/robot/left_vacuum_gripper</robot_namespace>
+        <control_topic>gripper/control</control_topic>
+        <state_topic>gripper/state</state_topic>
+      </plugin>
+    </gazebo>
+
+
     <xacro:ur_arm_transmission prefix="${prefix}" hw_interface="${transmission_hw_interface}" />
     <xacro:ur_arm_gazebo prefix="${prefix}" />
 

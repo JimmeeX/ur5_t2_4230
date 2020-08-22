@@ -60,6 +60,7 @@ add_message_files(
     Proximity.msg
     Order.msg
     ConveyorBeltState.msg
+    VacuumGripperState.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -72,6 +73,7 @@ add_service_files(
     OrderAdd.srv
     OrderDelete.srv
     OrderGet.srv
+    VacuumGripperControl.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -211,6 +213,33 @@ install(TARGETS ${ros_proximity_ray_plugin_name}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
+)
+
+# Create the libVacuumGripperPlugin.so library.
+set(vacuum_gripper_plugin_name VacuumGripperPlugin)
+add_library(${vacuum_gripper_plugin_name} src/plugins/VacuumGripperPlugin.cc)
+target_link_libraries(${vacuum_gripper_plugin_name}
+  ${GAZEBO_LIBRARIES}
+  ${roscpp_LIBRARIES}
+  ${sensor_msgs_LIBRARIES}
+)
+#install(TARGETS ${vacuum_gripper_plugin_name}
+#  ARCHIVE DESTINATION lib
+#  LIBRARY DESTINATION lib
+#  RUNTIME DESTINATION bin)
+
+# Create the libROSVacuumGripperPlugin.so library.
+set(ros_vacuum_gripper_plugin_name ROSVacuumGripperPlugin)
+add_library(${ros_vacuum_gripper_plugin_name} src/plugins/ROSVacuumGripperPlugin.cc)
+target_link_libraries(${ros_vacuum_gripper_plugin_name}
+  ${catkin_LIBRARIES}
+  ${vacuum_gripper_plugin_name}
+  ${GAZEBO_LIBRARIES}
+  ${roscpp_LIBRARIES}
+  ${sensor_msgs_LIBRARIES}
+)
+add_dependencies(${ros_vacuum_gripper_plugin_name}
+  ${${PROJECT_NAME}_EXPORTED_TARGETS}
 )
 
 # Create the libConveyorBeltPlugin.so library.

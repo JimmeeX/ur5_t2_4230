@@ -83,16 +83,16 @@ function response = getData(~, ~, response)
             fprintf('Sent: %s\n', response.Data);
             
             % Show Image
-            figure(1)
-            imshow(im)
-            rectangle('Position', bbox, 'EdgeColor', 'b', 'LineWidth', 3)
-            hold on
-            plot(X, Y, 'bx', 'MarkerSize', 8)
-            hold off
-            width = bbox(3);
-            height = bbox(4);
-            text(X-width/2, Y-height, strcat(color, {' '}, shape), 'fontsize', 10, 'FontWeight', 'bold', 'Color', 'm');
-            text(X-width/2, Y+height, strcat(num2str(Xt), {', '}, num2str(Yt)), 'fontsize', 10, 'FontWeight', 'bold', 'Color', 'y');
+%             figure(1)
+%             imshow(im)
+%             rectangle('Position', bbox, 'EdgeColor', 'b', 'LineWidth', 3)
+%             hold on
+%             plot(X, Y, 'bx', 'MarkerSize', 8)
+%             hold off
+%             width = bbox(3);
+%             height = bbox(4);
+%             text(X-width/2, Y-height, strcat(color, {' '}, shape), 'fontsize', 10, 'FontWeight', 'bold', 'Color', 'm');
+%             text(X-width/2, Y+height, strcat(num2str(Xt), {', '}, num2str(Yt)), 'fontsize', 10, 'FontWeight', 'bold', 'Color', 'y');
             
         end
     end

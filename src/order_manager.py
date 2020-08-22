@@ -120,7 +120,25 @@ class OrderManager():
         self._clients['motion_drop_object'] = rospy.ServiceProxy("/motion/drop_object", Trigger)
         self._clients['motion_move_to_container'] = rospy.ServiceProxy("/motion/move_to_container", Trigger)
 
-        # Move Robot to Home (Container)
+        # Sleep for duration until move robot to home position
+        # Without sleep, handleMovetoContainer will somtimes not run in Gazebo
+        shouldAddOrder = False
+        counter = 0
+        while not shouldAddOrder and not rospy.is_shutdown():
+            if counter >= 3.0 * SLEEP_RATE: shouldAddOrder = True
+            counter += 1
+
+            self._rate.sleep()
+        
+        # Add a test order after 3 seconds
+        mock_request = OrderAddRequest(
+            color='none',
+            shape='none',
+            goal=100
+        )
+
+        self.handleOrderAddRequest(mock_request)
+
         return
 
 
@@ -321,14 +339,14 @@ class OrderManager():
                 return
             rospy.loginfo('[OrderManager] Successfully Moved to Object!')
 
-            # Pickup Object
-            rospy.loginfo('[OrderManager] Triggering Pickup Object')
-            response_pickup_object = self.sendTriggerRequest(service_key='motion_pickup_object')
-            if not (response_pickup_object and response_pickup_object.success):
-                self.sendTriggerRequest(service_key='motion_move_to_container')
-                self.startConveyorIn()
-                return
-            rospy.loginfo('[OrderManager] Successfully Picked up object!')
+            # # Pickup Object
+            # rospy.loginfo('[OrderManager] Triggering Pickup Object')
+            # response_pickup_object = self.sendTriggerRequest(service_key='motion_pickup_object')
+            # if not (response_pickup_object and response_pickup_object.success):
+            #     self.sendTriggerRequest(service_key='motion_move_to_container')
+            #     self.startConveyorIn()
+            #     return
+            # rospy.loginfo('[OrderManager] Successfully Picked up object!')
 
             # Move to container
             rospy.loginfo('[OrderManager] Triggering Move to Container...')
@@ -341,13 +359,13 @@ class OrderManager():
 
             if not self._is_container_ready: self.waitForContainer()
 
-            # Drop Object
-            rospy.loginfo('[OrderManager] Triggering Drop Object to Container...')
-            response_drop_object = self.sendTriggerRequest('motion_drop_object')
-            if not (response_drop_object and response_drop_object.success):
-                self.startConveyorIn()
-                return
-            rospy.loginfo('[OrderManager] Successfully Dropped Object to Container!')
+            # # Drop Object
+            # rospy.loginfo('[OrderManager] Triggering Drop Object to Container...')
+            # response_drop_object = self.sendTriggerRequest('motion_drop_object')
+            # if not (response_drop_object and response_drop_object.success):
+            #     self.startConveyorIn()
+            #     return
+            # rospy.loginfo('[OrderManager] Successfully Dropped Object to Container!')
 
             # Object Dropped Successfully
             # Update order
