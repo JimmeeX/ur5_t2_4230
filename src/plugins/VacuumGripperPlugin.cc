@@ -37,7 +37,6 @@
 #include <gazebo/transport/Node.hh>
 #include <gazebo/transport/Subscriber.hh>
 #include "plugins/VacuumGripperPlugin.hh"
-#include "plugins/ARIAC.hh"
 #include <ignition/math/Box.hh>
 
 namespace gazebo
@@ -548,29 +547,6 @@ void VacuumGripperPlugin::HandleAttach()
   auto modelPtr = this->dataPtr->modelCollision->GetLink()->GetModel();
   auto name = modelPtr->GetName();
   gzdbg << "Part attached to gripper: " << name << std::endl;
-
-  // Check if the object should drop.
-  std::string objectType = ariac::DetermineModelType(name);
-  auto it = find_if(this->dataPtr->objectsToDrop.begin(), this->dataPtr->objectsToDrop.end(),
-    [&objectType](const VacuumGripperPluginPrivate::DropObject& obj) {
-      return obj.getType() == objectType;
-    });
-  this->dataPtr->attachedObjType = objectType;
-  bool objectToBeDropped = it != this->dataPtr->objectsToDrop.end();
-
-  if (!objectToBeDropped)
-  {
-    return;
-  }
-  auto found = std::find(std::begin(this->dataPtr->droppedObjects),
-                 std::end(this->dataPtr->droppedObjects), this->dataPtr->attachedObjType);
-  bool alreadyDropped = found != std::end(this->dataPtr->droppedObjects);
-  if (!alreadyDropped)
-  {
-    this->dataPtr->dropPending = true;
-    this->dataPtr->dropAttachedModel = modelPtr;
-    gzdbg << "Drop scheduled" << std::endl;
-  }
 }
 
 /////////////////////////////////////////////////

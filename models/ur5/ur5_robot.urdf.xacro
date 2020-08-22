@@ -15,33 +15,4 @@
     transmission_hw_interface="$(arg transmission_hw_interface)"
   />
 
-
-  <!-- vacuum gripper -->
-  <xacro:property name="simple_gripper" value="simple_gripper_" />
-  <xacro:include filename="$(find ur5_t2_4230)/urdf/simple_gripper/simple_gripper.xacro"/>
-  <xacro:simple_gripper prefix="simple_gripper_"/>
-
-  <link name="world" />
-
-  <joint name="world_joint" type="fixed">
-    <parent link="world" />
-    <child link = "base_link" />
-    <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
-  </joint>
-
-  <!-- Simple Vacuum Gripper -->
-  <xacro:include filename="$(find ur5_t2_4230)/urdf/simple_gripper/simple_gripper.urdf.xacro"/>
-  <xacro:simple_gripper_urdf prefix="simple_gripper_"/>
-
-  <xacro:include filename="$(find ur5_t2_4230)/urdf/simple_gripper/simple_gripper.gazebo.xacro"/>
-  <xacro:simple_gripper_gazebo prefix="simple_gripper_" gripper_link="wrist_3_link">
-    <drops_info/>
-  </xacro:simple_gripper_gazebo>
-
-  <!-- Joints -->
-  <joint name="gripper_to_robot" type="fixed">
-    <parent link="tool0" />
-    <child link="simple_gripper_base_link" />
-  </joint>
-
 </robot>
