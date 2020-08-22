@@ -357,15 +357,21 @@
 
     <link name="left_end_effector">
       <gravity>0</gravity>
+
+      <collision name="collision">
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <geometry>
+          <cylinder length="0.005" radius="0.02"/>
+        </geometry>
+      </collision>
+
       <visual>
         <origin rpy="0 0 0" xyz="0 0 0"/>
         <geometry>
-          <box size="0.05 0.05 0.05"/>
+          <cylinder length="0.005" radius="0.02"/>
         </geometry>
-        <material name="transparent">
-          <color rgba="0 0 0 0"/>
-        </material>
       </visual>
+
       <inertial>
         <origin rpy="0 0 0" xyz="0.000000 0.000000 0.000000"/>
         <mass value="0.0001"/>
@@ -375,7 +381,7 @@
     <joint name="left_end_joint" type="revolute">
       <parent link="wrist_3_link" />
       <child link="left_end_effector" />
-      <origin rpy="0 0 0" xyz="0.00 0.07 0.00" />
+      <origin rpy="${pi/2} 0 0" xyz="0.00 0.085 0.00" />
       <limit effort="30" velocity="1.0" lower="0" upper="0" />
     </joint>
     <gazebo>
@@ -390,8 +396,6 @@
           <attach_steps>1</attach_steps>
           <min_contact_count>1</min_contact_count>
         </grasp_check>
-
-        <!-- <xacro:insert_block name="drops_info" /> -->
 
         <suction_cup_link>left_end_effector</suction_cup_link>
 

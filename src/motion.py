@@ -36,9 +36,17 @@ from utils.kinematics import (
 DURATION = 1.0
 SLEEP_RATE = 3 # Hz
 
+CONVEYOR_HEIGHT = 0.2
+CONTAINER_HEIGHT = 0.1
+OBJECT_HEIGHT = 0.05
+ROBOT_HEIGHT = 0.3
+SPACING = 0.05
+
 CONTAINER_X = 0.5
 CONTAINER_Y = 0
-CONTAINER_Z = 0.2 + 0.1 + 0.05 - 0.3 # Conveyor Height + Container Height + Spacing - Robot Height
+CONTAINER_Z = CONVEYOR_HEIGHT + CONTAINER_HEIGHT + OBJECT_HEIGHT + SPACING - ROBOT_HEIGHT
+
+DOWN_SHIFT = 0.01 # Conveyor Height + Container Height + Object Height + Spacing - Robot Height
 
 INITIAL_WAIT = 3.0
 
@@ -82,13 +90,13 @@ class Motion():
         point = request.location
         rospy.logwarn('[Motion] Moving Arm to Object - ' + str(point.x) + ', ' + str(point.y) + ', ' + str(point.z))
 
+        # Move to Object
         # Inverse Kinematics on X,Y,Z --> Joint Positions
-        q = inverse_kinematics(point.x, point.y, point.z)
+        rospy.loginfo("[Motion] Moving arm to above object")
+        q1 = inverse_kinematics(point.x, point.y, point.z + 0.25)
+        self.publishArmControllerCommand(q1)
 
-        self.publishArmControllerCommand(q)
-
-
-        # PICKUP Object
+        # Turn on Gripper
         response_pickup_object = self.sendGripperControlRequest(enable=True)
         if not (response_pickup_object and response_pickup_object.success):
             response = MoveToObjectResponse(
@@ -97,6 +105,17 @@ class Motion():
             )
             return response
 
+        # Second Waypoint to move down 
+        rospy.loginfo("[Motion] Moving arm down to pickup object")
+        q2 = inverse_kinematics(point.x, point.y, point.z - DOWN_SHIFT)
+        self.publishArmControllerCommand(q2)
+
+        rospy.loginfo("[Motion] Moving arm back up With Object")
+        q3 = inverse_kinematics(point.x, point.y, point.z + 0.25)
+        self.publishArmControllerCommand(q3)
+
+
+        # Wait 3 seconds for some reason
         isObjectPickedUp = False
         counter = 0
         while not isObjectPickedUp and not rospy.is_shutdown():
@@ -133,6 +152,14 @@ class Motion():
         q = inverse_kinematics(CONTAINER_X, CONTAINER_Y, CONTAINER_Z)
 
         self.publishArmControllerCommand(q)
+
+        response_pickup_object = self.sendGripperControlRequest(enable=False)
+        if not (response_pickup_object and response_pickup_object.success):
+            response = MoveToObjectResponse(
+                success=False,
+                message="Robot Gripper failed to operate"
+            )
+            return response
 
         response = TriggerResponse(
             success=True,

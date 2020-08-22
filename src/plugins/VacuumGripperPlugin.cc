@@ -392,6 +392,7 @@ void VacuumGripperPlugin::Disable()
 /////////////////////////////////////////////////
 void VacuumGripperPlugin::OnUpdate()
 {
+  // gzdbg << "[VacuumPlugin OnUpdate] OnUpdate Function Ran" << std::endl;
   this->Publish();
 
   std::lock_guard<std::mutex> lock(this->dataPtr->mutex);
@@ -416,6 +417,7 @@ void VacuumGripperPlugin::OnUpdate()
   bool modelInContact = this->CheckModelContact();
   if (modelInContact)
   {
+    gzdbg << "[VacuumPlugin OnUpdate] I hooked" << std::endl;
     this->HandleAttach();
   }
 
@@ -609,6 +611,8 @@ bool VacuumGripperPlugin::CheckModelContact()
     this->dataPtr->posCount = std::max(0, this->dataPtr->posCount-1);
   }
 
+  // gzdbg << "posCount: " << this->dataPtr->posCount << "\tzeroCount: " << this->dataPtr->zeroCount << "\tattachSteps: " << this->dataPtr->attachSteps << "\tisAttached: " << this->dataPtr->attached <<  std::endl;
+
   if (this->dataPtr->posCount > this->dataPtr->attachSteps &&
       !this->dataPtr->attached)
   {
@@ -622,18 +626,18 @@ bool VacuumGripperPlugin::CheckModelContact()
       gripperLinkPose.rot.RotateVector(math::Vector3(0, -1, 0));
     double alignment = gripperLinkNormal.Dot(this->dataPtr->modelContactNormal);
 
-
+    gzdbg << "Alignment: " << alignment << std::endl;
     // Alignment of > 0.95 represents alignment angle of < acos(0.95) = ~18 degrees
-    if (alignment > 0.95)
-    {
-      gzdbg << "Model contact normal: " << this->dataPtr->modelContactNormal.X() << " "
-            << this->dataPtr->modelContactNormal.X() << " "
-            << this->dataPtr->modelContactNormal.Z() << std::endl;
+    // if (alignment > 0.95)
+    // {
+    gzdbg << "Model contact normal: " << this->dataPtr->modelContactNormal.X() << " "
+          << this->dataPtr->modelContactNormal.X() << " "
+          << this->dataPtr->modelContactNormal.Z() << std::endl;
 
-      gzdbg << "Dot Product: " << alignment << std::endl;
-      gzdbg<<"Model is aligned with gripper"<<std::endl;
-      modelInContact = true;
-    }
+    gzdbg << "Dot Product: " << alignment << std::endl;
+    gzdbg<<"Model is aligned with gripper"<<std::endl;
+    modelInContact = true;
+    // }
   }
   return modelInContact;
 }
