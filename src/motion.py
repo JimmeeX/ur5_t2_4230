@@ -19,9 +19,9 @@ from std_srvs.srv import (
 )
 
 from ur5_t2_4230.srv import (
-    MoveToObject,
-    MoveToObjectRequest,
-    MoveToObjectResponse,
+    PickupObject,
+    PickupObjectRequest,
+    PickupObjectResponse,
     VacuumGripperControl,
     VacuumGripperControlRequest,
     VacuumGripperControlResponse
@@ -46,7 +46,7 @@ CONTAINER_X = 0.5
 CONTAINER_Y = 0
 CONTAINER_Z = CONVEYOR_HEIGHT + CONTAINER_HEIGHT + OBJECT_HEIGHT + SPACING - ROBOT_HEIGHT
 
-DOWN_SHIFT = 0.01 # Conveyor Height + Container Height + Object Height + Spacing - Robot Height
+UP_SHIFT = 0.25
 
 INITIAL_WAIT = 3.0
 
@@ -62,17 +62,15 @@ class Motion():
 
         # Initialise Servers
         self._servers = {}
-        self._servers['motion_move_to_object'] = rospy.Service("/motion/move_to_object", MoveToObject, self.handleMotionMoveToObjectRequest)
-        self._servers['motion_pickup_object'] = rospy.Service("/motion/pickup_object", Trigger, self.handlePickupObjectRequest)
-        # self._servers['motion_drop_object'] = rospy.Service("/motion/drop_object", Trigger, self.handleMockTrigger)
-        self._servers['motion_move_to_container'] = rospy.Service("/motion/move_to_container", Trigger, self.handleMovetoContainer)
+        self._servers['motion_pickup_object'] = rospy.Service("/motion/pickup_object", PickupObject, self.handlePickupObjectRequest)
+        self._servers['motion_drop_object'] = rospy.Service("/motion/drop_object", Trigger, self.handleDropObjectRequest)
 
         # Initialise Clients
         self._clients = {}
         self._clients['gripper_control'] = rospy.ServiceProxy('/robot/left_vacuum_gripper/gripper/control', VacuumGripperControl)
 
 
-        # Sleep for duration until move robot to home position
+        # Sleep for duration until move robot to container
         # Without sleep, handleMovetoContainer will somtimes not run in Gazebo
         shouldMoveToHome = False
         counter = 0
@@ -82,98 +80,104 @@ class Motion():
 
             self._rate.sleep()
         
-        self.handleMovetoContainer(None)
+        self.handleDropObjectRequest(None)
 
-    
-    def handleMotionMoveToObjectRequest(self, request):
-        """Mock Response Demo wait 5 seconds"""
+
+    """
+    ####################
+    SERVER-SIDE HANDLERS
+    ####################
+    """
+    def handlePickupObjectRequest(self, request):
+        """
+        Motion Sequence
+        1. Move above object (coordinates provided)
+        2. Enable Gripper
+        3. Move down to contact object
+        4. Move back up (with object)
+        """
+
         point = request.location
-        rospy.logwarn('[Motion] Moving Arm to Object - ' + str(point.x) + ', ' + str(point.y) + ', ' + str(point.z))
+        rospy.loginfo('[Motion] Received coordinates of Object - ' + str(point.x) + ', ' + str(point.y) + ', ' + str(point.z))
 
-        # Move to Object
+        # 1. Move above Object
         # Inverse Kinematics on X,Y,Z --> Joint Positions
         rospy.loginfo("[Motion] Moving arm to above object")
-        q1 = inverse_kinematics(point.x, point.y, point.z + 0.25)
+        q1 = inverse_kinematics(point.x, point.y, point.z + UP_SHIFT)
         self.publishArmControllerCommand(q1)
 
-        # Turn on Gripper
+        # 2. Enable Gripper
         response_pickup_object = self.sendGripperControlRequest(enable=True)
         if not (response_pickup_object and response_pickup_object.success):
-            response = MoveToObjectResponse(
+            response = PickupObjectResponse(
                 success=False,
                 message="Robot Gripper failed to operate"
             )
             return response
 
-        # Second Waypoint to move down 
+        # 3.
         rospy.loginfo("[Motion] Moving arm down to pickup object")
-        q2 = inverse_kinematics(point.x, point.y, point.z - DOWN_SHIFT)
+        q2 = inverse_kinematics(point.x, point.y, point.z)
         self.publishArmControllerCommand(q2)
 
+        # Potential TODO: Wait until Confirmation that object has been picked up
+
+        # 4.
         rospy.loginfo("[Motion] Moving arm back up With Object")
-        q3 = inverse_kinematics(point.x, point.y, point.z + 0.25)
+        q3 = inverse_kinematics(point.x, point.y, point.z + UP_SHIFT)
         self.publishArmControllerCommand(q3)
 
-
-        # Wait 3 seconds for some reason
-        isObjectPickedUp = False
-        counter = 0
-        while not isObjectPickedUp and not rospy.is_shutdown():
-            if counter >= 3.0 * SLEEP_RATE: isObjectPickedUp = True
-            counter += 1
-
-            self._rate.sleep()
-
-        response = MoveToObjectResponse(
+        # Return Response
+        response = PickupObjectResponse(
             success=True,
-            message="Robot move to object successfully"
+            message="Robot picked up object successfully"
         )
 
         return response
 
-    def handlePickupObjectRequest(self, request):
-        # TODO: Temporarily just stops for 3 seconds
-        isObjectPickedUp = False
-        counter = 0
-        while not isObjectPickedUp and not rospy.is_shutdown():
-            if counter >= 3.0 * SLEEP_RATE: isObjectPickedUp = True
-            counter += 1
 
-            self._rate.sleep()
+    def handleDropObjectRequest(self, request):
+        """
+        Motion Sequence
+        1. Move above container
+        2. Disable Gripper
+        """
 
-        response = TriggerResponse(
-            success=True,
-            message="Object Picked up successfully"
-        )
-        return response
+        rospy.loginfo('[Motion] Received command to drop object')
 
-
-    def handleMovetoContainer(self, request):
+        # 1. Move above container
         q = inverse_kinematics(CONTAINER_X, CONTAINER_Y, CONTAINER_Z)
-
         self.publishArmControllerCommand(q)
 
+        # 2. Disable Gripper
         response_pickup_object = self.sendGripperControlRequest(enable=False)
         if not (response_pickup_object and response_pickup_object.success):
-            response = MoveToObjectResponse(
+            response = PickupObjectResponse(
                 success=False,
                 message="Robot Gripper failed to operate"
             )
             return response
 
+        # Return Response
         response = TriggerResponse(
             success=True,
-            message="Robot move to container successfully"
+            message="Robot dropped object successfully"
         )
 
         return response
 
-    
+
+    """
+    ################
+    HELPER FUNCTIONS
+    ################
+    """
     def publishArmControllerCommand(self, waypoints):
         
         # Create the topic message
         traj = JointTrajectory()
         traj.header = Header()
+
         # Joint names for UR5
         traj.joint_names = ['shoulder_pan_joint', 'shoulder_lift_joint',
                             'elbow_joint', 'wrist_1_joint', 'wrist_2_joint',
