@@ -119,14 +119,14 @@ class OrderManager():
 
             self._rate.sleep()
         
-        # Add a test order after 3 seconds
-        mock_request = OrderAddRequest(
-            color='none',
-            shape='none',
-            goal=100
-        )
+        # Uncomment to add a test order after 3 seconds (for debugging convenience)
+        # mock_request = OrderAddRequest(
+        #     color='none',
+        #     shape='none',
+        #     goal=100
+        # )
 
-        self.handleOrderAddRequest(mock_request)
+        # self.handleOrderAddRequest(mock_request)
 
         return
 
