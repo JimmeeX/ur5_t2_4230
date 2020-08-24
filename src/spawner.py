@@ -33,8 +33,8 @@ SLEEP_RATE = 3 # Hz
 # Spawn Location set based on conveyor_in location
 DEFAULT_OBJ_Y = 1.5
 DEFAULT_OBJ_Z = 0.9 + 0.05 / 2 # Half up so object doesn't phase through ground
-DEFAULT_OBJ_MIN_X = 0.35
-DEFAULT_OBJ_MAX_X = 0.65
+DEFAULT_OBJ_MIN_X = 0.4
+DEFAULT_OBJ_MAX_X = 0.6
 
 # Spawn Location of Container set based on conveyor_out location
 DEFAULT_CONTAINER_X = -0.5
@@ -143,8 +143,8 @@ class Spawner():
         if not pose:
             pose = Pose(
                 Point(
-                    x=DEFAULT_OBJ_MIN_X,
-                    #x=random.uniform(DEFAULT_OBJ_MIN_X, DEFAULT_OBJ_MAX_X),
+                    #x=DEFAULT_OBJ_MIN_X,
+                    x=random.uniform(DEFAULT_OBJ_MIN_X, DEFAULT_OBJ_MAX_X),
                     y=DEFAULT_OBJ_Y,
                     z=DEFAULT_OBJ_Z
                 ),
