@@ -385,11 +385,6 @@
       <limit effort="30" velocity="1.0" lower="0" upper="0" />
     </joint>
     <gazebo>
-      <!-- <plugin name="gazebo_ros_vacuum_gripper" filename="libgazebo_ros_vacuum_gripper.so">
-        <robotNamespace>/robot/left_vacuum_gripper</robotNamespace>
-        <bodyName>left_end_effector</bodyName>
-        <topicName>enable</topicName>
-      </plugin> -->
       <plugin name="ros_vacuum_gripper" filename="libROSVacuumGripperPlugin.so">
         <grasp_check>
           <detach_steps>40</detach_steps>
@@ -400,7 +395,7 @@
         <suction_cup_link>left_end_effector</suction_cup_link>
 
         <!-- ROS -->
-        <robot_namespace>/robot/left_vacuum_gripper</robot_namespace>
+        <robot_namespace>/arm_controller</robot_namespace>
         <control_topic>gripper/control</control_topic>
         <state_topic>gripper/state</state_topic>
       </plugin>
