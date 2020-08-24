@@ -31,7 +31,7 @@
       <static>false</static>
       <pose>0 0 0 0 0 -1.57079</pose>
       <link name="belt">
-        <pose>-2 0 0 0 0 0</pose>
+        <pose>-1.95 0 0 0 0 0</pose>
 
         <!--Uncomment for debugging -->
         <!-- <visual name="belt_visual">
@@ -68,7 +68,7 @@
       <robot_namespace>/ur5_t2_4230</robot_namespace>
       <topic>conveyor/control/in</topic>
       <link>conveyor_belt_in::conveyor_belt_in_moving::belt</link>
-      <power>50.0</power>
+      <power>25.0</power>
     </plugin>
 
   </model>

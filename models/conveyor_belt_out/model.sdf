@@ -31,7 +31,7 @@
       <static>false</static>
       <pose>0 0 0 0 0 -1.57079</pose>
       <link name="belt">
-        <pose>-2 0 0 0 0 0</pose>
+        <pose>-1.95 0 0 0 0 0</pose>
 
         <!--Uncomment for debugging -->
         <!-- <visual name="belt_visual">
