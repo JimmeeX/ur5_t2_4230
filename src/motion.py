@@ -67,7 +67,7 @@ class Motion():
 
         # Initialise Clients
         self._clients = {}
-        self._clients['gripper_control'] = rospy.ServiceProxy('/robot/left_vacuum_gripper/gripper/control', VacuumGripperControl)
+        self._clients['gripper_control'] = rospy.ServiceProxy('/arm_controller/gripper/control', VacuumGripperControl)
 
 
         # Sleep for duration until move robot to container
