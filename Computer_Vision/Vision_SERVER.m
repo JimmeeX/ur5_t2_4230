@@ -17,6 +17,7 @@ rosinit(ipaddress);
 % Subscribe to the necessary topics (RGB Image, Image Depth, Break Beam
 % Sensor)
 
+imagePub = rospublisher('/vision/sent_image', 'sensor_msgs/Image');
 visionserver = rossvcserver('/vision/detect_object', 'rosbridge_library/SendBytes', @getData);
 
 % Continuous loop to run image processing
