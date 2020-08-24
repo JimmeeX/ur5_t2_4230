@@ -56,6 +56,12 @@ class Motion():
 
         self._rate = rospy.Rate(SLEEP_RATE)
 
+        self._is_object_attached = False
+
+        # Initialise Subscribers
+        self._subscribers = {}
+        self._subscribers['gripper_state'] = rospy.Subscriber('/arm_controller/gripper/state', VacuumGripperState, self.handleVacuumStateCallback, queue_size=1)
+
         # Initialise Publishers
         self._publishers = {}
         self._publishers['arm_controller_command'] = rospy.Publisher('/arm_controller/command', JointTrajectory, queue_size=10)
@@ -120,7 +126,11 @@ class Motion():
         q2 = inverse_kinematics(point.x, point.y, point.z)
         self.publishArmControllerCommand(q2)
 
-        # Potential TODO: Wait until Confirmation that object has been picked up
+        # Wait until Confirmation that object has been picked up
+        rospy.loginfo("[Motion] Waiting for object attachement")
+        while not self._is_object_attached and not rospy.is_shutdown():
+            self._rate.sleep()
+        rospy.loginfo("[Motion] Object attached!")
 
         # 4.
         rospy.loginfo("[Motion] Moving arm back up With Object")
@@ -165,6 +175,15 @@ class Motion():
         )
 
         return response
+
+
+    """
+    ##########################
+    CLASS SUBSCRIBER CALLBACKS
+    ##########################
+    """
+    def handleVacuumStateCallback(self, msg):
+        self._is_object_attached = msg.attached
 
 
     """
