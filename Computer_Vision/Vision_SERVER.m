@@ -31,6 +31,7 @@ function response = getData(~, ~, response)
     
     imSub = rossubscriber('/camera/color/image_raw');
     pcSub = rossubscriber('/camera/depth/points');
+    imagePub = rospublisher('/vision/sent_image', 'sensor_msgs/Image');
         
     % Get the RGB image from the ROS environment
     im = readImage(imSub.LatestMessage);
@@ -81,6 +82,20 @@ function response = getData(~, ~, response)
             % Return server message
             response.Data = sprintf("%s %s %f %f %f\n", color, shape, Xt, Yt, Zt);
             fprintf('Sent: %s\n', response.Data);
+            
+            % Publish image
+            width = bbox(3);
+            height = bbox(4);
+            position = [X-width/2 Y-2*height;X-width/2 Y+height];
+            text = [strcat(color, {' '}, shape); strcat(num2str(Xt), {', '}, num2str(Yt))];
+            image = insertText(im, position, text, 'FontSize',20, 'TextColor', 'black');
+            image = insertObjectAnnotation(image, 'rectangle', bbox, '', 'LineWidth', 3);
+            image = insertMarker(image, [X Y], 'x', 'Color', 'blue', 'Size', 8);
+        
+            msg = rosmessage('sensor_msgs/Image');
+            msg.Encoding = 'rgb8';
+            writeImage(msg,image);
+            send(imagePub, msg);
             
             % Show Image
 %             figure(1)
