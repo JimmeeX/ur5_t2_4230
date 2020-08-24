@@ -69,7 +69,7 @@ add_service_files(
     srv
   FILES
     ConveyorBeltControl.srv
-    MoveToObject.srv
+    PickupObject.srv
     OrderAdd.srv
     OrderDelete.srv
     OrderGet.srv
