@@ -3,7 +3,7 @@ import React from 'react';
 function RvizComponent(props) {
     return (
         <div>
-            <img style={{width:"100%",height:"300px"}} src={props.src}/>
+            <img style={{width:"320px",height:"240px"}} src={props.src}/>
         </div>
     );
 }

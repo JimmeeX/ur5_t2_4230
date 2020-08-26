@@ -37,6 +37,9 @@ namespace gazebo
 
     /// \brief Receives service calls to control the gripper.
     public: ros::ServiceServer controlService;
+
+    public: bool enabled;
+    public: bool attached;
   };
 }
 
@@ -87,6 +90,9 @@ void ROSVacuumGripperPlugin::Load(physics::ModelPtr _parent,
   if (_sdf->HasElement("state_topic"))
     stateTopic = _sdf->Get<std::string>("state_topic");
 
+  this->dataPtr->enabled = false;
+  this->dataPtr->attached = false;
+
   VacuumGripperPlugin::Load(_parent, _sdf);
 
   this->dataPtr->rosnode.reset(new ros::NodeHandle(robotNamespace));
@@ -124,8 +130,16 @@ bool ROSVacuumGripperPlugin::OnGripperControl(
 /////////////////////////////////////////////////
 void ROSVacuumGripperPlugin::Publish() const
 {
+  bool old_enabled = this->dataPtr->enabled;
+  bool old_attached = this->dataPtr->attached;
+  this->dataPtr->attached = this->Attached();
+  this->dataPtr->enabled = this->Enabled();
+  if ((old_attached == this->dataPtr->attached) && (old_enabled == this->dataPtr->enabled)) {
+    return;
+  }
+
   ur5_t2_4230::VacuumGripperState msg;
-  msg.attached = this->Attached();
-  msg.enabled = this->Enabled();
+  msg.attached = this->dataPtr->attached;
+  msg.enabled = this->dataPtr->enabled;
   this->dataPtr->statePub.publish(msg);
 }

@@ -91,8 +91,6 @@ class OrderSegment extends Component {
             var request = new ROSLIB.ServiceRequest({});
 
             this.getOrderServiceClient.callService(request, (response) => {
-                console.log(response);
-                console.log(response.orders_queued);
                 if (JSON.stringify(response.orders_queued) != JSON.stringify(this.state.orderQueue.length)) {
                     this.setState({
                         orderQueue: response.orders_queued

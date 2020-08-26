@@ -48,14 +48,20 @@ class KinematicsSegment extends Component {
     }
 
     updateJoints = (message) => {
-        // this.setState({});
-        this.jointsTopic.unsubscribe();
+        this.setState({
+            base: message.desired.positions[0].toFixed(2),
+            elbow: message.desired.positions[1].toFixed(2),
+            shoulder: message.desired.positions[2].toFixed(2),
+            wrist1: message.desired.positions[3].toFixed(2),
+            wrist2: message.desired.positions[4].toFixed(2),
+            wrist3: message.desired.positions[5].toFixed(2),
+        });
     }
 
     componentDidMount() {
         this.jointsTopic = new ROSLIB.Topic({
             ros: ros, name: '/arm_controller/state',
-            messageType: 'std_msgs/String'
+            messageType: 'control_msgs/JointTrajectoryControllerState'
         });
         this.jointsTopic.subscribe((message) => this.updateJoints(message));
     }
@@ -79,7 +85,7 @@ class KinematicsSegment extends Component {
                                 <p style={{paddingTop:"3px"}}>Base:</p>
                             </Grid>
                             <Grid item xs={9}>
-                                <Slider style={{color: "#2185d0"}} value={this.state.base} onChange={this.handleBaseChange} aria-labelledby="continuous-slider" />
+                                <Slider style={{color: "#2185d0"}} value={this.state.base} onChange={this.handleBaseChange} aria-labelledby="continuous-slider" min={-3.1416} max={3.1416} />
                             </Grid>
                             <Grid item xs={1}>
                                 <p style={{paddingTop:"3px"}}>{this.state.base}</p>
@@ -88,7 +94,7 @@ class KinematicsSegment extends Component {
                                 <p style={{paddingTop:"3px"}}>Elbow:</p>
                             </Grid>
                             <Grid item xs={9}>
-                                    <Slider style={{color: "#2185d0"}} value={this.state.elbow} onChange={this.handleElbowChange} aria-labelledby="continuous-slider" />
+                                    <Slider style={{color: "#2185d0"}} value={this.state.elbow} onChange={this.handleElbowChange} aria-labelledby="continuous-slider" min={-3.1416} max={3.1416} />
                             </Grid>
                             <Grid item xs={1}>
                                 <p style={{paddingTop:"3px"}}>{this.state.elbow}</p>
@@ -97,7 +103,7 @@ class KinematicsSegment extends Component {
                                 <p style={{paddingTop:"3px"}}>Shoulder:</p>
                             </Grid>
                             <Grid item xs={9}>
-                                    <Slider style={{color: "#2185d0"}} value={this.state.shoulder} onChange={this.handleShoulderChange} aria-labelledby="continuous-slider" />
+                                    <Slider style={{color: "#2185d0"}} value={this.state.shoulder} onChange={this.handleShoulderChange} aria-labelledby="continuous-slider" min={-3.1416} max={3.1416} />
                             </Grid>
                             <Grid item xs={1}>
                                 <p style={{paddingTop:"3px"}}>{this.state.shoulder}</p>
@@ -106,7 +112,7 @@ class KinematicsSegment extends Component {
                                 <p style={{paddingTop:"3px"}}>Wrist 1:</p>
                             </Grid>
                             <Grid item xs={9}>
-                                    <Slider style={{color: "#2185d0"}} value={this.state.wrist1} onChange={this.handleShoulderChange} aria-labelledby="continuous-slider" />
+                                    <Slider style={{color: "#2185d0"}} value={this.state.wrist1} onChange={this.handleShoulderChange} aria-labelledby="continuous-slider" min={-3.1416} max={3.1416} />
                             </Grid>
                             <Grid item xs={1}>
                                 <p style={{paddingTop:"3px"}}>{this.state.wrist1}</p>
@@ -115,7 +121,7 @@ class KinematicsSegment extends Component {
                                 <p style={{paddingTop:"3px"}}>Wrist 2:</p>
                             </Grid>
                             <Grid item xs={9}>
-                                    <Slider style={{color: "#2185d0"}} value={this.state.wrist2} onChange={this.handleShoulderChange} aria-labelledby="continuous-slider" />
+                                    <Slider style={{color: "#2185d0"}} value={this.state.wrist2} onChange={this.handleShoulderChange} aria-labelledby="continuous-slider" min={-3.1416} max={3.1416} />
                             </Grid>
                             <Grid item xs={1}>
                                 <p style={{paddingTop:"3px"}}>{this.state.wrist2}</p>
@@ -124,7 +130,7 @@ class KinematicsSegment extends Component {
                                 <p style={{paddingTop:"3px"}}>Wrist 3:</p>
                             </Grid>
                             <Grid item xs={9}>
-                                    <Slider style={{color: "#2185d0"}} value={this.state.wrist3} onChange={this.handleShoulderChange} aria-labelledby="continuous-slider" />
+                                    <Slider style={{color: "#2185d0"}} value={this.state.wrist3} onChange={this.handleShoulderChange} aria-labelledby="continuous-slider" min={-3.1416} max={3.1416} />
                             </Grid>
                             <Grid item xs={1}>
                                 <p style={{paddingTop:"3px"}}>{this.state.wrist3}</p>
