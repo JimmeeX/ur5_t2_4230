@@ -25,8 +25,8 @@ class EnvironmentSegment extends Component {
 
     updateGripperStatus = (message) => {
         var status = "DISABLED";
-        if (message.data.enabled) {
-            if (message.data.attached) {
+        if (message.enabled) {
+            if (message.attached) {
                 status = "ATTACHED";
             } else {
                 status = "ENABLED";
@@ -35,37 +35,32 @@ class EnvironmentSegment extends Component {
         this.setState({
             gripperStatus: status
         })
-        this.gripperTopic.unsubscribe();
     }
 
     updateBeltOneStatus = (message) => {
-        var status = (message.data.power > 50) ? "ON" : "OFF";
+        var status = (message.power > 0) ? "ON" : "OFF";
         this.setState({
             beltOneStatus: status
         });
-        this.beltOneTopic.unsubscribe();
     }
 
     updateBeltTwoStatus = (message) => {
-        var status = (message.data.power > 50) ? "ON" : "OFF";
+        var status = (message.power > 0) ? "ON" : "OFF";
         this.setState({
             beltTwoStatus: status
         });
-        this.beltTwoTopic.unsubscribe();
     }
 
     updateProxOneStatus = (message) => {
         this.setState({
-            proxOneStatus: (message.data.object_detected) ? "TRUE" : "FALSE"
+            proxOneStatus: (message.data) ? "TRUE" : "FALSE"
         });
-        this.proxOneTopic.unsubscribe();
     }
 
     updateProxTwoStatus = (message) => {
         this.setState({
-            proxTwoStatus: (message.data.object_detected) ? "TRUE" : "FALSE"
+            proxTwoStatus: (message.data) ? "TRUE" : "FALSE"
         });
-        this.proxTwoTopic.unsubscribe();
     }
 
     componentDidMount() {
@@ -76,26 +71,26 @@ class EnvironmentSegment extends Component {
         this.gripperTopic.subscribe((message) => this.updateGripperStatus(message));
 
         this.beltOneTopic = new ROSLIB.Topic({
-            ros: ros, name: 'ur5_t2_4230/conveyor_control/in',
-            messageType: 'ur5_t2_4230/ConveyorBeltControl'
+            ros: ros, name: '/conveyor/state/in',
+            messageType: 'ur5_t2_4230/ConveyorBeltState'
         });
         this.beltOneTopic.subscribe((message) => this.updateBeltOneStatus(message));
         
         this.beltTwoTopic = new ROSLIB.Topic({
-            ros: ros, name: 'ur5_t2_4230/conveyor_control/out',
-            messageType: 'ur5_t2_4230/ConveyorBeltControl'
+            ros: ros, name: '/conveyor/state/out',
+            messageType: 'ur5_t2_4230/ConveyorBeltState'
         });
         this.beltTwoTopic.subscribe((message) => this.updateBeltTwoStatus(message));
 
         this.proxOneTopic = new ROSLIB.Topic({
-            ros: ros, name: '/break_beam_in_sensor ',
-            messageType: 'ur5_t2_4230/Proximity'
+            ros: ros, name: '/break_beam_in_sensor_change',
+            messageType: 'std_msgs/Bool'
         });
         this.proxOneTopic.subscribe((message) => this.updateProxOneStatus(message));
 
         this.proxTwoTopic = new ROSLIB.Topic({
-            ros: ros, name: '/break_beam_out_sensor ',
-            messageType: 'ur5_t2_4230/Proximity'
+            ros: ros, name: '/break_beam_out_sensor_change',
+            messageType: 'std_msgs/Bool'
         });
         this.proxTwoTopic.subscribe((message) => this.updateProxTwoStatus(message));
     }
@@ -137,7 +132,7 @@ class EnvironmentSegment extends Component {
                         </Table.Row>
                         <Table.Row>
                             <Table.Cell>
-                            <Icon name='road' /> Conveyor Belt 1
+                            <Icon name='road' /> Conveyor Belt 2
                             </Table.Cell>
                             <Table.Cell>
                                 {(this.state.beltTwoStatus == "ON") ? 

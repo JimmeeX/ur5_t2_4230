@@ -148,6 +148,8 @@ def detectObject(im_rgb):
         # Add Marker
         cv2.drawMarker(im_debug, (int(x), int(y)), color=(0, 0, 255), markerType=cv2.MARKER_TILTED_CROSS, markerSize=24, thickness=3)
 
+        im_debug = cv2.cvtColor(im_debug, cv2.COLOR_RGB2BGR)
+
         result = (color, shape, x_t, y_t, z_t)
         return (result, im_debug)
 

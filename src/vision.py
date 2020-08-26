@@ -11,6 +11,7 @@ Credits: Rowena Dai, Jason Quek
 from geometry_msgs.msg import Point
 
 from sensor_msgs.msg import (
+    CompressedImage,
     Image
 )
 
@@ -47,7 +48,7 @@ class Vision():
 
         # Initialise Publishers
         self._publishers = {}
-        self._publishers['vision_sent_image'] = rospy.Publisher('/vision/sent_image', Image, queue_size=1)
+        self._publishers['vision_sent_image'] = rospy.Publisher('/vision/sent_image', CompressedImage, queue_size=1)
 
         # Initialise Servers
         self._servers = {}
@@ -101,7 +102,7 @@ class Vision():
     ################
     """
     def pubSentImage(self, im):
-        msg = self._bridge.cv2_to_imgmsg(im, encoding='rgb8')
+        msg = self._bridge.cv2_to_compressed_imgmsg(im)
         publisher = self._publishers['vision_sent_image']
         publisher.publish(msg)
 

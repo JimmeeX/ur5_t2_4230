@@ -89,6 +89,8 @@ class OrderManager():
         self._publishers = {}
         self._publishers['spawner_create_container'] = rospy.Publisher("/spawner/create_container", Empty, queue_size=1)
         self._publishers['spawner_set_auto'] = rospy.Publisher("/spawner/set_auto", Bool, queue_size=1)
+        self._publishers['conveyor_state_in'] = rospy.Publisher('/conveyor/state/in', ConveyorBeltState, queue_size=1)
+        self._publishers['conveyor_state_out'] = rospy.Publisher('/conveyor/state/out', ConveyorBeltState, queue_size=1)
 
 
         # Initialise Servers
@@ -117,13 +119,13 @@ class OrderManager():
             self._rate.sleep()
         
         # Uncomment to add a test order after 3 seconds (for debugging convenience)
-        mock_request = OrderAddRequest(
-            color='none',
-            shape='none',
-            goal=100
-        )
+        # mock_request = OrderAddRequest(
+        #     color='none',
+        #     shape='none',
+        #     goal=5
+        # )
 
-        self.handleOrderAddRequest(mock_request)
+        # self.handleOrderAddRequest(mock_request)
 
         return
 
@@ -189,6 +191,8 @@ class OrderManager():
 
         if state == 'on': power = self._conveyor_power # Default Conveyor Power
         elif state == 'off': power = 0.0 # Turn off Conveyor
+
+        self._publishers['conveyor_state_' + id].publish(power)
 
         request = ConveyorBeltControlRequest(ConveyorBeltState(power=power))
         try:

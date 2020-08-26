@@ -20,32 +20,26 @@ class VisionSegment extends Component {
     }
 
     updateRvizSrc = (message) => {
-        console.log(message.data);
         this.setState({
-            // rviz_src: message.data,
             rviz_src: "data:image/jpg;base64," + message.data,
         });
-        this.rviz_topic.unsubscribe();
     }
     
     updateCVSrc = (message) => {
-        console.log(message.data);
         this.setState({
-            // cv_src: message.data,
             cv_src: "data:image/jpg;base64," + message.data,
         });
-        this.cv_topic.unsubscribe();
     }
 
     componentDidMount() {
         this.rviz_topic = new ROSLIB.Topic({
-            ros: ros, name: '/camera/color/image_raw',
-            messageType: 'sensor_msgs/Image'
+            ros: ros, name: '/camera/color/image_raw/compressed',
+            messageType: 'sensor_msgs/CompressedImage'
         });
         this.rviz_topic.subscribe((message) => this.updateRvizSrc(message));
         this.cv_topic = new ROSLIB.Topic({
             ros: ros, name: '/vision/sent_image',
-            messageType: 'sensor_msgs/Image'
+            messageType: 'sensor_msgs/CompressedImage'
         });
         this.cv_topic.subscribe((message) => this.updateCVSrc(message));
     }
