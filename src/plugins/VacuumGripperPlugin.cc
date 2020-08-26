@@ -510,13 +510,6 @@ bool VacuumGripperPlugin::GetContactNormal()
       return true;
     }
   }
-/*
- * TODO: Delete, its unclear why this check even happens when no attempt to assign a value to it
- * is made
-  if (!collisionPtr)
-  {
-    gzdbg << "Somehow the gripper was in collision with itself.\n";
-  }*/
 
   return false;
 }

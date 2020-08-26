@@ -38,12 +38,6 @@ from ur5_t2_4230.srv import (
     PickupObjectResponse,
 )
 
-from rosbridge_library.srv import (
-    SendBytes,
-    SendBytesRequest,
-    SendBytesResponse
-)
-
 
 from std_srvs.srv import (
     Trigger,
@@ -108,7 +102,7 @@ class OrderManager():
         self._clients = {}
         self._clients['conveyor_control_in'] = rospy.ServiceProxy("/ur5_t2_4230/conveyor/control/in", ConveyorBeltControl)
         self._clients['conveyor_control_out'] = rospy.ServiceProxy("/ur5_t2_4230/conveyor/control/out", ConveyorBeltControl)
-        self._clients['vision_detect_object'] = rospy.ServiceProxy("/vision/detect_object", ObjectDetect) # TODO: Temporary
+        self._clients['vision_detect_object'] = rospy.ServiceProxy("/vision/detect_object", ObjectDetect)
         self._clients['motion_pickup_object'] = rospy.ServiceProxy("/motion/pickup_object", PickupObject)
         self._clients['motion_drop_object'] = rospy.ServiceProxy("/motion/drop_object", Trigger)
 
@@ -224,28 +218,6 @@ class OrderManager():
         except rospy.ServiceException as exc:
             rospy.logerr('[OrderManager] Service did not process request: ' + str(exc))
             return None
-
-    # TODO: Remove
-    def sendBytesRequest(self, service_key):
-        """
-        General Trigger Request for any trigger-based service
-
-        Returns TriggerResponse object
-        """
-        client = self._clients[service_key]
-
-        request = SendBytesRequest(0)
-        try:
-            response = client(request)
-            if response is not None: rospy.loginfo('[OrderManager] - ' + service_key + ': ' + response.data)
-            else: rospy.logerr('[OrderManager] - ' + service_key + ': ' + response.data)
-            return response
-        except rospy.ServiceException as exc:
-            rospy.logerr('[OrderManager] Service did not process request: ' + str(exc))
-            return None
-
-
-    # def sendOb
 
 
     def sendVisionObjectDetectRequest(self):
