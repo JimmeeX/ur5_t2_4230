@@ -83,7 +83,6 @@ def getShape(im_block_rgb):
     area = cv2.contourArea(max_contour)
     perimeter = cv2.arcLength(max_contour,True)
     circ = 4*math.pi*area / perimeter**2
-    print(area, perimeter, circ)
 
     if circ >= CIRCULARITY_BOUNDS[0]: shape = 'circle'
     elif circ <= CIRCULARITY_BOUNDS[1]: shape = 'triangle'
