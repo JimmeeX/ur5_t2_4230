@@ -3,6 +3,9 @@ import PropTypes from 'prop-types';
 import { Segment } from 'semantic-ui-react';
 import '../Styles/KinematicsSegment.css';
 import Slider from '@material-ui/core/Slider';
+import {ros} from '../ros.js';
+import ROSLIB from 'roslib';
+import { Grid, Typography } from '@material-ui/core';
 
 
 
@@ -17,6 +20,7 @@ class KinematicsSegment extends Component {
             wrist2: 0,
             wrist3: 0,
         };
+        this.jointsTopic = null;
     }
 
     handleBaseChange = (event) => {
@@ -43,8 +47,17 @@ class KinematicsSegment extends Component {
 
     }
 
-    componentDidMount() {
+    updateJoints = (message) => {
+        // this.setState({});
+        this.jointsTopic.unsubscribe();
+    }
 
+    componentDidMount() {
+        this.jointsTopic = new ROSLIB.Topic({
+            ros: ros, name: '/arm_controller/state',
+            messageType: 'std_msgs/String'
+        });
+        this.jointsTopic.subscribe((message) => this.updateJoints(message));
     }
 
     componentWillUnmount() {
@@ -61,14 +74,64 @@ class KinematicsSegment extends Component {
                         </div>
                     </Segment>
                     <Segment>
-                        <Slider value={this.base} onChange={this.handleBaseChange} aria-labelledby="continuous-slider" />
-                        <Slider value={this.elbow} onChange={this.handleElbowChange} aria-labelledby="continuous-slider" />
-                        <Slider value={this.shoulder} onChange={this.handleShoulderChange} aria-labelledby="continuous-slider" />
-                        <Slider value={this.wrist1} onChange={this.handleWrist1Change} aria-labelledby="continuous-slider" />
-                        <Slider value={this.wrist2} onChange={this.handleWrist2Change} aria-labelledby="continuous-slider" />
-                        <Slider value={this.wrist3} onChange={this.handleWrist3Change} aria-labelledby="continuous-slider" />
+                        <Grid container spacing={2}>
+                            <Grid item xs={2}>
+                                <p style={{paddingTop:"3px"}}>Base:</p>
+                            </Grid>
+                            <Grid item xs={9}>
+                                <Slider style={{color: "#2185d0"}} value={this.state.base} onChange={this.handleBaseChange} aria-labelledby="continuous-slider" />
+                            </Grid>
+                            <Grid item xs={1}>
+                                <p style={{paddingTop:"3px"}}>{this.state.base}</p>
+                            </Grid>
+                            <Grid item xs={2}>
+                                <p style={{paddingTop:"3px"}}>Elbow:</p>
+                            </Grid>
+                            <Grid item xs={9}>
+                                    <Slider style={{color: "#2185d0"}} value={this.state.elbow} onChange={this.handleElbowChange} aria-labelledby="continuous-slider" />
+                            </Grid>
+                            <Grid item xs={1}>
+                                <p style={{paddingTop:"3px"}}>{this.state.elbow}</p>
+                            </Grid>
+                            <Grid item xs={2}>
+                                <p style={{paddingTop:"3px"}}>Shoulder:</p>
+                            </Grid>
+                            <Grid item xs={9}>
+                                    <Slider style={{color: "#2185d0"}} value={this.state.shoulder} onChange={this.handleShoulderChange} aria-labelledby="continuous-slider" />
+                            </Grid>
+                            <Grid item xs={1}>
+                                <p style={{paddingTop:"3px"}}>{this.state.shoulder}</p>
+                            </Grid>
+                            <Grid item xs={2}>
+                                <p style={{paddingTop:"3px"}}>Wrist 1:</p>
+                            </Grid>
+                            <Grid item xs={9}>
+                                    <Slider style={{color: "#2185d0"}} value={this.state.wrist1} onChange={this.handleShoulderChange} aria-labelledby="continuous-slider" />
+                            </Grid>
+                            <Grid item xs={1}>
+                                <p style={{paddingTop:"3px"}}>{this.state.wrist1}</p>
+                            </Grid>
+                            <Grid item xs={2}>
+                                <p style={{paddingTop:"3px"}}>Wrist 2:</p>
+                            </Grid>
+                            <Grid item xs={9}>
+                                    <Slider style={{color: "#2185d0"}} value={this.state.wrist2} onChange={this.handleShoulderChange} aria-labelledby="continuous-slider" />
+                            </Grid>
+                            <Grid item xs={1}>
+                                <p style={{paddingTop:"3px"}}>{this.state.wrist2}</p>
+                            </Grid>
+                            <Grid item xs={2}>
+                                <p style={{paddingTop:"3px"}}>Wrist 3:</p>
+                            </Grid>
+                            <Grid item xs={9}>
+                                    <Slider style={{color: "#2185d0"}} value={this.state.wrist3} onChange={this.handleShoulderChange} aria-labelledby="continuous-slider" />
+                            </Grid>
+                            <Grid item xs={1}>
+                                <p style={{paddingTop:"3px"}}>{this.state.wrist3}</p>
+                            </Grid>
+                        </Grid>
                     </Segment>
-                    <Segment>Right</Segment>
+                    {/* <Segment>Right</Segment> */}
                 </Segment.Group>
             </div>
         );

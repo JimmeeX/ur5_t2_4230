@@ -36,7 +36,6 @@ class OrderSegment extends Component {
             orderQueue: [],
             orderInPrep: [],
             ordersCompleted: [],
-            // ordersCompleted: [{id:"123456789",goal:3,shape:'square',color:'red'}],
         };
         this.rosPoll = null;
         this.addOrderServiceClient = null;
@@ -57,9 +56,6 @@ class OrderSegment extends Component {
               + result);
         });
 
-        // this.setState((state) => ({
-        //     orderQueue: [...state.orderQueue, {shape: state.newOrderShape, colour: state.newOrderColour, qty: state.newOrderQty}]
-        // }));
     }
 
     handleColourChange = (event) => {
