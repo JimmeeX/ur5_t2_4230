@@ -60,8 +60,13 @@ class Vision():
     ####################
     """
     def handleDetectObject(self, request):
-        self.saveImage()
-        color, shape, x, y, z = detectObject(self._im)
+        # Short Delay to ensure that image is "up to date" (without this the y-coordinate will not be correct)
+        time.sleep(0.1) # 
+
+        result, im_debug = detectObject(self._im)
+        color, shape, x, y, z = result
+
+        self.pubSentImage(im_debug)
 
         response = ObjectDetectResponse(
             success=True,
@@ -95,6 +100,12 @@ class Vision():
     HELPER FUNCTIONS
     ################
     """
+    def pubSentImage(self, im):
+        msg = self._bridge.cv2_to_imgmsg(im, encoding='rgb8')
+        publisher = self._publishers['vision_sent_image']
+        publisher.publish(msg)
+
+
     def saveImage(self):
         fileName = str(int(time.time() * 1000)) + '.jpg'
         filePath = os.path.join(DIR_NAME, fileName)
