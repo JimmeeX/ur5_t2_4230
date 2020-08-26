@@ -153,7 +153,6 @@ bool ProximityRayPlugin::ProcessScan()
 
     for (unsigned int i = 0; i<ranges.size(); i++){
         double range = ranges[i];
-        // TODO: determine detections in cylindrical shape not spherical
         if (range < this->sensingRangeMax and range > this->sensingRangeMin) {
             objectDetected = true;
             break;
@@ -176,7 +175,6 @@ bool ProximityRayPlugin::ProcessScan()
 
     if (this->useLinkFrame)
     {
-      // TODO: deal with sensors oriented differently
       auto sensorPose = this->parentSensor->Pose();
       this->sensingRangeMin += sensorPose.Pos().X();
       this->sensingRangeMax += sensorPose.Pos().X();

@@ -8,3 +8,4 @@
 - motion.py - Responsible for Robot Arm movement
 - order_manager.py - Responsible for the over-arching flow of the environment
 - spawner.py - Spawns objects & containers
+- vision.py - Object Detection

@@ -1,0 +1,9 @@
+# request
+
+---
+# response
+bool success
+string message
+string color
+string shape
+geometry_msgs/Point location

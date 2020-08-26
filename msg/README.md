@@ -2,3 +2,4 @@
   - ConveyorBeltState - Conveyor Belt custom message
   - Order - Order custom message
   - Proximity - Break Beam custom message
+  - VacuumGripperState - Vacuum Gripper custom message

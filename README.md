@@ -45,18 +45,12 @@ Environment: **ROS Kinetic (Ubuntu 16.04)**
     sudo apt-get install libignition-math2-dev
     ```
 
-    1.4. Install required package for custom srv for Matlab
-
-    ```bash
-    sudo apt-get install ros-kinetic-rosbridge-library
-    ```
-
-    1.5. Install rosbridge_server to communicate with Web GUI
+    1.4. Install rosbridge_server to communicate with Web GUI
     ```bash
     sudo apt-get install ros-kinetic-rosbridge-server
     ```
 
-    1.6. Install npm (or Yarn) to launch the Web GUI
+    1.5. Install npm (or Yarn) to launch the Web GUI
     ```bash
     curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
     sudo apt-get install -y nodejs
@@ -104,9 +98,7 @@ Environment: **ROS Kinetic (Ubuntu 16.04)**
     roslaunch ur5_t2_4230 ur5_world.launch
     ```
 
-    3.2. Run ```Computer_Vision/Vision_SERVER.m``` on MATLAB (change ipaddress for your environment)
-
-    3.3. Launch Web GUI
+    3.2. Launch Web GUI
 
     ```bash
     cd ~/simulation_ws/src/ur5_t2_4230/web/roswebcontroller
