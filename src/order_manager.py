@@ -21,6 +21,9 @@ from ur5_t2_4230.srv import (
     ConveyorBeltControl,
     ConveyorBeltControlRequest,
     ConveyorBeltControlResponse,
+    ObjectDetect,
+    ObjectDetectRequest,
+    ObjectDetectResponse,
     OrderAdd,
     OrderAddRequest,
     OrderAddResponse,
@@ -105,7 +108,7 @@ class OrderManager():
         self._clients = {}
         self._clients['conveyor_control_in'] = rospy.ServiceProxy("/ur5_t2_4230/conveyor/control/in", ConveyorBeltControl)
         self._clients['conveyor_control_out'] = rospy.ServiceProxy("/ur5_t2_4230/conveyor/control/out", ConveyorBeltControl)
-        self._clients['vision_detect_object'] = rospy.ServiceProxy("/vision/detect_object", SendBytes) # TODO: Temporary
+        self._clients['vision_detect_object'] = rospy.ServiceProxy("/vision/detect_object", ObjectDetect) # TODO: Temporary
         self._clients['motion_pickup_object'] = rospy.ServiceProxy("/motion/pickup_object", PickupObject)
         self._clients['motion_drop_object'] = rospy.ServiceProxy("/motion/drop_object", Trigger)
 
@@ -120,13 +123,13 @@ class OrderManager():
             self._rate.sleep()
         
         # Uncomment to add a test order after 3 seconds (for debugging convenience)
-        # mock_request = OrderAddRequest(
-        #     color='none',
-        #     shape='none',
-        #     goal=100
-        # )
+        mock_request = OrderAddRequest(
+            color='none',
+            shape='none',
+            goal=100
+        )
 
-        # self.handleOrderAddRequest(mock_request)
+        self.handleOrderAddRequest(mock_request)
 
         return
 
@@ -222,7 +225,7 @@ class OrderManager():
             rospy.logerr('[OrderManager] Service did not process request: ' + str(exc))
             return None
 
-
+    # TODO: Remove
     def sendBytesRequest(self, service_key):
         """
         General Trigger Request for any trigger-based service
@@ -242,20 +245,48 @@ class OrderManager():
             return None
 
 
+    # def sendOb
+
+
     def sendVisionObjectDetectRequest(self):
         """
         Wrapper of sendTriggerRequest for Vision Object Detect with message parsing.
 
         Returns tuple (eg, ('red', 'triangle', 0.25, 0.05, 0.3)) if object exists; otherwise None
         """
-        response = self.sendBytesRequest(service_key='vision_detect_object')
+        
+        service_key = 'vision_detect_object'
+        client = self._clients[service_key]
 
-        if response and response.data:
-            # Parse Message to get Information
-            # message = response.data
-            args = response.data.split()
-            return (args[0], args[1], float(args[2]), float(args[3]), float(args[4]))
-        else: return None
+        request = ObjectDetectRequest()
+
+        try:
+            response = client(request)
+            if response.success:
+                rospy.loginfo('[OrderManager] - ' + service_key + ': ' + response.message)
+                return (
+                    response.color,
+                    response.shape,
+                    response.location.x,
+                    response.location.y,
+                    response.location.z
+                )
+            else:
+                rospy.logerr('[OrderManager] - ' + service_key + ': ' + response.message)
+                return None
+        except rospy.ServiceException as exc:
+            rospy.logerr('[OrderManager] Service did not process request: ' + str(exc))
+            return None
+
+
+        # response = self.send(service_key='vision_detect_object')
+
+        # if response and response.data:
+        #     # Parse Message to get Information
+        #     # message = response.data
+        #     args = response.data.split()
+        #     return (args[0], args[1], float(args[2]), float(args[3]), float(args[4]))
+        # else: return None
 
 
     def sendPickupObjectRequest(self, x, y, z):

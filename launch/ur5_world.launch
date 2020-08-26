@@ -134,6 +134,10 @@
         <rosparam param="conveyor_power" subst_value="True">$(arg conveyor_power)</rosparam>
     </node>
 
+    <!-- Spawn Vision Module -->
+    <node pkg="ur5_t2_4230" name="vision" type="vision.py" output="screen" >
+    </node>
+
     <!-- Spawn Motion Controller -->
     <node pkg="ur5_t2_4230" name="motion" type="motion.py" output="screen" >
     </node>
