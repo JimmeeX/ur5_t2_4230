@@ -279,16 +279,6 @@ class OrderManager():
             return None
 
 
-        # response = self.send(service_key='vision_detect_object')
-
-        # if response and response.data:
-        #     # Parse Message to get Information
-        #     # message = response.data
-        #     args = response.data.split()
-        #     return (args[0], args[1], float(args[2]), float(args[3]), float(args[4]))
-        # else: return None
-
-
     def sendPickupObjectRequest(self, x, y, z):
         """
         Send Custom Trigger for robot to move to object and pick it up
