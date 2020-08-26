@@ -1,4 +1,4 @@
-function [Xt, Yt, Zt] = transformCoordinates(X,Y,Z)
+function [Xt, Yt, Zt] = transformCoordinates(X,Y)
 im_width = 640;
 im_height = 480;
 conveyor_width = 0.45; % 0.5

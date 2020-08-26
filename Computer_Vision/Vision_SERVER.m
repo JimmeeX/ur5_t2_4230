@@ -16,8 +16,6 @@ rosinit(ipaddress);
 
 % Subscribe to the necessary topics (RGB Image, Image Depth, Break Beam
 % Sensor)
-
-imagePub = rospublisher('/vision/sent_image', 'sensor_msgs/Image');
 visionserver = rossvcserver('/vision/detect_object', 'rosbridge_library/SendBytes', @getData);
 
 % Continuous loop to run image processing
@@ -27,21 +25,24 @@ end
 
 
 function response = getData(~, ~, response)
+    imSub = rossubscriber('/camera/color/image_raw');
+    imagePub = rospublisher('/vision/sent_image', 'sensor_msgs/Image');
+
     % Image Processing Variables
     BLOCK_AREA_THRESHOLD = 1500;
     
-    imSub = rossubscriber('/camera/color/image_raw');
-    pcSub = rossubscriber('/camera/depth/points');
-    imagePub = rospublisher('/vision/sent_image', 'sensor_msgs/Image');
+%     pcSub = rossubscriber('/camera/depth/points');
+%     imagePub = rospublisher('/vision/sent_image', 'sensor_msgs/Image');
         
     % Get the RGB image from the ROS environment
+    msg = imSub.LatestMessage;
     im = readImage(imSub.LatestMessage);
 
     % Get the depth data from the ROS environment and convert data to
     % be in the same format as the RGB images
-    ptcloud = receive(pcSub,5);
-    ptcloud.PreserveStructureOnRead = true;
-    xyz = readXYZ(ptcloud);
+%     ptcloud = receive(pcSub,5);
+%     ptcloud.PreserveStructureOnRead = true;
+%     xyz = readXYZ(ptcloud);
 
     % Isolate blocks in current image + clean up image
     block = getBlockMask(im); % Extract block/s
@@ -62,7 +63,7 @@ function response = getData(~, ~, response)
             [X, Y] = getCentreCoordinates(stats(k));
             
             % Get Z coordinate
-            Z = xyz(Y, X, 3);
+%             Z = xyz(Y, X, 3);
             
            % Get Color
             color = getColor(im, X, Y);           
@@ -73,7 +74,7 @@ function response = getData(~, ~, response)
             [shape,~] = getIconShape(blockImage);
 
             % Transform coordinates
-            [Xt, Yt, Zt] = transformCoordinates(X, Y, Z);
+            [Xt, Yt, Zt] = transformCoordinates(X, Y);
             
             % Print out all obtained information
             %fprintf('Block num %d:\n', k);
