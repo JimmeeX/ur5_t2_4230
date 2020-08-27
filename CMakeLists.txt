@@ -19,6 +19,8 @@ find_package(catkin REQUIRED COMPONENTS
 
 find_package(gazebo REQUIRED)
 
+find_package(Eigen3 REQUIRED)
+
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -150,6 +152,7 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
   ${GAZEBO_INCLUDE_DIRS}
   ${roscpp_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIR}
 )
 
 link_directories(
@@ -265,6 +268,15 @@ target_link_libraries(${ros_conveyor_belt_plugin_name}
 )
 add_dependencies(${ros_conveyor_belt_plugin_name}
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
+)
+
+# Create the libObjectDisposalPlugin.so library.
+set(object_disposal_plugin_name ObjectDisposalPlugin)
+add_library(${object_disposal_plugin_name} src/plugins/ObjectDisposalPlugin.cc)
+target_link_libraries(${object_disposal_plugin_name}
+  ${GAZEBO_LIBRARIES}
+  ${side_contact_plugin_name}
+  ${catkin_LIBRARIES}
 )
 
 #############
