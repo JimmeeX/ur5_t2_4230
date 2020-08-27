@@ -10,8 +10,8 @@ Author: James Lin
 import rospy
 import time
 
-from std_msgs.msg import Bool, String, Empty
-from geometry_msgs.msg import Point, Pose, Quaternion
+from std_msgs.msg import Bool, Empty
+from geometry_msgs.msg import Point
 from ur5_t2_4230.msg import (
     ConveyorBeltState,
     Order
@@ -40,13 +40,6 @@ from ur5_t2_4230.srv import (
     PickupObject,
     PickupObjectRequest,
     PickupObjectResponse,
-)
-
-
-from std_srvs.srv import (
-    Trigger,
-    TriggerRequest,
-    TriggerResponse,
 )
 
 from utils.Orders import (
@@ -210,29 +203,8 @@ class OrderManager():
             return None
 
 
-    def sendTriggerRequest(self, service_key):
-        """
-        General Trigger Request for any trigger-based service
-
-        Returns TriggerResponse object
-        """
-        client = self._clients[service_key]
-
-        request = TriggerRequest()
-        try:
-            response = client(request)
-            if response.success: rospy.loginfo('[OrderManager] - ' + service_key + ': ' + response.message)
-            else: rospy.logerr('[OrderManager] - ' + service_key + ': ' + response.message)
-            return response
-        except rospy.ServiceException as exc:
-            rospy.logerr('[OrderManager] Service did not process request: ' + str(exc))
-            return None
-
-
     def sendVisionObjectDetectRequest(self):
         """
-        Wrapper of sendTriggerRequest for Vision Object Detect with message parsing.
-
         Returns tuple (eg, ('red', 'triangle', 0.25, 0.05, 0.3)) if object exists; otherwise None
         """
         
