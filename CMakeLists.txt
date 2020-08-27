@@ -77,6 +77,7 @@ add_service_files(
     srv
   FILES
     ConveyorBeltControl.srv
+    DropObject.srv
     ObjectDetect.srv
     PickupObject.srv
     OrderAdd.srv

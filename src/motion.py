@@ -19,6 +19,9 @@ from std_srvs.srv import (
 )
 
 from ur5_t2_4230.srv import (
+    DropObject,
+    DropObjectRequest,  
+    DropObjectResponse,
     PickupObject,
     PickupObjectRequest,
     PickupObjectResponse,
@@ -42,11 +45,20 @@ OBJECT_HEIGHT = 0.05
 ROBOT_HEIGHT = 0.3
 SPACING = 0.05
 
+CONTAINER_WALL_THICKNESS = 0.02
+CONTAINER_SIZE = 0.400 - 2*CONTAINER_WALL_THICKNESS # Width, Length in m
+
 CONTAINER_X = 0.5
 CONTAINER_Y = 0
 CONTAINER_Z = CONVEYOR_HEIGHT + CONTAINER_HEIGHT + OBJECT_HEIGHT + SPACING - ROBOT_HEIGHT
 
-UP_SHIFT = 0.25
+CONTAINER_GRID_SIZE = 4 # 4x4
+CONTAINER_CELL_SIZE = CONTAINER_SIZE / CONTAINER_GRID_SIZE
+CONTAINER_OFFSET_COEFFICIENT = 0.065
+
+BLOCK_SIZE = 0.05
+
+SMOOTHING_FACTOR = 0.02
 
 INITIAL_WAIT = 3.0
 
@@ -69,7 +81,7 @@ class Motion():
         # Initialise Servers
         self._servers = {}
         self._servers['motion_pickup_object'] = rospy.Service("/motion/pickup_object", PickupObject, self.handlePickupObjectRequest)
-        self._servers['motion_drop_object'] = rospy.Service("/motion/drop_object", Trigger, self.handleDropObjectRequest)
+        self._servers['motion_drop_object'] = rospy.Service("/motion/drop_object", DropObject, self.handleDropObjectRequest)
 
         # Initialise Clients
         self._clients = {}
@@ -106,13 +118,7 @@ class Motion():
         point = request.location
         rospy.loginfo('[Motion] Received coordinates of Object - ' + str(point.x) + ', ' + str(point.y) + ', ' + str(point.z))
 
-        # 1. Move above Object
-        # Inverse Kinematics on X,Y,Z --> Joint Positions
-        rospy.loginfo("[Motion] Moving arm to above object")
-        q1 = inverse_kinematics(point.x, point.y, point.z + UP_SHIFT)
-        self.publishArmControllerCommand(q1)
-
-        # 2. Enable Gripper
+        # 1. Enable Gripper
         response_pickup_object = self.sendGripperControlRequest(enable=True)
         if not (response_pickup_object and response_pickup_object.success):
             response = PickupObjectResponse(
@@ -121,21 +127,31 @@ class Motion():
             )
             return response
 
-        # 3.
-        rospy.loginfo("[Motion] Moving arm down to pickup object")
+        # 1. Move above Object
+        # Inverse Kinematics on X,Y,Z --> Joint Positions
+        rospy.loginfo("[Motion] Moving arm to pickup object")
+        q1 = inverse_kinematics(point.x, point.y, CONTAINER_Z - SMOOTHING_FACTOR)
+        qd1 = [0, 0.3, 0.2, -0.3, 0, 0.3]
         q2 = inverse_kinematics(point.x, point.y, point.z)
-        self.publishArmControllerCommand(q2)
+        qd2 = [0, 0, 0, 0, 0, 0]
+        self.publishArmControllerCommand(waypoints=[
+            {
+                'positions': q1,
+                'velocities': qd1,
+                'duration': DURATION
+            },
+            {
+                'positions': q2,
+                'velocities': qd2,
+                'duration': DURATION
+            }
+        ])
 
         # Wait until Confirmation that object has been picked up
         rospy.loginfo("[Motion] Waiting for object attachement")
         while not self._is_object_attached and not rospy.is_shutdown():
             self._rate.sleep()
         rospy.loginfo("[Motion] Object attached!")
-
-        # 4.
-        rospy.loginfo("[Motion] Moving arm back up With Object")
-        q3 = inverse_kinematics(point.x, point.y, point.z + UP_SHIFT)
-        self.publishArmControllerCommand(q3)
 
         # Return Response
         response = PickupObjectResponse(
@@ -153,11 +169,48 @@ class Motion():
         2. Disable Gripper
         """
 
-        rospy.loginfo('[Motion] Received command to drop object')
+        if request is None:
+            q = inverse_kinematics(CONTAINER_X, CONTAINER_Y, CONTAINER_Z)
+            qd = [0, 0, 0, 0, 0, 0]        
+            self.publishArmControllerCommand(waypoints=[{
+                'positions': q,
+                'velocities': qd,
+                'duration': DURATION
+            }])
+        else:
+            point = request.location
+            orders_doing = request.orders_doing
 
-        # 1. Move above container
-        q = inverse_kinematics(CONTAINER_X, CONTAINER_Y, CONTAINER_Z)
-        self.publishArmControllerCommand(q)
+            rospy.logwarn(orders_doing[0].qty)
+
+            rospy.loginfo('[Motion] Received command to drop object')
+
+            waypoints = []
+
+            q1 = inverse_kinematics(point.x, point.y, CONTAINER_Z - SMOOTHING_FACTOR)
+            qd1 = [0, -0.3, -0.2, 0.3, 0, -0.3]
+            waypoints.append({
+                'positions': q1,
+                'velocities': qd1,
+                'duration': DURATION
+            })
+
+            # Determine Approx location to drop-off (avoid stacking)
+            offset_x = (orders_doing[0].qty % CONTAINER_GRID_SIZE) * CONTAINER_CELL_SIZE
+            x = CONTAINER_X + CONTAINER_SIZE/2 - CONTAINER_CELL_SIZE/2 - offset_x
+            
+            offset_y = ((orders_doing[0].qty // CONTAINER_GRID_SIZE) % CONTAINER_GRID_SIZE) * CONTAINER_CELL_SIZE
+            y = CONTAINER_Y - CONTAINER_SIZE/2 + CONTAINER_CELL_SIZE/2 + offset_y + 0.06
+
+            q2 = inverse_kinematics(x, y, CONTAINER_Z)
+            qd2 = [0, 0, 0, 0, 0, 0]
+            waypoints.append({
+                'positions': q2,
+                'velocities': qd2,
+                'duration': DURATION
+            })
+
+            self.publishArmControllerCommand(waypoints=waypoints)
 
         # 2. Disable Gripper
         response_pickup_object = self.sendGripperControlRequest(enable=False)
@@ -169,7 +222,7 @@ class Motion():
             return response
 
         # Return Response
-        response = TriggerResponse(
+        response = DropObjectResponse(
             success=True,
             message="Robot dropped object successfully"
         )
@@ -192,25 +245,40 @@ class Motion():
     ################
     """
     def publishArmControllerCommand(self, waypoints):
+        """
+        waypoints = [
+            {
+                'positions': []
+                'velocities': []
+                'duration': 
+            }
+        ]
+        
+        """
+
+        rospy.logwarn(waypoints)
         
         # Create the topic message
         traj = JointTrajectory()
         traj.header = Header()
+        traj.header.stamp = rospy.Time.now()
 
         # Joint names for UR5
         traj.joint_names = ['shoulder_pan_joint', 'shoulder_lift_joint',
                             'elbow_joint', 'wrist_1_joint', 'wrist_2_joint',
                             'wrist_3_joint']
 
-        pts = JointTrajectoryPoint()
-        traj.header.stamp = rospy.Time.now()
-        pts.positions = waypoints
-        pts.time_from_start = rospy.Duration(DURATION)
-
-        rospy.loginfo('[Motion] - New Robot Joints Variables: ' + str(waypoints))
-
+        t = 0.0
         traj.points = []
-        traj.points.append(pts)
+        for waypoint in waypoints:
+            t += waypoint['duration']
+            pts = JointTrajectoryPoint()
+            pts.positions = waypoint['positions']
+            pts.velocities = waypoint['velocities']
+            pts.time_from_start = rospy.Duration(t)
+
+            traj.points.append(pts)
+
 
         self._publishers['arm_controller_command'].publish(traj)
 
@@ -218,7 +286,7 @@ class Motion():
         motionIsFinished = False
         counter = 0
         while not motionIsFinished and not rospy.is_shutdown():
-            if counter >= DURATION * SLEEP_RATE: motionIsFinished = True
+            if counter >= (t+0.1) * SLEEP_RATE: motionIsFinished = True
             counter += 1
 
             self._rate.sleep()
