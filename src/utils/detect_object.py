@@ -1,3 +1,8 @@
+"""
+Provides functions to perform the actual object detection.
+Utilised by vision.py Node 
+"""
+
 import cv2
 import numpy as np
 import math
@@ -48,6 +53,12 @@ def colorThreshold(im_rgb, name):
 
 
 def blockMask(im_rgb):
+    """
+    MTRN4230 T2 2020 - Group Assignment: Computer Vision & Image Processing
+    getBlockMask function isolates the block/s present in image file 'image'
+    Written by Jason Jia Sheng Quek | z5117285
+    Modified by Rowena Dai | z5075936 - returns binary mask only
+    """
     block_mask = colorThreshold(im_rgb, 'block-mask')
 
 
@@ -66,6 +77,10 @@ def blockMask(im_rgb):
 
 
 def getColor(im_rgb, x, y):
+    """
+    Gets red|green|blue based off the rgb value of the x,y pixel in im_rgb
+    Written by Rowena Dai | z5075936
+    """
     max_index = np.argmax(im_rgb[y,x,:])
 
     if max_index == 0: return 'red'
@@ -74,9 +89,17 @@ def getColor(im_rgb, x, y):
 
 
 def getShape(im_block_rgb):
+    """
+    MTRN4230 T2 2020 - Group Assignment: Computer Vision & Image Processing
+    Given a cropped image of a single block surface, getShape function
+    returns the shape of the icon (circle/square/triangle)
+    Written by Jason Jia Sheng Quek | z5117285
+    """
+
+    # HSV colour thresholding produces a binary image 'icon_mask'
     icon_mask = colorThreshold(im_block_rgb, 'icon-mask')
     
-    # Shape Detection
+    # Extract detected icon's circularity
     _, contours, _ = cv2.findContours(icon_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
     max_contour = max(contours, key=lambda cnt: cv2.contourArea(cnt))
 
@@ -84,6 +107,7 @@ def getShape(im_block_rgb):
     perimeter = cv2.arcLength(max_contour,True)
     circ = 4*math.pi*area / perimeter**2
 
+    # Identify and return icon shape based on 'circ' range
     if circ >= CIRCULARITY_BOUNDS[0]: shape = 'circle'
     elif circ <= CIRCULARITY_BOUNDS[1]: shape = 'triangle'
     else: shape = 'square'
@@ -92,6 +116,9 @@ def getShape(im_block_rgb):
 
 
 def transformCoordinates(x, y):
+    """
+    Transforms x,y pixel coordinates to the actual x,y,z coordinates in the Gazebo environment
+    """
     x_t = HEIGHT_DIST/2 - y/IM_HEIGHT*HEIGHT_DIST + Y_DIST_FROM_ROBOT
     y_t = -x/IM_WIDTH*WIDTH_DIST + WIDTH_DIST/2
     z_t = HEIGHT_OF_CONVEYOR - HEIGHT_OF_ROBOT
@@ -103,6 +130,12 @@ def transformCoordinates(x, y):
 
 
 def detectObject(im_rgb):
+    """
+    Perform object detection for the given image input
+    Returns two outputs
+    result - Result of the object detection (color, shape, location)
+    im_debug - Visual feedback shown in the Web GUI
+    """
     block_mask = blockMask(im_rgb)
 
     num_cc, labels, stats, centroids = cv2.connectedComponentsWithStats(block_mask, connectivity=8)
@@ -142,7 +175,7 @@ def detectObject(im_rgb):
         cv2.putText(im_debug, text_object, text_object_pos, fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.75, color=(218,57,226), thickness=2)
 
         text_loc_pos = (int(x - width/2), int(y + height))
-        text_loc = '{}, {}, {}'.format(round(x_t,2), round(y_t,2), round(circ,2))
+        text_loc = 'x={}, y={}'.format(round(x_t,2), round(y_t,2))
         cv2.putText(im_debug, text_loc, text_loc_pos, fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.75, color=(246,251,87), thickness=2)
 
         # Add Marker
