@@ -108,6 +108,9 @@
 		<arg name="limited" value="$(arg limited)"/>
 	</include>
 
+    <!-- Spawn Object Deletion Wall -->
+    <node name="spawn_deletion_wall" pkg="gazebo_ros" type="spawn_model"
+        args="-file $(find ur5_t2_4230)/models/deletion_wall/model.sdf -sdf -model deletion_wall -x 0.00 -y -1.80 -z 0.31" />
 
     <!--
     #######################
