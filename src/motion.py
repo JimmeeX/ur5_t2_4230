@@ -12,12 +12,6 @@ from std_msgs.msg import Header
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from ur5_t2_4230.msg import VacuumGripperState
 
-from std_srvs.srv import (
-    Trigger,
-    TriggerRequest,
-    TriggerResponse,
-)
-
 from ur5_t2_4230.srv import (
     DropObject,
     DropObjectRequest,  
@@ -54,9 +48,6 @@ CONTAINER_Z = CONVEYOR_HEIGHT + CONTAINER_HEIGHT + OBJECT_HEIGHT + SPACING - ROB
 
 CONTAINER_GRID_SIZE = 4 # 4x4
 CONTAINER_CELL_SIZE = CONTAINER_SIZE / CONTAINER_GRID_SIZE
-CONTAINER_OFFSET_COEFFICIENT = 0.065
-
-BLOCK_SIZE = 0.05
 
 SMOOTHING_FACTOR = 0.02
 
@@ -109,10 +100,8 @@ class Motion():
     def handlePickupObjectRequest(self, request):
         """
         Motion Sequence
-        1. Move above object (coordinates provided)
-        2. Enable Gripper
-        3. Move down to contact object
-        4. Move back up (with object)
+        1. Enable Gripper
+        2. Move to pickup object via 2 waypoints
         """
 
         point = request.location
@@ -127,7 +116,7 @@ class Motion():
             )
             return response
 
-        # 1. Move above Object
+        # 2. Move to pickup object (2 waypoints)
         # Inverse Kinematics on X,Y,Z --> Joint Positions
         rospy.loginfo("[Motion] Moving arm to pickup object")
         q1 = inverse_kinematics(point.x, point.y, CONTAINER_Z - SMOOTHING_FACTOR)
@@ -169,6 +158,7 @@ class Motion():
         2. Disable Gripper
         """
 
+        # Special Case if request is None: Robot will move straight to container (1 waypoint)
         if request is None:
             q = inverse_kinematics(CONTAINER_X, CONTAINER_Y, CONTAINER_Z)
             qd = [0, 0, 0, 0, 0, 0]        
@@ -177,16 +167,16 @@ class Motion():
                 'velocities': qd,
                 'duration': DURATION
             }])
+        # Common Case
         else:
             point = request.location
             orders_doing = request.orders_doing
-
-            rospy.logwarn(orders_doing[0].qty)
 
             rospy.loginfo('[Motion] Received command to drop object')
 
             waypoints = []
 
+            # Add waypoint 'liftoff' from object
             q1 = inverse_kinematics(point.x, point.y, CONTAINER_Z - SMOOTHING_FACTOR)
             qd1 = [0, -0.3, -0.2, 0.3, 0, -0.3]
             waypoints.append({
@@ -195,13 +185,14 @@ class Motion():
                 'duration': DURATION
             })
 
-            # Determine Approx location to drop-off (avoid stacking)
+            # Determine Approx location to drop-off (to avoid stacking)
             offset_x = (orders_doing[0].qty % CONTAINER_GRID_SIZE) * CONTAINER_CELL_SIZE
             x = CONTAINER_X + CONTAINER_SIZE/2 - CONTAINER_CELL_SIZE/2 - offset_x
             
             offset_y = ((orders_doing[0].qty // CONTAINER_GRID_SIZE) % CONTAINER_GRID_SIZE) * CONTAINER_CELL_SIZE
             y = CONTAINER_Y - CONTAINER_SIZE/2 + CONTAINER_CELL_SIZE/2 + offset_y + 0.06
 
+            # Add waypoint for drop-off location
             q2 = inverse_kinematics(x, y, CONTAINER_Z)
             qd2 = [0, 0, 0, 0, 0, 0]
             waypoints.append({
@@ -246,17 +237,17 @@ class Motion():
     """
     def publishArmControllerCommand(self, waypoints):
         """
+        Publishes a list of waypoints of given positions, velocities and durations to the trajectory controller
+
+        Structure
         waypoints = [
             {
                 'positions': []
                 'velocities': []
-                'duration': 
+                'duration': Float
             }
         ]
-        
         """
-
-        rospy.logwarn(waypoints)
         
         # Create the topic message
         traj = JointTrajectory()

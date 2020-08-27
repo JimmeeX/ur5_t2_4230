@@ -44,7 +44,6 @@ def test_motion():
         traj.points = []
         traj.points.append(pts)
 
-        rospy.logwarn(pts)
         # Publish the message
         pub.publish(traj)
         rate.sleep()
