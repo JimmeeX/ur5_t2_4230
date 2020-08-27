@@ -108,15 +108,17 @@ class OrderManager():
         self._clients['motion_pickup_object'] = rospy.ServiceProxy("/motion/pickup_object", PickupObject)
         self._clients['motion_drop_object'] = rospy.ServiceProxy("/motion/drop_object", Trigger)
 
+        # Uncomment to add a test order after 3 seconds (for debugging convenience)
+
         # Sleep for duration until move robot to home position
         # Without sleep, handleMovetoContainer will somtimes not run in Gazebo
-        shouldAddOrder = False
-        counter = 0
-        while not shouldAddOrder and not rospy.is_shutdown():
-            if counter >= 3.0 * SLEEP_RATE: shouldAddOrder = True
-            counter += 1
+        # shouldAddOrder = False
+        # counter = 0
+        # while not shouldAddOrder and not rospy.is_shutdown():
+        #     if counter >= 3.0 * SLEEP_RATE: shouldAddOrder = True
+        #     counter += 1
 
-            self._rate.sleep()
+        #     self._rate.sleep()
         
         # Uncomment to add a test order after 3 seconds (for debugging convenience)
         # mock_request = OrderAddRequest(
