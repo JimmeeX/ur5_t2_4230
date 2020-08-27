@@ -27,14 +27,14 @@
         </geometry>
         <cast_shadows>0</cast_shadows>
         <!-- make invisible -->
-        <!-- <transparency>100</transparency> -->
+        <transparency>100</transparency>
       </visual>
     </link>
 
     <!-- plugin for processing contact sensor output -->
     <plugin name="object_disposal_plugin" filename="libObjectDisposalPlugin.so">
       <contact_sensor_name>object_disposal_contact</contact_sensor_name>
-      <contact_side_normal>1 0 0</contact_side_normal>
+      <contact_side_normal>0 1 0</contact_side_normal>
       <disposal_pose>30 30 0 0 0 0</disposal_pose>
       <update_rate>5</update_rate>
     </plugin>
