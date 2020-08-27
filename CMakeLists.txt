@@ -10,14 +10,22 @@ add_compile_options(-std=c++11)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  roscpp
-  rospy
-  std_msgs
+  cmake_modules
+  gazebo_msgs
+  gazebo_plugins
+  gazebo_ros
   geometry_msgs
   message_generation
+  roscpp
+  std_msgs
+  std_srvs
+  tf
+  eigen_conversions
 )
 
 find_package(gazebo REQUIRED)
+
+find_package(Eigen3 REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -150,6 +158,7 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
   ${GAZEBO_INCLUDE_DIRS}
   ${roscpp_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIR}
 )
 
 link_directories(
@@ -187,6 +196,18 @@ link_directories(
 #   ${catkin_LIBRARIES}
 # )
 
+# Create the libSideContactPlugin.so library.
+set(side_contact_plugin_name SideContactPlugin)
+add_library(${side_contact_plugin_name} src/plugins/SideContactPlugin.cc)
+target_link_libraries(${side_contact_plugin_name}
+  ${GAZEBO_LIBRARIES}
+  ${catkin_LIBRARIES}
+)
+#install(TARGETS ${side_contact_plugin_name}
+#  ARCHIVE DESTINATION lib
+#  LIBRARY DESTINATION lib
+#  RUNTIME DESTINATION bin
+#)
 
 # Create the libProximityRayPlugin.so library.
 set(proximity_ray_plugin_name ProximityRayPlugin)
@@ -265,6 +286,15 @@ target_link_libraries(${ros_conveyor_belt_plugin_name}
 )
 add_dependencies(${ros_conveyor_belt_plugin_name}
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
+)
+
+# Create the libObjectDisposalPlugin.so library.
+set(object_disposal_plugin_name ObjectDisposalPlugin)
+add_library(${object_disposal_plugin_name} src/plugins/ObjectDisposalPlugin.cc)
+target_link_libraries(${object_disposal_plugin_name}
+  ${GAZEBO_LIBRARIES}
+  ${side_contact_plugin_name}
+  ${catkin_LIBRARIES}
 )
 
 #############
