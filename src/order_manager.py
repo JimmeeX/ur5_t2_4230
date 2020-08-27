@@ -8,6 +8,7 @@ Author: James Lin
 """
 
 import rospy
+import time
 
 from std_msgs.msg import Bool, String, Empty
 from geometry_msgs.msg import Point, Pose, Quaternion
@@ -21,6 +22,9 @@ from ur5_t2_4230.srv import (
     ConveyorBeltControl,
     ConveyorBeltControlRequest,
     ConveyorBeltControlResponse,
+    DropObject,
+    DropObjectRequest,  
+    DropObjectResponse,
     ObjectDetect,
     ObjectDetectRequest,
     ObjectDetectResponse,
@@ -106,7 +110,7 @@ class OrderManager():
         self._clients['conveyor_control_out'] = rospy.ServiceProxy("/ur5_t2_4230/conveyor/control/out", ConveyorBeltControl)
         self._clients['vision_detect_object'] = rospy.ServiceProxy("/vision/detect_object", ObjectDetect)
         self._clients['motion_pickup_object'] = rospy.ServiceProxy("/motion/pickup_object", PickupObject)
-        self._clients['motion_drop_object'] = rospy.ServiceProxy("/motion/drop_object", Trigger)
+        self._clients['motion_drop_object'] = rospy.ServiceProxy("/motion/drop_object", DropObject)
 
         # Uncomment to add a test order after 3 seconds (for debugging convenience)
 
@@ -120,7 +124,6 @@ class OrderManager():
 
         #     self._rate.sleep()
         
-        # Uncomment to add a test order after 3 seconds (for debugging convenience)
         # mock_request = OrderAddRequest(
         #     color='none',
         #     shape='none',
@@ -257,6 +260,31 @@ class OrderManager():
             return None
 
 
+    def sendDropObjectRequest(self, x, y, z):
+        """
+        Send Custom Trigger for robot to move to container and drop the object
+        """
+        service_key = 'motion_drop_object'
+        client = self._clients[service_key]
+
+        request = DropObjectRequest(
+            location=Point(
+                x=x,
+                y=y,
+                z=z
+            ),
+            orders_doing=self._order_list.orders_doing
+        )
+        try:
+            response = client(request)
+            if response.success: rospy.loginfo('[OrderManager] - ' + service_key + ': ' + response.message)
+            else: rospy.logerr('[OrderManager] - ' + service_key + ': ' + response.message)
+            return response
+        except rospy.ServiceException as exc:
+            rospy.logerr('[OrderManager] Service did not process request: ' + str(exc))
+            return None
+
+
     def sendPickupObjectRequest(self, x, y, z):
         """
         Send Custom Trigger for robot to move to object and pick it up
@@ -322,7 +350,6 @@ class OrderManager():
             rospy.loginfo('[OrderManager] Triggering Pickup Object...')
             response_pickup_object = self.sendPickupObjectRequest(x=x, y=y, z=z)
             if not (response_pickup_object and response_pickup_object.success):
-                self.sendTriggerRequest(service_key='motion_drop_object')
                 self.startConveyorIn()
                 return
             rospy.loginfo('[OrderManager] Successfully Picked up Object!')
@@ -331,9 +358,8 @@ class OrderManager():
 
             # Drop Object
             rospy.loginfo('[OrderManager] Triggering Drop Object...')
-            response_drop_object = self.sendTriggerRequest('motion_drop_object')
+            response_drop_object = self.sendDropObjectRequest(x=x, y=y, z=z)
             if not (response_drop_object and response_drop_object.success):
-                self.sendTriggerRequest(service_key='motion_drop_object')
                 self.startConveyorIn()
                 return
             rospy.loginfo('[OrderManager] Succesfully Dropped Object!')
@@ -341,7 +367,9 @@ class OrderManager():
             # Object Dropped Successfully
             # Update order
             is_order_done, new_order_ready = self._order_list.update_order()
-            if is_order_done: self.startConveyorOut(spawn=new_order_ready)
+            if is_order_done:
+                time.sleep(0.1)
+                self.startConveyorOut(spawn=new_order_ready)
 
             # Reset
             self.startConveyorIn()
