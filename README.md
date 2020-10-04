@@ -1,6 +1,9 @@
-# MTRN4230 Group 6 Project
+# UNSW MTRN4230 Group 6 Project
 
-MTRN4230 Group Project source code.
+MTRN4230 Group Project source code for a Gazebo-simulated pick-and-place robot.
+
+## Demo
+[Video](https://www.youtube.com/watch?v=OMTVitTJu90)
 
 ## Project Structure
 - /config - UR5 Controller Manager Config Files
@@ -105,6 +108,8 @@ Environment: **ROS Kinetic (Ubuntu 16.04)**
     npm start
     ```
 
-## Development
+## Inspirations
+- [ur5_ROS-Gazebo](https://github.com/lihuang3/ur5_ROS-Gazebo)
+- [Gilbreth](https://github.com/swri-robotics/gilbreth)
+- [OSRF ARIAC Gear](https://bitbucket.org/osrf/ariac/src/master/osrf_gear/)
 
-- Make branches and try not to push straight to master :)
