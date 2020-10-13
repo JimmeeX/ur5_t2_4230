@@ -1,0 +1,15 @@
+version: '3.7'
+
+services:
+  # ros:
+  #   build: .
+  #   command: roslaunch ur5_t2_4230 ur5_world.launch
+  web:
+    build: ./web
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./web:/app
+    command: npm start
+    stdin_open: true # Address this issue https://github.com/facebook/create-react-app/issues/8688
+
