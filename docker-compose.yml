@@ -1,9 +1,9 @@
 version: '3.7'
 
 services:
-  # ros:
-  #   build: .
-  #   command: roslaunch ur5_t2_4230 ur5_world.launch
+  ros:
+    build: .
+    command: roslaunch ur5_t2_4230 ur5_world.launch
   web:
     build: ./web
     ports:
