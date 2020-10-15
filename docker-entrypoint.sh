@@ -13,5 +13,4 @@ source /opt/ros/kinetic/setup.bash
 # workspace holding custom ROS packages
 source /root/catkin_ws/devel/setup.bash
 
-echo "$ECHO_PREFIX" "call" "$@"
 exec "$@"
