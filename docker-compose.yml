@@ -1,15 +1,22 @@
 version: '3.7'
 
+# Note: --gpus="all" to allow hardware acceleration in the container is not yet supported in docker-compose, so a temporary workaround https://github.com/docker/compose/issues/6691#issuecomment-696465142 is used
 services:
   ros:
     build: .
+    environment:
+      - DISPLAY             # DISPLAY=$DISPLAY allows container to connect to X server
+      - QT_X11_NO_MITSHM=1  # QT_X11_NO_MITSHM=1 stops Qt from using MIT-SHM X11 extension
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw # Volume is also needed to connect to X server
     command: roslaunch ur5_t2_4230 ur5_world.launch
   web:
     build: ./web
     ports:
-      - '3000:3000'
+      - '3000:3000'       # Allows Host to access web app via localhost:3000
     volumes:
-      - ./web:/app
+      - ./web:/app        # Changes to web app in host are reflected and recompiled in container
+      - /app/node_modules # Prevents node_modules being overwritten by host directory
+    stdin_open: true      # Prevents the container from exiting suddenly https://github.com/facebook/create-react-app/issues/8688
     command: npm start
-    stdin_open: true # Address this issue https://github.com/facebook/create-react-app/issues/8688
 
