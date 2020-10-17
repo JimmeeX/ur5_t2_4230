@@ -4,6 +4,8 @@ version: '3.7'
 services:
   ros:
     build: .
+    ports:
+      - '9090:9090'         # Allows ROS to communicate with websocket (web gui)
     environment:
       - DISPLAY             # DISPLAY=$DISPLAY allows container to connect to X server
       - QT_X11_NO_MITSHM=1  # QT_X11_NO_MITSHM=1 stops Qt from using MIT-SHM X11 extension
