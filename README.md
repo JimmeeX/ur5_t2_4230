@@ -16,47 +16,65 @@ MTRN4230 Group Project source code for a Gazebo-simulated pick-and-place robot.
 - /web - React-based Web GUI
 - /world - Gazebo World Files
 
-## 3rd Party ROS Packages
-
-Name | Description | Notes
----|---|---
-[universal_robot](https://github.com/ros-industrial/universal_robot) | Provides UR Models for Simulation | Already installed
-[ur5_ROS-Gazebo](https://github.com/lihuang3/ur5_ROS-Gazebo) | UR5 Examples | Already installed
-[rosbridge_server, rosbridge_library](https://github.com/RobotWebTools/rosbridge_suite) | Required for Web-based GUI | Not Installed
-
 ## Installation & Setup
 
-Environment: **ROS Kinetic (Ubuntu 16.04)**
+### 1. Docker (requires NVIDIA GPU)
 
-1. Download Code
+1. Setting Up
 
-    1.1. Delete existing ur5_t2_4230 directory (backup if you made any changes).
+    1.1. Install [NVIDIA Container Toolkit](https://github.com/NVIDIA/nvidia-docker)
+
+    1.2. Install xhost for your system
+
+    1.3. [Configure](https://github.com/docker/compose/issues/6691#issuecomment-696465142) Docker Daemon to use GPU for docker-compose
+
+2. Run Environment
+
+Run the ```run.sh``` script:
+
+```
+./run.sh
+```
+
+If configured properly, the Gazebo Simulation environment will spawn. You can visit [http://localhost:3000](http://localhost:3000) to connect the Web GUI that monitors and controls the Gazebo environment and orders (see linked video for more info).
+
+
+### 2. Manual (Requires Ubuntu 16.04 w/ ROS Kinetic)
+
+1. Setting Up
+
+    1.1. Install [ROS Kinetic](http://wiki.ros.org/kinetic/Installation/Ubuntu) (for future steps, I will be assuming ```ros-kinetic-ros-base``` was installed)
+
+    1.2. Install [Gazebo7](http://gazebosim.org/tutorials?tut=install_ubuntu&ver=7.0&cat=install) simulator
+
+    1.3. Install project ROS dependencies:
 
     ```bash
-    rm -rf ~/simulation_ws/src/ur5_t2_4230
+    sudo apt-get update && apt-get install \
+        ros-kinetic-gazebo-msgs \
+        ros-kinetic-gazebo-plugins \
+        ros-kinetic-gazebo-ros \
+        ros-kinetic-gazebo-ros-control \
+        ros-kinetic-image-transport-plugins \
+        ros-kinetic-controller-manager \
+        ros-kinetic-eigen-conversions \
+        ros-kinetic-xacro \
+        ros-kinetic-rosbridge-server \
+        ros-kinetic-robot-state-publisher \
+        ros-kinetic-joint-state-controller \
+        ros-kinetic-joint-trajectory-controller \
     ```
 
-    1.2. Download the Github code into ROS Workspace
-
-    ```bash
-    cd ~/simulation_ws/src && git clone git@github.com:JimmeeX/ur5_t2_4230.git
-    ```
-
-    1.3. Install required packages for Gazebo Math Ignition
-
-    ```bash
-    sudo apt-get install libignition-math2-dev
-    ```
-
-    1.4. Install rosbridge_server to communicate with Web GUI
-    ```bash
-    sudo apt-get install ros-kinetic-rosbridge-server
-    ```
-
-    1.5. Install npm (or Yarn) to launch the Web GUI
+    1.4. Install npm (or Yarn) to launch the Web GUI
     ```bash
     curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
     sudo apt-get install -y nodejs
+    ```
+
+    1.5. Download the Github code into ROS Workspace
+
+    ```bash
+    cd ~/catkin_ws/src && git clone git@github.com:JimmeeX/ur5_t2_4230.git
     ```
 
 
@@ -65,31 +83,25 @@ Environment: **ROS Kinetic (Ubuntu 16.04)**
     2.1. Enable ROS Commands & Access to Packages (Protip: Add this to ~/.bashrc)
 
     ```bash
-    source ~/simulation_ws/devel/setup.bash
+    source ~/catkin_ws/devel/setup.bash
     ```
 
-    2.2. Disable GPU Config for Gazebo (otherwise Gazebo will crash) (Protip: Add this to ~/.bashrc). Note that if your environment has a GPU driver, you can ignore this.
+    2.2. If you are using a virtual environment, disable GPU config for Gazebo (prevent Gazebo from crashing) (Protip: Add this to ~/.bashrc).
 
     ```bash
     export SVGA_VGPU10=0
     ```
 
-    2.3. (Required if using MATLAB) Configure ROS IP address to allow communication with host environment. (Protip: Add this to ~/.bashrc)
+    2.3. Build Environment
 
     ```bash
-    export ROS_IP=<UBUNTU IP ADDRESS>
-    ```
-
-    2.4. Build Environment
-
-    ```bash
-    cd ~/simulation_ws && catkin_make
+    cd ~/catkin_ws && catkin_make
     ```
 
     2.5. Update npm packages for Web GUI
 
     ```bash
-    cd ~/simulation_ws/src/ur5_t2_4230/web/roswebcontroller
+    cd ~/catkin_ws/src/ur5_t2_4230/web
     npm install
     ```
 
@@ -101,7 +113,7 @@ Environment: **ROS Kinetic (Ubuntu 16.04)**
     roslaunch ur5_t2_4230 ur5_world.launch
     ```
 
-    3.2. Launch Web GUI
+    3.2. Launch Web GUI (accessible via [http://localhost:3000](http://localhost:3000))
 
     ```bash
     cd ~/simulation_ws/src/ur5_t2_4230/web/roswebcontroller
@@ -112,4 +124,5 @@ Environment: **ROS Kinetic (Ubuntu 16.04)**
 - [ur5_ROS-Gazebo](https://github.com/lihuang3/ur5_ROS-Gazebo)
 - [Gilbreth](https://github.com/swri-robotics/gilbreth)
 - [OSRF ARIAC Gear](https://bitbucket.org/osrf/ariac/src/master/osrf_gear/)
+- [universal_robot](https://github.com/ros-industrial/universal_robot)
 
