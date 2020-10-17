@@ -1,6 +1,6 @@
 """
 Provides functions to perform the actual object detection.
-Utilised by vision.py Node 
+Utilised by vision.py Node
 """
 
 import cv2
@@ -10,7 +10,8 @@ import math
 
 # Colour Thresholding Variables Hue - [0,179]; Saturation - [0,255]; Value - [0,255]
 COLORS = {
-    'block-mask': ([0, 0, 194], [179, 255, 255]),
+    # 'block-mask': ([0, 0, 194], [179, 255, 255]), # Gazebo 7
+    'block-mask': ([0, 0, 100], [179, 255, 255]), # Gazebo 7.16
     'icon-mask': ([0, 102, 0], [179, 255, 255])
 }
 
@@ -67,9 +68,9 @@ def blockMask(im_rgb):
     h, w = block_mask.shape[:2]
 
     mask = np.zeros((h+2, w+2), np.uint8)
-    cv2.floodFill(im_floodfill, mask, (0,0), 255);
+    cv2.floodFill(im_floodfill, mask, (0,0), 255)
     im_floodfill_inv = cv2.bitwise_not(im_floodfill)
-    
+
     # Combine the two images to get the foreground.
     im_fill = block_mask | im_floodfill_inv
 
@@ -98,7 +99,7 @@ def getShape(im_block_rgb):
 
     # HSV colour thresholding produces a binary image 'icon_mask'
     icon_mask = colorThreshold(im_block_rgb, 'icon-mask')
-    
+
     # Extract detected icon's circularity
     _, contours, _ = cv2.findContours(icon_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
     max_contour = max(contours, key=lambda cnt: cv2.contourArea(cnt))
@@ -144,7 +145,7 @@ def detectObject(im_rgb):
     for i in range(num_cc):
         curr_stat, curr_centroid = components_sorted[i]
         left, top, width, height, area = curr_stat
-        
+
         if not (BLOCK_AREA_MIN <= area <= BLOCK_AREA_MAX): continue
 
         # Centroid
