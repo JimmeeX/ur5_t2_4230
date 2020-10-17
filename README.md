@@ -18,15 +18,19 @@ MTRN4230 Group Project source code for a Gazebo-simulated pick-and-place robot.
 
 ## Installation & Setup
 
+There are 2 methods to setup and run the project.
+
 ### 1. Docker (requires NVIDIA GPU)
 
 1. Setting Up
 
-    1.1. Install [NVIDIA Container Toolkit](https://github.com/NVIDIA/nvidia-docker)
+    1.1. Install [docker](https://docs.docker.com/get-docker/) and [docker-compose](https://docs.docker.com/compose/install/)
 
-    1.2. Install xhost for your system
+    1.2. Install [NVIDIA Container Toolkit](https://github.com/NVIDIA/nvidia-docker) to allow docker containers to use your host GPU
 
-    1.3. [Configure](https://github.com/docker/compose/issues/6691#issuecomment-696465142) Docker Daemon to use GPU for docker-compose
+    1.3. Install xhost for your system to enable GUIs for docker containers
+
+    1.4. [Configure](https://github.com/docker/compose/issues/6691#issuecomment-696465142) Docker Daemon to use GPU (workaround for docker-compose)
 
 2. Run Environment
 
